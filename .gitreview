@@ -1,7 +1,7 @@
 [gerrit]
 host=gerrit.wikimedia.org
 port=29418
-project=wikimedia/discovery/relevancylab.git
+project=wikimedia/discovery/relevanceForge.git
 defaultbranch=master
 defaultrebase=0
 

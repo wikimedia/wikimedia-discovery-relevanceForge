@@ -1,9 +1,13 @@
-# Relevanc(e|y) Lab<sup>*</sup>
+       ___      __                             ____                 
+      / _ \___ / /__ _  _____ ____  _______   / __/__  _______ ____ 
+     / , _/ -_) / -_) |/ / _ `/ _ \/ __/ -_) / _// _ \/ __/ _ `/ -_) *
+    /_/|_|\__/_/\__/|___/\_,_/_//_/\__/\__/ /_/  \___/_/  \_, /\__/ 
+                                                         /___/
 
 The primary purpose of the Relevance Lab is to allow us<sup>†</sup> to experiment with proposed modifications to our search process and gauge their effectiveness<sup>‡</sup> and impact<sup>§</sup> before releasing them into production, and even before doing any kind of user acceptance or A/B testing. Also, testing in the relevance lab gives an additional benefit over A/B tests (esp. in the case of very targeted changes): with A/B tests we aren't necessarily able to test the behavior of the *same query* with two different configurations.
 
 <small>
-\* Both *relevance* and *relevancy* are attested. They mean [the same thing](https://en.wiktionary.org/wiki/relevance#Alternative_forms "See Wiktionary"). We want to be inclusive, so either is allowed. Note that *Rel Lab* saves several keystrokes and avoids having to choose.
+\* Also known as RelForge to save a few keystrokes
 
 † Appropriate values of "us" include the Discovery team, other WMF teams, and potentially the wider community of Wiki users and developers.
 
