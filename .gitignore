@@ -1,3 +1,4 @@
 relevance/
 .tox/
 *.sw?
+*.pyc

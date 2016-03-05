@@ -22,6 +22,7 @@ import pipes
 import shutil
 import subprocess
 import re
+import json
 
 
 def getSafeName(name):
@@ -35,20 +36,36 @@ def refreshDir(dirname):
     os.makedirs(dirname)
 
 
-def runSearch(config, section):
+def getSafeWorkPath(config, section, subdir):
     qname = getSafeName(config.get(section, 'name'))
-    qdir = config.get('settings', 'workDir') + "/queries/" + qname
-    refreshDir(qdir)
+    return '%s/%s/%s' % (config.get('settings', 'workdir'), subdir, qname)
+
+
+def runSearch(config, section):
+    qdir = getSafeWorkPath(config, section, 'queries')
     cmdline = config.get(section, 'searchCommand')
+
+    results_file = qdir + '/results'
+    refreshDir(qdir)
     if config.has_option(section, 'config'):
-        cmdline += " --options " + pipes.quote(open(config.get(section, 'config')).read())
-        shutil.copyfile(config.get(section, 'config'),
-                        qdir + '/config.json')  # archive search config
+        try:
+            # validate json
+            json.loads(config.get(section, 'config'))
+            search_options = config.get(section, 'config')
+        except ValueError:
+            # config wasn't valid json, maybe it was a file containing json
+            with open(config.get(section, 'config')) as f:
+                search_options = f.read()
+        with open(qdir + '/config.json', 'w') as f:
+            f.write(search_options)  # archive search config
+        search_options = search_options.replace("\n", "")
+        cmdline += " --options " + pipes.quote(search_options.strip())
     runCommand("cat %s | ssh %s %s > %s" % (config.get(section, 'queries'),
                                             config.get(section, 'labHost'),
-                                            pipes.quote(cmdline), qdir + "/results"))
+                                            pipes.quote(cmdline),
+                                            results_file))
     shutil.copyfile(config.get(section, 'queries'), qdir + '/queries')  # archive queries
-    return qdir + "/results"
+    return results_file
 
 
 def distributeGlobalSettings(config, globals, sections, settings):
@@ -71,26 +88,28 @@ def runCommand(cmd):
     subprocess.check_call(cmd, shell=True)
 
 
-parser = argparse.ArgumentParser(description='Run relevance lab queries', prog=sys.argv[0])
-parser.add_argument('-c', '--config', dest='config', help='Configuration file name', required=True)
-args = parser.parse_args()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Run relevance lab queries', prog=sys.argv[0])
+    parser.add_argument('-c', '--config', dest='config', help='Configuration file name',
+                        required=True)
+    args = parser.parse_args()
 
-config = ConfigParser.ConfigParser()
-config.readfp(open(args.config))
-distributeGlobalSettings(config, 'settings', ['test1', 'test2'],
-                         ['queries', 'labHost', 'searchCommand', 'config'])
-checkSettings(config, 'settings', ['workDir', 'jsonDiffTool', 'metricTool'])
-checkSettings(config, 'test1', ['name', 'queries', 'labHost', 'searchCommand'])
-checkSettings(config, 'test2', ['name', 'queries', 'labHost', 'searchCommand'])
+    config = ConfigParser.ConfigParser()
+    config.readfp(open(args.config))
+    distributeGlobalSettings(config, 'settings', ['test1', 'test2'],
+                             ['queries', 'labHost', 'searchCommand', 'config'])
+    checkSettings(config, 'settings', ['workDir', 'jsonDiffTool', 'metricTool'])
+    checkSettings(config, 'test1', ['name', 'queries', 'labHost', 'searchCommand'])
+    checkSettings(config, 'test2', ['name', 'queries', 'labHost', 'searchCommand'])
 
-res1 = runSearch(config, 'test1')
-res2 = runSearch(config, 'test2')
-comparisonDir = "%s/comparisons/%s_%s" % (config.get('settings', 'workDir'),
-                                          getSafeName(config.get('test1', 'name')),
-                                          getSafeName(config.get('test2', 'name')))
-refreshDir(comparisonDir)
-shutil.copyfile(args.config, comparisonDir + "/config.ini")  # archive comparison config
+    res1 = runSearch(config, 'test1')
+    res2 = runSearch(config, 'test2')
+    comparisonDir = "%s/comparisons/%s_%s" % (config.get('settings', 'workDir'),
+                                              getSafeName(config.get('test1', 'name')),
+                                              getSafeName(config.get('test2', 'name')))
+    refreshDir(comparisonDir)
+    shutil.copyfile(args.config, comparisonDir + "/config.ini")  # archive comparison config
 
-runCommand("%s %s %s %s" % (config.get('settings', 'jsonDiffTool'),
-                            comparisonDir + "/diffs", res1, res2))
-runCommand("%s %s %s %s" % (config.get('settings', 'metricTool'), comparisonDir, res1, res2))
+    runCommand("%s %s %s %s" % (config.get('settings', 'jsonDiffTool'),
+                                comparisonDir + "/diffs", res1, res2))
+    runCommand("%s %s %s %s" % (config.get('settings', 'metricTool'), comparisonDir, res1, res2))
