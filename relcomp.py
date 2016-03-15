@@ -21,8 +21,13 @@
 # TODO:
 # read info from the .ini file to get names and maybe other info
 
+from __future__ import division
+
 import argparse
 import json
+import matplotlib.pyplot as plt
+import matplotlib.ticker as tick
+import numpy
 import os
 import sys
 import textwrap
@@ -31,6 +36,9 @@ from abc import ABCMeta, abstractmethod
 from itertools import izip_longest
 from random import shuffle
 
+target_path = ""
+image_dir = "images/"
+image_path = ""
 
 class Metric(object):
     """A metric of some sort that we want to keep track of while comparing two
@@ -86,7 +94,7 @@ class Metric(object):
         baseline_is = False  # does baseline qualify?
         delta_is = False     # does delta qualify?
 
-        if self.has_condition(baseline, delta):
+        if self.has_condition(baseline, delta, is_baseline=True):
             baseline_is = True
             self.baseline_count += 1
 
@@ -143,7 +151,7 @@ class Metric(object):
             return ret_string.encode('ascii', 'xmlcharrefreplace')
 
         elif self.printnum > 0:  # diff
-            ret_string = "<b>{}:</b>\n".format(self.name)
+            ret_string = "<b>{}</b>\n".format(self.name)
             ret_string += toggle_string()
             printed = 0
             if self.printset == "random":
@@ -177,8 +185,10 @@ class Metric(object):
         return ""
 
     @abstractmethod
-    def has_condition(self, x, y):
-        """Return true or false on whether the condition of the metric is satisfied."""
+    def has_condition(self, x, y, is_baseline):
+        """Return true or false on whether the condition of the metric is satisfied.
+           Can also gather other statistics for more complex metrics here.
+        """
         pass
 
 
@@ -192,7 +202,7 @@ class ZeroResultsRate(Metric):
                                               symbols=["&darr;", "&uarr;"],
                                               printnum=printnum)
 
-    def has_condition(self, x, y):
+    def has_condition(self, x, y, is_baseline=False):
         """Simple check: is totalHits == 0?
         """
         if "totalHits" in x:
@@ -207,14 +217,24 @@ class TopNDiff(Metric):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, topN=5, sorted=False, printnum=20):
+    def __init__(self, topN=5, sorted=False, showstats=False, printnum=20):
         sortstr = "Sorted" if sorted else "Unsorted"
         self.sorted = sorted
         self.topN = topN
+        self.magnitude = []
+        self.showstats = showstats
         super(TopNDiff, self).__init__("Top {} {} Results Differ".format(topN, sortstr),
                                        symmetric=True, printnum=printnum)
 
-    def has_condition(self, x, y):
+    def results(self, what="diff"):
+        global image_path
+        ret_string = super(TopNDiff, self).results(what)
+        if what == "delta" and not self.sorted and self.showstats:
+            ret_string += num_num0_pct_chart(self.magnitude, "top{}".format(self.topN),
+                "Top {} Results".format(self.topN))
+        return ret_string
+
+    def has_condition(self, x, y, is_baseline=False):
         if "totalHits" in x:
             x_hits = x["totalHits"]
         else:
@@ -225,34 +245,62 @@ class TopNDiff(Metric):
             y_hits = 0
 
         if x_hits == 0 and y_hits == 0:
+            if not self.sorted and self.showstats:
+                self.magnitude.append([0, 0])
             return 0  # no hits means no diff
 
         x_ids = map((lambda r: r["pageId"]), x["rows"][0:self.topN])
         y_ids = map((lambda r: r["pageId"]), y["rows"][0:self.topN])
 
-        if len(x_ids) != len(y_ids):
-            return 1
-
         if self.sorted:
+            if len(x_ids) != len(y_ids):
+                return 1
             if x_ids == y_ids:
                 return 0
         else:
-            if set(x_ids) == set(y_ids):
+            x_ids = set(x_ids)
+            y_ids = set(y_ids)
+            if self.showstats:
+                intersection = x_ids.intersection(y_ids)
+                edit_dist = max(len(x_ids) , len(y_ids)) - len(intersection)
+                self.magnitude.append([len(x_ids), edit_dist])
+            if len(x_ids) != len(y_ids):
+                return 1
+            if x_ids == y_ids:
                 return 0
 
         return 1
 
 
 class QueryCount(Metric):
-    """A count of queries in this query set."""
+    """A count of queries in this query set. Also includes stats on TotalHits per query."""
 
     __metaclass__ = ABCMeta
 
-    def __init__(self):
+    def __init__(self, resultscount=True):
+        self.resultscount = resultscount
+        self.magnitude = []
         super(QueryCount, self).__init__("Query Count", raw_count=True, printnum=0)
 
-    def has_condition(self, x, y):
+    def has_condition(self, x, y, is_baseline=False):
+        if self.resultscount and is_baseline:
+            if "totalHits" in x:
+                x_hits = x["totalHits"]
+            else:
+                x_hits = 0
+            if "totalHits" in y:
+                y_hits = y["totalHits"]
+            else:
+                y_hits = 0
+            self.magnitude.append([x_hits, y_hits-x_hits])
         return not len(x) == 0
+
+    def results(self, what="diff"):
+        global image_path
+        ret_string = super(QueryCount, self).results(what)
+        if what == "delta" and self.resultscount:
+            ret_string += num_num0_pct_chart(self.magnitude, "querycount", "TotalHits")
+        return ret_string
 
 
 def make_query_string(x, y):
@@ -274,8 +322,9 @@ def make_query_string(x, y):
         return query_string
 
 
-def print_report(target_dir, diff_count, file1, file2, myMetrics, errors):
-    report_file = open(target_dir + "report.html", "w")
+def print_report(diff_count, file1, file2, myMetrics, errors):
+    global target_path
+    report_file = open(target_path + "report.html", "w")
     report_file.write(textwrap.dedent("""\
         <script>
         function toggle (button, span) {{
@@ -299,10 +348,10 @@ def print_report(target_dir, diff_count, file1, file2, myMetrics, errors):
         <h2>Comparison run summary: {}</h2>
         <blockquote>
         <b>Stats:</b> {} query pairs compared<br>
-        """).format(target_dir, diff_count))
+        """).format(target_path, diff_count))
 
     if len(errors):
-        report_file.write("<br>\n<font color=red><b>QUERY PAIRS WITH ERRORS: " +
+        report_file.write("<br>\n<font color=red><b>QUERY PAIRS WITH ERRORS " +
                           "{}</b></font>\n".format(len(errors)))
         report_file.write(toggle_string())
         printed = 0
@@ -359,6 +408,64 @@ def toggle_string():
 toggle_string.num = 0
 
 
+def make_hist(data, file, title="", xlab="", ylab="", bins=0, yformat="", xformat=""):
+    plt.clf()
+    if bins:
+        plt.hist(data, bins)
+    else:
+        plt.hist(data)
+    if title:
+        plt.title(title)
+    if xlab:
+        plt.xlabel(xlab)
+    if ylab:
+        plt.ylabel(ylab)
+    axes = plt.gca()
+    if yformat == "pct":
+        vals = axes.get_yticks()
+        axes.set_yticklabels(['{:3.2f}%'.format(x*100) for x in vals])
+    else:
+        axes.get_yaxis().set_major_locator(tick.MaxNLocator(integer=True))
+    if xformat == "pct":
+        vals = axes.get_xticks()
+        axes.set_xticklabels(['{:3.2f}%'.format(x*100) for x in vals])
+    else:
+        axes.get_xaxis().set_major_locator(tick.MaxNLocator(integer=True))
+    fig = plt.gcf()
+    fig.savefig(file)
+
+
+def num_num0_pct_chart(data, file_prefix, label):
+    ret_string = ""
+    num_changed = [x[1] for x in data]
+    pct_changed = [x[1]/x[0] if x[0]!=0 else x[1] for x in data]
+    indent = "&nbsp;&nbsp; &nbsp;&nbsp; "
+    file_num0 = "{}_num0.png".format(file_prefix)
+    file_num = "{}_num.png".format(file_prefix)
+    file_pct = "{}_pct.png".format(file_prefix)
+    make_hist(num_changed, image_path + file_num0,
+        xlab="Number {} Changed".format(label), ylab="Frequency",
+        title="All queries, by number of changed {}".format(label))
+    make_hist([x for x in num_changed if x != 0], image_path + file_num,
+        xlab="Number {} Changed".format(label), ylab="Frequency",
+        title="Changed queries, by number of changed {}".format(label))
+    make_hist([x for x in pct_changed if x != 0], image_path + file_pct,
+        xlab="Percent {} Changed".format(label), ylab="Frequency", xformat="pct",
+        title="Changed queries, by percent of changed {}".format(label))
+    ret_string += indent + "Num {} Changed: &mu;: ".format(label) +\
+        "{:0.2f}; &sigma;: {:0.2f}; median: {:0.2f}<br>\n".format(
+        numpy.mean(num_changed), numpy.std(num_changed), numpy.median(num_changed))
+    ret_string += indent + "Pct {} Changed: &mu;: ".format(label) +\
+        "{:0.1f}%; &sigma;: {:0.1f}%; median: {:0.1f}%<br>\n".format(
+        numpy.mean(pct_changed)*100, numpy.std(pct_changed)*100, numpy.median(pct_changed)*100)
+    ret_string += indent + "Charts " + toggle_string() + "<br>\n" +\
+        indent + "<a href='{0}'><img src='{0}' height=125></a>".format(image_dir + file_num0) +\
+        indent + "<a href='{0}'><img src='{0}' height=125></a>".format(image_dir + file_num) +\
+        indent + "<a href='{0}'><img src='{0}' height=125></a>".format(image_dir + file_pct) +\
+        "</span><br>\n"
+    return ret_string
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate a report comparing two relevance lab query runs",
@@ -372,11 +479,16 @@ def main():
     args = parser.parse_args()
 
     (file1, file2) = args.file
-    target_dir = args.dir + "/"
+    global target_path
+    global image_path
+    target_path = args.dir + "/"
+    image_path = target_path + image_dir
     printnum = int(args.printnum)
 
-    if not os.path.exists(target_dir):
-        os.makedirs(os.path.dirname(target_dir))
+    if not os.path.exists(target_path):
+        os.makedirs(os.path.dirname(target_path))
+    if not os.path.exists(image_path):
+        os.makedirs(os.path.dirname(image_path))
 
     diff_count = 0
     errors = {}
@@ -386,10 +498,12 @@ def main():
     myMetrics = [
         QueryCount(),
         ZeroResultsRate(printnum=printnum),
-        TopNDiff(3, sorted=False, printnum=printnum),
         TopNDiff(3, sorted=True, printnum=printnum),
-        TopNDiff(5, sorted=False, printnum=printnum),
-        TopNDiff(5, sorted=True, printnum=printnum)
+        TopNDiff(3, sorted=False, printnum=printnum),
+        TopNDiff(5, sorted=True, printnum=printnum),
+        TopNDiff(5, sorted=False, printnum=printnum, showstats=True),
+        TopNDiff(20, sorted=True, printnum=printnum),
+        TopNDiff(20, sorted=False, printnum=printnum, showstats=True)
         ]
 
     with open(file1) as a, open(file2) as b:
@@ -413,7 +527,7 @@ def main():
             for m in myMetrics:
                 m.measure(ajson, bjson, diff_count)
 
-    print_report(target_dir, diff_count, file1, file2, myMetrics, errors)
+    print_report(diff_count, file1, file2, myMetrics, errors)
 
 
 if __name__ == "__main__":
