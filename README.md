@@ -96,7 +96,7 @@ At the moment, report metrics are specified in code, in `relcomp.py`, in functio
 
 It makes sense to have multiple `TopNDiff` metrics—e.g., sorted and unsorted top 3, 5, 10, and 20—since these different stats tell different stories.
 
-**Statistics and Charts:** When statistics and charts are to be displayed, the mean (μ), standard deviation (σ), and median are computed, both for the number/count of differences and the percent differences. These can be very different or nearly identicial. For example, if every query got one more result in TotalHits, then that's +1 for every query, but for a query that originally had 1 result, it's +100%, but for a query that had 100 results, it's only +1%. For results that change from 0, (i.e., from 0 results to 5 results), the denominator used is 1 (so 0 to 5 is +500%).
+**Statistics and Charts:** When statistics and charts are to be displayed, the mean (μ), standard deviation (σ), and median are computed, both for the number/count of differences and the percent differences. These can be very different or nearly identical. For example, if every query got one more result in TotalHits, then that's +1 for every query, but for a query that originally had 1 result, it's +100%, but for a query that had 100 results, it's only +1%. For results that change from 0, (i.e., from 0 results to 5 results), the denominator used is 1 (so 0 to 5 is +500%).
 
 Three charts are currently provided: number/count differences ("All queries, by number of changed ——"), number/count differences after dropping all 0 changes ("Changed queries, by number of changed ——"), and percent differences after dropping all 0 changes ("Changed queries, by percent of changed ——"). Since a change affecting 40% of queries is a pretty big change, the "0 changes" part of the graph often wildly dominates the rest. Dropping them effectively allows zooming in on the rest.
 
@@ -143,7 +143,43 @@ Columns:
 
 ### Import Indices
 
-Import Indices (`importindices.py`) downloads elasticsearch indices from wikimedia dumps and imports them to an elasticsearch cluster. It lives with the Rel Lab but is used on the Elasticsearch server you connect to, not your local machine.
+Import Indices (`importindices.py`) downloads Elasticsearch indices from wikimedia dumps and imports them to an Elasticsearch cluster. It lives with the Rel Lab but is used on the Elasticsearch server you connect to, not your local machine.
+
+### Piecewise Linear Model of an Empirical Distribution Function
+
+`pwf_edf.py` generates a [piecewise linear model](https://en.wikipedia.org/wiki/Piecewise_linear_function) of an [empirical distribution function](https://en.wikipedia.org/wiki/Empirical_distribution_function) for the [cumulative probability distribution](https://en.wikipedia.org/wiki/Cumulative_distribution_function) of the data given to it.
+
+This allows for a fairly simple empirical normalization of values to percentiles, effectively mapping the distribution of the values onto a straight line from 0 to 1. (Though when there are a very large number of occurrences of a given value—usually 0—that line is broken, alas.)
+
+[RMSE](https://en.wikipedia.org/wiki/Root-mean-square_deviation) and maximum pointwise error are calculated and shown to aid in choosing the appropriate number of segments. More segments are more accurate, but also increase the complexity of calculating a value. In testing so far, 10 segments give a good fit, and 20 segments give a very good fit. Your mileage may vary depending on the smoothness and curviness of your distribution.
+
+#### Stopping criteria
+
+Refinement of the model continues until the stopping criteria is reached. Options include reaching the maximum number of segments allowed, or reaching sufficiently small errors. If both the target RMSE (`--error`) and maximum pointwise error (`--maxerror`) are reached, model refinement stops. By default, the required RMSE error is set to 0 (i.e., it will never be allowed to stop), and maximum pointwise error is set to 1 (i.e., it is always allowed to stop), so if only RMSE is important, it is the only parameter that needs to be supplied.
+
+#### Runtime and sub-sampling
+
+Finding a 20-segment approximation on a set of approximately ~5M data points (number of incoming links for pages in enwiki) takes under 4 minutes on a 2.2GHz laptop with 8G of memory. However, a random one-in-100 sub-sample (50K data points), takes under 3 seconds and generates a very similar model. Increasing the number of segments does not increase running time linearly, since only local changes need to be re-computed for each additional and usually smaller segment.
+
+#### Input and output
+
+Input is a list of numerical values, one per line, in a text file.
+
+Output is... interesting?
+
+Output can be formatted for one or more of the following:
+
+* **[Desmos](https://www.desmos.com/)**—an excellent graphing calculator: output includes a table defining the endpoints of the line segments, which can be pasted directly into Desmos; a [signum](https://en.wikipedia.org/wiki/Sign_function)-based single function (see below) in LaTeX that can be pasted into Desmos; and separate specifications in LaTeX for each piece of the piecewise function, which can be pasted into Desmos (one at a time—which is annoying). These should all give the same resulting graph (with the exception of the table, which does not include points outside the [0-1] range.
+
+* **Python:** Output includes a generic function that takes a point and a data structure holding the segment specification, plus the segment specification (useful if you have multiple EDFs), and a custom function that hard-codes the EDF into a giant switch statment.
+
+* **Signum:** The Elasticsearch Scripting Module allows mathematical functions, but not conditionals. We can create a piecewise linear function using [`signum`](https://en.wikipedia.org/wiki/Sign_function). It's ugly, but we can use signum functions to limit put linear pieces to only by non-zero within the desired range. Then we add all the pieces together to get the final function. Outputs include a human readable format (the first clause handles values below the EDF minimum, the last clause handles values above the EDF maximum, and the middle does the linear interpolations)—which should be readily converted to the programming language of your choice; and a LaTeX format for use in Desmos. If both Desmos and Signum output are given, the LaTeX/Desmos version of the signum formula only occurs under the Desmos output.
+
+Manual simplification and optimization: it may be worth doing manual simplification on the various outputs, especially those to be used in code. No effort has been made to simplify the math (e.g., complicated expressions multiplied by 0 may occur), or optimize the order of operations (e.g., the custom functions may be faster in general if calculated from high to low instead of low to high—you should do whatever you have more of first).
+
+Out of bounds values: values outside the original distribution (i.e., below the smallest or above the largest value seen) are capped to the extreme values (0 and 1 respectively for the EDF).
+
+Segment specification: The segment specification is an array of tuples, `[x, y, slope]`. `(x,y)` is the end of one line segment and the beginning of the next (except for the first and last tuple, naturally), and `slope` is the slope of the line segment from the previous endpoint (used in the generic and custom functions to save on re-computing (y[i]-y[i-1])/(x[i]-x[i-1]) for every single evaluation). The first point is given a `slope` of 0, though it isn't used.
 
 ### Miscellaneous
 
