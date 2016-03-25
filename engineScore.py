@@ -173,7 +173,7 @@ class nDCG:
 
 # Formula from talk given by Paul Nelson at ElasticON 2016
 # TODO: This needs a proper name
-class EngineScore:
+class PaulScore:
     def __init__(self, sessions, results, factor):
         self.results = results
         self.sessions = sessions
@@ -239,7 +239,7 @@ def score(sessions, config):
     results = load_results(results_dir)
 
     print('Calculating engine score')
-    scorer = EngineScore(sessions, results, config.get('settings', 'factor'))
+    scorer = PaulScore(sessions, results, config.get('settings', 'factor'))
     score = scorer.engine_score()
     return score, scorer.histogram
 
