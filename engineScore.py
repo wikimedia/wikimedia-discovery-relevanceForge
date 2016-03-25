@@ -306,7 +306,10 @@ def plot_optimize_result(dim, grid, jout, filename, config):
         plt.ylabel('engine score')
         plt.show()
     elif dim == 2:
-        CS = plt.contourf(grid[0], grid[1], jout)
+        vmin = config.getfloat('optimize', 'zmin')
+        vmax = config.getfloat('optimize', 'zmax')
+
+        CS = plt.contourf(grid[0], grid[1], jout, vmin=vmin, vmax=vmax)
         cbar = plt.colorbar(CS)
         cbar.ax.set_ylabel('engine score')
     else:
@@ -352,7 +355,7 @@ if __name__ == '__main__':
                                   'name', 'labHost', 'searchCommand'])
     if config.has_section('optimize'):
         relevancyRunner.checkSettings(config, 'optimize', [
-                                      'bounds', 'Ns', 'config'])
+                                      'bounds', 'Ns', 'config', 'zmin', 'zmax'])
 
     settings = genSettings(config)
 
