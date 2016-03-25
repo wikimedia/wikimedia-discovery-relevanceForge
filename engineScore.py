@@ -306,12 +306,19 @@ def plot_optimize_result(dim, grid, jout, filename, config):
         plt.ylabel('engine score')
         plt.show()
     elif dim == 2:
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
         vmin = config.getfloat('optimize', 'zmin')
         vmax = config.getfloat('optimize', 'zmax')
 
         CS = plt.contourf(grid[0], grid[1], jout, vmin=vmin, vmax=vmax)
         cbar = plt.colorbar(CS)
         cbar.ax.set_ylabel('engine score')
+
+        ax.set_xticks(grid[0][:, 0])
+        ax.set_yticks(grid[1][0])
+        plt.grid(linewidth=0.5)
     else:
         print("Can't plot %d dimensional graph" % (dim))
         return
