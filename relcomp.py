@@ -40,6 +40,7 @@ target_path = ""
 image_dir = "images/"
 image_path = ""
 
+
 class Metric(object):
     """A metric of some sort that we want to keep track of while comparing two
        query runs.
@@ -231,7 +232,7 @@ class TopNDiff(Metric):
         ret_string = super(TopNDiff, self).results(what)
         if what == "delta" and not self.sorted and self.showstats:
             ret_string += num_num0_pct_chart(self.magnitude, "top{}".format(self.topN),
-                "Top {} Results".format(self.topN))
+                                             "Top {} Results".format(self.topN))
         return ret_string
 
     def has_condition(self, x, y, is_baseline=False):
@@ -262,7 +263,7 @@ class TopNDiff(Metric):
             y_ids = set(y_ids)
             if self.showstats:
                 intersection = x_ids.intersection(y_ids)
-                edit_dist = max(len(x_ids) , len(y_ids)) - len(intersection)
+                edit_dist = max(len(x_ids), len(y_ids)) - len(intersection)
                 self.magnitude.append([len(x_ids), edit_dist])
             if len(x_ids) != len(y_ids):
                 return 1
@@ -438,20 +439,20 @@ def make_hist(data, file, title="", xlab="", ylab="", bins=0, yformat="", xforma
 def num_num0_pct_chart(data, file_prefix, label):
     ret_string = ""
     num_changed = [x[1] for x in data]
-    pct_changed = [x[1]/x[0] if x[0]!=0 else x[1] for x in data]
+    pct_changed = [x[1]/x[0] if x[0] != 0 else x[1] for x in data]
     indent = "&nbsp;&nbsp; &nbsp;&nbsp; "
     file_num0 = "{}_num0.png".format(file_prefix)
     file_num = "{}_num.png".format(file_prefix)
     file_pct = "{}_pct.png".format(file_prefix)
     make_hist(num_changed, image_path + file_num0,
-        xlab="Number {} Changed".format(label), ylab="Frequency",
-        title="All queries, by number of changed {}".format(label))
+              xlab="Number {} Changed".format(label), ylab="Frequency",
+              title="All queries, by number of changed {}".format(label))
     make_hist([x for x in num_changed if x != 0], image_path + file_num,
-        xlab="Number {} Changed".format(label), ylab="Frequency",
-        title="Changed queries, by number of changed {}".format(label))
+              xlab="Number {} Changed".format(label), ylab="Frequency",
+              title="Changed queries, by number of changed {}".format(label))
     make_hist([x for x in pct_changed if x != 0], image_path + file_pct,
-        xlab="Percent {} Changed".format(label), ylab="Frequency", xformat="pct",
-        title="Changed queries, by percent of changed {}".format(label))
+              xlab="Percent {} Changed".format(label), ylab="Frequency", xformat="pct",
+              title="Changed queries, by percent of changed {}".format(label))
     ret_string += indent + "Num {} Changed: &mu;: ".format(label) +\
         "{:0.2f}; &sigma;: {:0.2f}; median: {:0.2f}<br>\n".format(
         numpy.mean(num_changed), numpy.std(num_changed), numpy.median(num_changed))
