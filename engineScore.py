@@ -71,7 +71,7 @@ class CachedQuery:
 
         if not os.path.isdir(self._cache_dir):
             try:
-                os.mkdir(self._cache_dir)
+                os.makedirs(self._cache_dir)
             except OSError:
                 # directory created since checking
                 pass
