@@ -4,7 +4,7 @@
     /_/|_|\__/_/\__/|___/\_,_/_//_/\__/\__/ /_/  \___/_/  \_, /\__/ 
                                                          /___/
 
-The primary purpose of the Relevance Lab is to allow us<sup>†</sup> to experiment with proposed modifications to our search process and gauge their effectiveness<sup>‡</sup> and impact<sup>§</sup> before releasing them into production, and even before doing any kind of user acceptance or A/B testing. Also, testing in the relevance lab gives an additional benefit over A/B tests (esp. in the case of very targeted changes): with A/B tests we aren't necessarily able to test the behavior of the *same query* with two different configurations.
+The primary purpose of the Relevance Forge is to allow us<sup>†</sup> to experiment with proposed modifications to our search process and gauge their effectiveness<sup>‡</sup> and impact<sup>§</sup> before releasing them into production, and even before doing any kind of user acceptance or A/B testing. Also, testing in the Relevance Forge gives an additional benefit over A/B tests (esp. in the case of very targeted changes): with A/B tests we aren't necessarily able to test the behavior of the *same query* with two different configurations.
 
 <small>
 \* Also known as RelForge to save a few keystrokes
@@ -19,7 +19,7 @@ The primary purpose of the Relevance Lab is to allow us<sup>†</sup> to experim
 ## Prerequisites
 
 * Python: There's nothing too fancy here, and it works with Python 2.7, though a few packages are required:
- * The packages `jsonpath-rw, numpy` and `matplotlib` are required by the main Rel Lab.
+ * The packages `jsonpath-rw, numpy` and `matplotlib` are required by the main Rel Forge.
  * The package `termcolor` is required by the Cirrus Query Debugger.
  * The package `scipy` is required by the Engine Score Optimizer
  * The package `matplotlib` is required by the Engine Score Optimizer
@@ -28,23 +28,23 @@ The primary purpose of the Relevance Lab is to allow us<sup>†</sup> to experim
 
 ## Invocation
 
-The main Rel Lab process is `relevancyRunner.py`, which takes a `.ini` config file (see below):
+The main Rel Forge process is `relevancyRunner.py`, which takes a `.ini` config file (see below):
 
 	 relevancyRunner.py -c relevance.ini
 
 ### Processes
 
-`relevancyRunner.py` parses the `.ini` file (see below), manages configuration, runs the queries against the Elasticsearch cluster and outputs the results, and then delegates diffing the results to the `jsonDiffTool` specified in the `.ini` file, and delegated the final report to the `metricTool` specified in the `.ini` file. It also archives the original queries and configuration (`.ini` and JSON `config` files) with the Rel Lab run output.
+`relevancyRunner.py` parses the `.ini` file (see below), manages configuration, runs the queries against the Elasticsearch cluster and outputs the results, and then delegates diffing the results to the `jsonDiffTool` specified in the `.ini` file, and delegated the final report to the `metricTool` specified in the `.ini` file. It also archives the original queries and configuration (`.ini` and JSON `config` files) with the Rel Forge run output.
 
 The `jsonDiffTool` is implemented as `jsondiff.py`, "an almost smart enough JSON diff tool". It's actually not that smart: it munges the search results JSON a bit, pretty-prints it, and then uses Python's HtmlDiff to make reasonably pretty output.
 
-The `metricTool` is implemented as `relcomp.py`, which generates an HTML report comparing two relevance lab query runs. A number of metrics are defined, including zero results rate and a generic top-N diffs (sorted or not). Adding and configuring these metrics can be done in `main`, in the array `myMetrics`. Examples of queries that change from one run to the next for each metric are provided, with links into the diffs created by `jsondiff.py`.
+The `metricTool` is implemented as `relcomp.py`, which generates an HTML report comparing two Relevance Forge query runs. A number of metrics are defined, including zero results rate and a generic top-N diffs (sorted or not). Adding and configuring these metrics can be done in `main`, in the array `myMetrics`. Examples of queries that change from one run to the next for each metric are provided, with links into the diffs created by `jsondiff.py`.
 
 Running the queries is typically the most time-consuming part of the process. If you ask for a very large number of results for each query (≫100), the diff step can be very slow. The report processing is generally very quick.
 
 ### Configuration
 
-The Rel Lab is configured by way of an .ini file. A sample, `relevance.ini`, is provided. Global settings are provided in `[settings]`, and config for the two test runs are in `[test1]` and `[test2]`.
+The Rel Forge is configured by way of an .ini file. A sample, `relevance.ini`, is provided. Global settings are provided in `[settings]`, and config for the two test runs are in `[test1]` and `[test2]`.
 
 Additional command line arguments can be added to `searchCommand` to affect the way the queries are run (such as what wiki to run against, changing the number of results returned, and including detailed scoring information.
 
@@ -78,9 +78,9 @@ Query input should not contain tabs.
 
 ## Output
 
-By default, Rel Lab run results are written out to the `relevance/` directory. This can be configured under `workDir` under `[settings]` in the `.ini` file.
+By default, Rel Forge run results are written out to the `relevance/` directory. This can be configured under `workDir` under `[settings]` in the `.ini` file.
 
-A directory for each query set is created in the `relevance/queries/` directory. The directory is a "safe" version of the `name` given under `[test#]`. This directory contains the queries, the results, and a copy of the JSON config file used, if any, under the name `config.json`.
+A directory for each query set is created in the `relevance/queries/` directory. The directory is a "safe" version of the `name` given under `[test#]`. This directory contains the `queries`, the `results`, and a copy of the JSON config file used, if any, under the name `config.json`. If `results` contains non-JSON lines, these are filtered out to `results.isnotjson` for inspection.
 
 A directory for each comparison between `[test1]` and `[test2]` is created un the `relevance/comparisons/` directory. The name is a concatenation of the "safe" versions of the `name`s given to the query sets. The original `.ini` file is copied to `config.ini`, the final report is in `report.html`, and the diffs are stored in the `diffs/` directory, and are named in order as `diff#.html`.
 
@@ -111,7 +111,7 @@ The charts are presented in the report scaled fairly small, though they are pres
 
 ## Other Tools
 
-There are a few other bits and bobs included with the Rel Lab.
+There are a few other bits and bobs included with the Rel Forge.
 
 ### Cirrus Query Debugger
 
@@ -145,7 +145,7 @@ Columns:
 
 ### Import Indices
 
-Import Indices (`importindices.py`) downloads Elasticsearch indices from wikimedia dumps and imports them to an Elasticsearch cluster. It lives with the Rel Lab but is used on the Elasticsearch server you connect to, not your local machine.
+Import Indices (`importindices.py`) downloads Elasticsearch indices from wikimedia dumps and imports them to an Elasticsearch cluster. It lives with the Rel Forge but is used on the Elasticsearch server you connect to, not your local machine.
 
 ### Piecewise Linear Model of an Empirical Distribution Function
 
@@ -199,7 +199,7 @@ The `misc/` directory contains additional useful stuff:
 
 ### Gerrit Config
 
-These files help Gerrit process patches correctly and are not directly part of the Rel Lab:
+These files help Gerrit process patches correctly and are not directly part of the Rel Forge:
 
 * `setup.cfg`
 * `tox.ini`

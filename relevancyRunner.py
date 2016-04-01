@@ -41,6 +41,23 @@ def getSafeWorkPath(config, section, subdir):
     return '%s/%s/%s' % (config.get('settings', 'workdir'), subdir, qname)
 
 
+def sanitize_json(file):
+    file_isjson = file + '.isjson'
+    file_isnotjson = file + '.isnotjson'
+    isjson = open(file_isjson, 'w')
+    isnotjson = open(file_isnotjson, 'w')
+    for line in open(file).readlines():
+        if line.startswith('{'):
+            isjson.write(line)
+        else:
+            isnotjson.write(line)
+    isjson.close()
+    isnotjson.close()
+    shutil.move(file_isjson, file)
+    if os.path.getsize(file_isnotjson) == 0:
+        os.remove(file_isnotjson)
+
+
 def runSearch(config, section):
     qdir = getSafeWorkPath(config, section, 'queries')
     cmdline = config.get(section, 'searchCommand')
@@ -65,6 +82,8 @@ def runSearch(config, section):
                                             pipes.quote(cmdline),
                                             results_file))
     shutil.copyfile(config.get(section, 'queries'), qdir + '/queries')  # archive queries
+    # sanitize json
+    sanitize_json(results_file)
     return results_file
 
 
