@@ -1,20 +1,15 @@
 #!/usr/bin/env python
 
-# jsondiff.py - an almost smart enough JSON diff tool
+# jsondiff.py - a somewhat smarter search result JSON diff tool
 #
-# This program does line-by-line diffs of two files with one JSON blob
-# per line, outputting one color-coded HTML diff per line into a target
-# directory. It performs a text diff on alphabetized, pretty printed
-# JSON. That's good enough for JSON blobs that have similar structure,
-# or dissimilar values (arrays of single digit numbers, for example, can
-# cause confusion, because one 7 looks like every other 7).
-#
-# A smarter (future) version would intelligently diff the structure of
-# the JSON, but the goal here was to put something reasonable together
-# as quickly as possible.
+# This program does diffs of two files with one JSON blob per line,
+# outputting one color-coded HTML diff per line into a target directory.
+# It performs a diff on the ordered list of results (based on a key value,
+# either pageId or title). It then notes differences within the details of
+# a given result.
 #
 # It has a number of hacks specific to diffing JSON from CirrusSearch
-# results, including removing "searchmatch" markup and bolding elements
+# results, including munging "searchmatch" markup and bolding elements
 # that are most important in comparing results, and numbering results.
 #
 #
@@ -37,7 +32,6 @@ import argparse
 import difflib
 import json
 import os
-import re
 import sys
 from itertools import izip_longest
 from jsonpath_rw import parse
@@ -52,6 +46,18 @@ def add_nums_to_results(results):
     return results
 
 
+def extract_ids(results, key):
+    retval = []
+    if 'rows' in results:
+        for result in results['rows']:
+            retval.append(result[key])
+    return retval
+
+
+def ascii(the_string):
+    return the_string.encode('ascii', 'xmlcharrefreplace')
+
+
 def munge_explanation(results):
     if 'rows' not in results:
         return {}
@@ -60,12 +66,13 @@ def munge_explanation(results):
             continue
         explanation = result['explanation']
         del result['explanation']
-        result['|scores'] = {
-            '1.main': get_main_score(explanation),
-            '2.primary': get_primary_score(explanation),
-            '3.phrase': get_phrase_score(explanation),
-            '4.function': get_function_score(explanation)
-        }
+        if explanation:
+            result['|scores'] = {
+                '1. main': get_main_score(explanation),
+                '2. primary': get_primary_score(explanation),
+                '3. phrase': get_phrase_score(explanation),
+                '4. function': get_function_score(explanation)
+            }
 
 
 def get_main_score(exp):
@@ -106,13 +113,371 @@ def has_phrase_rescore(exp):
     return len(is_ph) > 0 and is_ph[0].value == 'secondaryWeight'
 
 
+def make_map(apageids, bpageids):
+    amap = {}
+    bmap = {}
+    union = list(set(apageids) | set(bpageids))
+    for id in union:
+        if id in apageids:
+            aindex = apageids.index(id) + 1
+        else:
+            aindex = 0
+        if id in bpageids:
+            bindex = bpageids.index(id) + 1
+        else:
+            bindex = 0
+        amap[aindex] = bindex
+        bmap[bindex] = aindex  # don't care if 0 gets overwritten
+    return amap, bmap
+
+
+def add_diffs(aresults, bresults, key):
+    if 'rows' in aresults and 'rows' in bresults:
+        arows = aresults['rows']
+        brows = bresults['rows']
+        for aresult in arows:
+            bresult = next((x for x in brows if aresult[key] == x[key]), None)
+            if bresult:
+                for item in aresult.keys():
+                    if item in bresult:
+                        add_diff_sub(aresult, bresult, item)
+
+
+def add_diff_sub(aresult, bresult, item):
+    if not (aresult and bresult):
+        return
+    try:
+        aresult[item] and bresult[item]
+    except IndexError:
+        return
+    except KeyError:
+        return
+    if not aresult[item]:
+        return
+    if not bresult[item]:
+        return
+    my_type = type(aresult[item]).__name__
+    if my_type in ('unicode', 'str', 'float', 'int', 'long', 'complex'):
+        if aresult[item] != bresult[item]:
+            aresult[item] = diff_span(ascii(unicode(aresult[item])))
+            bresult[item] = diff_span(ascii(unicode(bresult[item])))
+    elif my_type in ('dict'):
+        for subitem in aresult[item].keys():
+            add_diff_sub(aresult[item], bresult[item], subitem)
+    elif my_type in ('list', 'tuple'):
+        for idx, subitem in enumerate(item):
+            add_diff_sub(aresult[item], bresult[item], idx)
+
+
+def bkup_html_result_item(item, label, indent='                '):
+    my_type = type(item).__name__
+    value = ''
+    if my_type in ('dict'):
+        for subitem in sorted(item.keys()):
+            value += html_result_item(item[subitem], subitem, indent + '    ')
+    elif my_type in ('list', 'tuple', 'set', 'frozenset'):
+        for idx, subitem in enumerate(item, start=1):
+            value += html_result_item(subitem, idx, indent + '    ')
+    else:
+        value = "[unknown type {}]".format(my_type)
+    if value == '':
+        return ''
+    return indent + "<div class='hang compact'><b>{}:</b> {} </div>\n".format(label, value)
+
+
+def diff_span(item):
+    return "<span class='diff'>" + str(item) + "</span>"
+
+
+def html_results(results, map, filename, key, baseline=True):
+    retval = ''
+    this_class = 'baseline'
+    this_heading = 'BASELINE'
+    this_id = 'base'
+    this_missing_class = 'ranklost'
+    this_missing_text = '&middot;'
+
+    if not baseline:
+        this_class = 'delta'
+        this_heading = 'DELTA'
+        this_id = 'delta'
+        this_missing_class = 'ranknew'
+        this_missing_text = '*'
+
+    query = ''
+    if 'query' in results:
+        query = results['query']
+    query = ascii(query)
+
+    totalHits = ''
+    if 'totalHits' in results:
+        totalHits = results['totalHits']
+
+    retval = '''\
+<div class={}>
+<b>{}</b><br>
+<span class=indent>{}</span>
+    <div>
+        <div class=query>
+        <b>query:</b> {}<br>
+        <b>totalHits:</b> {}
+        </div>
+    <b>results:</b>\n'''.format(this_class, this_heading, filename, query, totalHits)
+
+    res_count = 1
+    if 'rows' in results:
+        for result in results['rows']:
+            mapto = map[res_count]
+            extra = ''
+            if res_count == mapto:
+                rankclass = 'ranksame'
+            elif mapto == 0:
+                rankclass = this_missing_class
+                extra = ' ' + this_missing_text
+            elif res_count > mapto:
+                if baseline:
+                    rankclass = 'rankup'
+                    extra = ' &uarr;' + str(res_count - mapto)
+                else:
+                    rankclass = 'rankdown'
+                    extra = ' &darr;' + str(res_count - mapto)
+            else:
+                if baseline:
+                    rankclass = 'rankdown'
+                    extra = ' &darr;' + str(mapto - res_count)
+                else:
+                    rankclass = 'rankup'
+                    extra = ' &uarr;' + str(mapto - res_count)
+
+            if baseline:
+                comp1, comp2 = res_count, mapto
+            else:
+                comp1, comp2 = mapto, res_count
+
+            title = ascii(result['title'])
+
+            retval += '''\
+
+        <div class=result id={0:}{1:}>
+            <span class={2:} onclick="comp({3:},{4:},'{0:}{1:}')"><b>{1:}</b>{5:}</span>
+                <b>title:</b> {6:}<br>
+            <div class=indent>
+                <b>{7:}:</b> {8:}<br>
+                <b>score:</b> {9:}<br>\n'''.format(this_id, res_count, rankclass, comp1, comp2,
+                                                   extra, title, key, ascii(result[key]),
+                                                   result['score'])
+
+            for item in sorted(result.keys()):
+                if item not in ('pageId', 'score', 'title'):
+                    retval += html_result_item(result[item], item)
+
+            retval += '''\
+
+            </div>
+        </div>\n'''
+
+            res_count += 1
+
+    retval += '''\
+
+    <div class=lastresult id={}{}></div>
+    <div class=lastresult id={}{}></div>
+
+    </div>
+</div>\n\n'''.format(this_id, res_count, this_id, res_count+1)
+
+    return retval
+
+
+# convert various variable types into pretty indented HTML output
+def html_result_item(item, label, indent='                '):
+    my_type = type(item).__name__
+    value = ''
+    if my_type in ('unicode', 'str', 'float', 'int', 'long', 'complex'):
+        value = ascii(unicode(item))
+    elif my_type in ('dict'):
+        for subitem in sorted(item.keys()):
+            value += html_result_item(item[subitem], subitem, indent + '    ')
+    elif my_type in ('list', 'tuple', 'set', 'frozenset'):
+        for idx, subitem in enumerate(item, start=1):
+            value += html_result_item(subitem, idx, indent + '    ')
+    else:
+        value = "[unknown type {}]".format(my_type)
+    if value == '':
+        return ''
+    return indent + "<div class='hang compact'><b>{}:</b> {} </div>\n".format(label, value)
+
+
+# generate proper diff-like layout based on SequenceMatcher results
+def html_alignAllDivs(s):
+    retval = ""
+
+    for tag, i1, i2, j1, j2 in s.get_opcodes():
+        retval += "// %7s a[%d:%d] b[%d:%d]\n" % (tag, i1, i2, j1, j2)
+
+    last_delta = 0
+    state = 'start'
+    for tag, i1, i2, j1, j2 in s.get_opcodes():
+        if (tag == 'equal'):
+            for i, j in zip(range(i1, i2), range(j1, j2)):
+                retval += "\talignDivs(\"base{}\", \"delta{}\"); // equal\n".format(i+1, j+1)
+                last_delta = i
+            state = 'e'
+        elif (tag == 'replace'):
+            last_delta += i2 - i1
+            if state == 'start':
+                last_delta -= 1
+            for j in range(j1, j2):
+                retval += "\talignDivs(\"base{}\", \"delta{}\"); // replace\n".format(last_delta+2,
+                                                                                      j+1)
+                state = 'r'
+        else:
+            state = 'other'
+    return retval
+
+
+# create the final HTML bits for the diff page
+def html_foot():
+    return '''\
+
+<script>
+window.addEventListener("resize", alignAllDivs);
+</script>
+
+</body>
+'''
+
+
+# create the initial HTML bits for the diff page
+def html_head(s):
+    return '''\
+<style>
+.result {border:1px solid black; padding:3px; margin-top:16px}
+.baseline, .delta {border:1px solid lightgrey; padding:2%; width:45%;}
+.baseline {float:left; clear:left}
+.delta {float:right; clear:right}
+.indent {padding-left:2em}
+.hang {padding-left: 1em ; text-indent: -1em}
+.searchmatch {color:#00c; font-weight:bold}
+.diff {background-color:#ffc}
+.ranksame, .rankdown, .rankup, .ranklost, .ranknew {padding-left:0.25em;
+    padding-right:0.25em; cursor: pointer;}
+.ranksame {border:1px solid grey}
+.rankdown {border:1px solid red; background-color:#fee}
+.rankup {border:1px solid green; background-color:#efe}
+.ranklost {border:1px solid red; background-color:#f00}
+.ranknew {border:1px solid green; background-color:#0f0}
+.compare {display:none; position:fixed; top: 10px; left:1.5%;
+    width:90%; background-color:#fff; padding:3%; border:5px solid blue;
+    overflow:scroll; max-height:65%}
+.compclose {position:absolute; top:0; right:0; padding:0.15em;
+    margin:2px; border:1px solid grey; cursor:pointer;
+    font-family:sans-serif; color:grey; font-size:75%;}
+.query {font-size:150%; margin-bottom:0.5em; margin-top:0.5em}
+</style>
+
+<script>
+function comp (base, delta, clickfrom) {
+    if (base > 0) {
+        document.getElementById('basecomp').innerHTML =
+            document.getElementById("base"+base).innerHTML;
+        }
+    else {
+        document.getElementById('basecomp').innerHTML = "Not in baseline results."
+        }
+    if (delta > 0) {
+        document.getElementById('deltacomp').innerHTML =
+            document.getElementById("delta"+delta).innerHTML;
+        }
+    else {
+        document.getElementById('deltacomp').innerHTML = "Not in delta results."
+        }
+    document.getElementById('comp').style.display = "inline";
+    document.getElementById('upperpad').style.height =
+        document.getElementById('comp').offsetHeight + 10 + "px";
+
+    var top = document.getElementById(clickfrom).offsetTop;
+    window.scrollTo(0, top - document.getElementById('comp').offsetHeight - 20);
+
+    }
+
+function closecomp() {
+    document.getElementById('comp').style.display = "none";
+    document.getElementById('upperpad').style.height = 0;
+    }
+
+function alignDivs(base, delta) {
+    var bdiv = document.getElementById(base);
+    var btop = bdiv.offsetTop;
+
+    var ddiv = document.getElementById(delta);
+    var dtop = ddiv.offsetTop;
+
+    var margin = 0
+    if (btop > dtop) {
+        if (ddiv.style.marginTop) {
+            margin = parseInt(ddiv.style.marginTop) - 16
+            }
+        margin += btop-dtop + 16;
+        ddiv.style.marginTop = margin
+        }
+    else{
+        if (bdiv.style.marginTop) {
+            margin = parseInt(bdiv.style.marginTop) - 16
+            }
+        margin += dtop-btop + 16;
+        bdiv.style.marginTop = margin
+        }
+    }
+
+function alignAllDivs() {
+
+    var els = document.getElementsByClassName("result");
+    [].forEach.call(els, function (el) {el.style.marginTop = 16});
+
+''' + \
+        html_alignAllDivs(s) + '''
+    }
+
+</script>
+
+<body onload="alignAllDivs()">
+
+<div class=compare id=comp>
+    <div class=compclose onclick="closecomp()">X</div>
+    <div class=baseline>
+        <b>BASELINE</b><br>
+        <div class=compcomp id=basecomp>
+        &nbsp;
+        </div>
+    </div>
+    <div class=delta>
+        <b>DELTA</b><br>
+        <div class=compcomp id=deltacomp>
+        &nbsp;
+        </div>
+    </div>
+</div>
+
+<div id=upperpad>
+</div>
+
+'''
+
+
 def main():
     parser = argparse.ArgumentParser(description='line-by-line diff of JSON blobs',
                                      prog=sys.argv[0])
     parser.add_argument('file', nargs=2, help='files to diff')
     parser.add_argument('-d', '--dir', dest='dir', default='./diffs/',
                         help='output directory, default is ./diffs/')
+    parser.add_argument("-t", "--bytitle", dest="bytitle", action='store_true', default=False,
+                        help="use title rather than pageId to match results")
     args = parser.parse_args()
+
+    key = 'pageId'
+    if (args.bytitle):
+        key = 'title'
 
     (file1, file2) = args.file
     target_dir = args.dir + '/'
@@ -134,29 +499,29 @@ def main():
             diff_count += 1
             diff_file = open(target_dir + 'diff' + repr(diff_count) + '.html', 'w')
 
-            # remove searchmatch markup
-            aline = re.sub(r'<span class=\\"searchmatch\\">(.*?)<\\/span>',
-                           '\\1', aline)
-            bline = re.sub(r'<span class=\\"searchmatch\\">(.*?)<\\/span>',
-                           '\\1', bline)
-
-            aresults = add_nums_to_results(json.loads(aline))
-            bresults = add_nums_to_results(json.loads(bline))
+            aresults = json.loads(aline)
+            bresults = json.loads(bline)
 
             # munge lucene explanation
             munge_explanation(aresults)
             munge_explanation(bresults)
 
-            aline = json.dumps(aresults, sort_keys=True, indent=2)
-            bline = json.dumps(bresults, sort_keys=True, indent=2)
-            output = difflib.HtmlDiff(wrapcolumn=50).make_file(aline.splitlines(),
-                                                               bline.splitlines(),
-                                                               file1, file2)
-            # highlight key fields
-            output = re.sub(r'("(title|query|totalHits|relLabItemNumber)":&nbsp;.*?)</td>',
-                            '<b><font color=#0000aa>\\1</font></b></td>', output)
-            diff_file.writelines(output)
+            apageids = extract_ids(aresults, key)
+            bpageids = extract_ids(bresults, key)
+
+            s = difflib.SequenceMatcher(None, apageids, bpageids)
+
+            amap, bmap = make_map(apageids, bpageids)
+
+            add_diffs(aresults, bresults, key)
+
+            diff_file.writelines(html_head(s))
+            diff_file.writelines(html_results(aresults, amap, file1, key, baseline=True))
+            diff_file.writelines(html_results(bresults, bmap, file2, key, baseline=False))
+            diff_file.writelines(html_foot())
+
             diff_file.close()
+
 
 if __name__ == "__main__":
     main()
