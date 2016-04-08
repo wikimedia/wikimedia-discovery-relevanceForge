@@ -277,9 +277,24 @@ def minimize(sessions, config):
     config.set('test1', 'allow_reuse', 0)
     # Exhaustively search the bounds grid
     bounds = json.loads(config.get('optimize', 'bounds'))
+
+    Ns = json.loads(config.get('optimize', 'Ns'))
+    if type(Ns) is list:
+        # different samples sizes (Ns) across different dimensions; set up slices
+        newbounds = []
+        for N, range in zip(Ns, bounds):
+            if N < 2:
+                N = 2
+            step = float(range[1] - range[0])/(N-1)
+            # add epsilon (step/100) to upper range; otherwise slice doesn't include the last point
+            newbounds.append([range[0], float(range[1]) + step/100, step])
+        Ns = 0
+        bounds = newbounds
+    else:
+        if Ns < 2:
+            Ns = 2
     x, fval, grid, jout = optimize.brute(f, bounds, finish=None, disp=True,
-                                         full_output=True,
-                                         Ns=config.get('optimize', 'Ns'))
+                                         full_output=True, Ns=Ns)
 
     # f() returned negative engine scores, because scipy only does minimization
     jout *= -1
@@ -309,8 +324,11 @@ def plot_optimize_result(dim, grid, jout, filename, config):
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
 
-        vmin = config.getfloat('optimize', 'zmin')
-        vmax = config.getfloat('optimize', 'zmax')
+        vmin = vmax = None
+        if config.has_option('optimize', 'zmin'):
+            vmin = config.getfloat('optimize', 'zmin')
+        if config.has_option('optimize', 'zmax'):
+            vmax = config.getfloat('optimize', 'zmax')
 
         CS = plt.contourf(grid[0], grid[1], jout, vmin=vmin, vmax=vmax)
         cbar = plt.colorbar(CS)
@@ -362,7 +380,19 @@ if __name__ == '__main__':
                                   'name', 'labHost', 'searchCommand'])
     if config.has_section('optimize'):
         relevancyRunner.checkSettings(config, 'optimize', [
-                                      'bounds', 'Ns', 'config', 'zmin', 'zmax'])
+                                      'bounds', 'Ns', 'config'])
+
+        Ns = json.loads(config.get('optimize', 'Ns'))
+        if type(Ns) is int:
+            pass
+        elif type(Ns) is list:
+            bounds = json.loads(config.get('optimize', 'bounds'))
+            if len(Ns) != len(bounds):
+                raise ValueError("Section [optimize] configuration Ns as list " +
+                                 "needs to be the same length as bounds")
+        else:
+            raise ValueError("Section [optimize] configuration Ns " +
+                             "needs to be integer or list of integers")
 
     settings = genSettings(config)
 

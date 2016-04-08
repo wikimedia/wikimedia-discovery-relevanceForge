@@ -40,7 +40,6 @@ import os
 import re
 import sys
 from itertools import izip_longest
-from jsonpath_rw import parse
 
 
 def add_nums_to_results(results):
@@ -69,41 +68,35 @@ def munge_explanation(results):
 
 
 def get_main_score(exp):
-    return get_score_from_path(exp, parse('$.value'))
+    return exp['value']
 
 
 def get_primary_score(exp):
-    primary = parse('$.details[0].value')
-    primary_with_phrase = parse('$.details[0].details[0].details[0].value')
     if has_phrase_rescore(exp):
-        return get_score_from_path(exp, primary_with_phrase)
+        return exp['details'][0]['details'][0]['details'][0]['value']
     else:
-        return get_score_from_path(exp, primary)
+        return exp['details'][0]['value']
 
 
 def get_phrase_score(exp):
-    phrase = parse('$.details[0].details[0].details[1].value')
     if has_phrase_rescore(exp):
-        return get_score_from_path(exp, phrase)
+        return exp['details'][0]['details'][0]['details'][1]['value']
     else:
         return "N/A"
 
 
 def get_function_score(exp):
-    function = parse('$.details[0].value')
-    return get_score_from_path(exp, function)
-
-
-def get_score_from_path(exp, path):
-    score = path.find(exp)
-    if len(score) > 0:
-        return score[0].value
-    return "N/A"
+    return exp['details'][0]['value']
 
 
 def has_phrase_rescore(exp):
-    is_ph = parse('$.details[0].details[0].details[1].details[1].description').find(exp)
-    return len(is_ph) > 0 and is_ph[0].value == 'secondaryWeight'
+    is_ph = ''
+    details3 = exp['details'][0]['details'][0]['details'][1]
+    if 'details' in details3 and len(details3['details']) > 1:
+        details4 = details3['details'][1]
+        if 'description' in details4:
+            is_ph = details4['description']
+    return is_ph == 'secondaryWeight'
 
 
 def main():
