@@ -1,7 +1,7 @@
-       ___      __                             ____                 
-      / _ \___ / /__ _  _____ ____  _______   / __/__  _______ ____ 
+       ___      __                             ____
+      / _ \___ / /__ _  _____ ____  _______   / __/__  _______ ____
      / , _/ -_) / -_) |/ / _ `/ _ \/ __/ -_) / _// _ \/ __/ _ `/ -_) *
-    /_/|_|\__/_/\__/|___/\_,_/_//_/\__/\__/ /_/  \___/_/  \_, /\__/ 
+    /_/|_|\__/_/\__/|___/\_,_/_//_/\__/\__/ /_/  \___/_/  \_, /\__/
                                                          /___/
 
 The primary purpose of the Relevance Forge is to allow us<sup>†</sup> to experiment with proposed modifications to our search process and gauge their effectiveness<sup>‡</sup> and impact<sup>§</sup> before releasing them into production, and even before doing any kind of user acceptance or A/B testing. Also, testing in the Relevance Forge gives an additional benefit over A/B tests (esp. in the case of very targeted changes): with A/B tests we aren't necessarily able to test the behavior of the *same query* with two different configurations.
@@ -38,7 +38,7 @@ The main Rel Forge process is `relevancyRunner.py`, which takes a `.ini` config 
 
 The `jsonDiffTool` is implemented as `jsondiff.py`, "a somewhat smarter search result JSON diff tool". This version does an automatic alignment at the level of results pages (matching pagIds), munges the JSON results, and does a structural diff of the results. Structural elements that differ are marked as differing (yellow highlight), but no details are given on the diffs (i.e., only binary diffing of leaf nodes of the JSON structure). Changes in position from the baseline to delta are marked (e.g., ↑1 (light green) or ↓2 (light red)). New items are bright green and marked with "\*". Lost items are bright red and marked with "·". Clicking on an item number will display the item in the baseline and delta sife-by-side. Diffing results with explanations (i.e., using `--explain` in the `searchCommand`) is currently *much* slower, so don't enable that unless you are going to use it.
 
-The `metricTool` is implemented as `relcomp.py`, which generates an HTML report comparing two Relevance Forge query runs. A number of metrics are defined, including zero results rate and a generic top-N diffs (sorted or not). Adding and configuring these metrics can be done in `main`, in the array `myMetrics`. Examples of queries that change from one run to the next for each metric are provided, with links into the diffs created by `jsondiff.py`.
+The `metricTool` is implemented as `relcomp.py`, which generates an HTML report comparing two Relevance Forge query runs. A number of metrics are defined, including generic metrics based on number of results provided and top-N diffs (sorted or not). Adding and configuring these metrics can be done in `main`, in the array `myMetrics`. Examples of queries that change from one run to the next for each metric are provided, with links into the diffs created by `jsondiff.py`.
 
 Running the queries is typically the most time-consuming part of the process. If you ask for a very large number of results for each query (≫100), the diff step can be very slow. The report processing is generally very quick.
 
@@ -90,7 +90,7 @@ At the moment, report metrics are specified in code, in `relcomp.py`, in functio
 
 **`QueryCount`** gives a count of queries in each of corpus. It was also a convenient place to add statistics and charts (see below) for the number of TotalHits (which can be toggled with the `resultscount` parameter). `QueryCount` does not show any Diffs (see below).
 
-**`ZeroResultsRate`** calculates the zero results rate for each corpus/config combo, and computes the difference between these rates between baseline and delta. `ZeroResultsRate` does show Diffs (see below).
+**`HitsWithinRange`** calculates the percentage of queries with results between given values for each corpus/config combo, and computes the difference between these rates between baseline and delta. `HitsWithinRange` does show Diffs (see below). This metric is a generalization of "zero results rate" (0-0 results) and "poorly performing percentage" (0-2 results), both of which are defined by default in terms of `HitsWithinRange`.
 
 **`TopNDiff`** looks at and reports the number of queries with differences in the top *n* results returned. *n* can be set to any integer (but shouldn't be larger than the number of results requested by the `searchCommand`, or the results won't be very meaningful. Differences can be considered `sorted` or not; e.g., if `sorted=True`, then swapping the top two results counts as a difference, if `sorted=False` then it does not. `TopNDiff` does show Diffs (see below).
 
@@ -98,9 +98,11 @@ At the moment, report metrics are specified in code, in `relcomp.py`, in functio
 
 It makes sense to have multiple `TopNDiff` metrics—e.g., sorted and unsorted top 3, 5, 10, and 20—since these different stats tell different stories.
 
-**Statistics and Charts:** When statistics and charts are to be displayed, the mean (μ), standard deviation (σ), and median are computed, both for the number/count of differences and the percent differences. These can be very different or nearly identical. For example, if every query got one more result in TotalHits, then that's +1 for every query, but for a query that originally had 1 result, it's +100%, but for a query that had 100 results, it's only +1%. For results that change from 0, (i.e., from 0 results to 5 results), the denominator used is 1 (so 0 to 5 is +500%).
+**Statistics and Charts:** When statistics and charts are to be displayed, the mean (μ), standard deviation (σ), median, and range are computed, both for the number/count of differences and the percent differences. These can be very different or nearly identical. For example, if every query got one more result in TotalHits, then that's +1 for every query, but for a query that originally had 1 result, it's +100%, but for a query that had 100 results, it's only +1%. For results that change from 0, (i.e., from 0 results to 5 results), the denominator used is 1 (so 0 to 5 is +500%).
 
 Three charts are currently provided: number/count differences ("All queries, by number of changed ——"), number/count differences after dropping all 0 changes ("Changed queries, by number of changed ——"), and percent differences after dropping all 0 changes ("Changed queries, by percent of changed ——"). Since a change affecting 40% of queries is a pretty big change, the "0 changes" part of the graph often wildly dominates the rest. Dropping them effectively allows zooming in on the rest.
+
+A fourth chart is available, currently only shown for TotalHits under the Query Count metric: "Changed queries, changed by < 1000, by number of changed ——". This chart features number/count differences after dropping all 0 changes and all changes with a magnitude greater than ±1000. As above, dropping "0 changes" focuses on the smaller number of changes that are ≠0. Limiting to changes in the ±1000 range deals with another issue: sometimes the number of TotalHits can change by hundreds of thousands, though usually only for a very small number of queries; when that happens, the charts can get broken down into buckets with a span of 10,000 or even 100,000, which is not a useful level of detail. This chart breaks down a range no bigger than [-1000, 1000] into 100 buckets, which allows you to look in more detail at the range where most changes take place, regardless of any outliers.
 
 Charts are currently automatically generated by matplotlib, and sometimes have trouble with scale and outliers. Still, it's nice to get some idea of the distribution since the distributions of changes we see are often not normal, and thus μ, σ, and median are useful benchmarks, but don't tell the whole story.
 

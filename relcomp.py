@@ -193,22 +193,27 @@ class Metric(object):
         pass
 
 
-class ZeroResultsRate(Metric):
-    """Percentage of queries that return zero results."""
+class HitsWithinRange(Metric):
+    """Percentage of queries that return a number of results within a given range (inclusive)."""
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, printnum=20):
-        super(ZeroResultsRate, self).__init__("Zero Results",
+    def __init__(self, name, max, min=0, printnum=20):
+        super(HitsWithinRange, self).__init__(name,
                                               symbols=["&darr;", "&uarr;"],
                                               printnum=printnum)
+        self.max = max
+        self.min = min
 
     def has_condition(self, x, y, is_baseline=False):
-        """Simple check: is totalHits == 0?
+        """Simple check: is min <= totalHits <= max?
         """
         if "totalHits" in x:
-            return x["totalHits"] == 0
-        return 1  # empty JSON mean no hits
+            x_hits = x["totalHits"]
+        else:
+            x_hits = 0  # empty JSON mean no hits
+
+        return x_hits >= self.min and x_hits <= self.max
 
 
 class TopNDiff(Metric):
@@ -231,8 +236,9 @@ class TopNDiff(Metric):
         global image_path
         ret_string = super(TopNDiff, self).results(what)
         if what == "delta" and not self.sorted and self.showstats:
-            ret_string += num_num0_pct_chart(self.magnitude, "top{}".format(self.topN),
-                                             "Top {} Results".format(self.topN))
+            ret_string += make_charts(self.magnitude, "top{}".format(self.topN),
+                                      "Top {} Results".format(self.topN),
+                                      bins=self.topN)
         return ret_string
 
     def has_condition(self, x, y, is_baseline=False):
@@ -300,7 +306,8 @@ class QueryCount(Metric):
         global image_path
         ret_string = super(QueryCount, self).results(what)
         if what == "delta" and self.resultscount:
-            ret_string += num_num0_pct_chart(self.magnitude, "querycount", "TotalHits")
+            ret_string += make_charts(self.magnitude, "querycount", "TotalHits",
+                                      lessThan1000=True)
         return ret_string
 
 
@@ -409,7 +416,7 @@ def toggle_string():
 toggle_string.num = 0
 
 
-def make_hist(data, file, title="", xlab="", ylab="", bins=0, yformat="", xformat=""):
+def make_hist(data, file, title="", xlab="", ylab="", bins=20, yformat="", xformat=""):
     plt.clf()
     if bins:
         plt.hist(data, bins)
@@ -436,7 +443,7 @@ def make_hist(data, file, title="", xlab="", ylab="", bins=0, yformat="", xforma
     fig.savefig(file)
 
 
-def num_num0_pct_chart(data, file_prefix, label):
+def make_charts(data, file_prefix, label, lessThan1000=False, bins=20):
     ret_string = ""
     num_changed = [x[1] for x in data]
     pct_changed = [x[1]/x[0] if x[0] != 0 else x[1] for x in data]
@@ -444,26 +451,37 @@ def num_num0_pct_chart(data, file_prefix, label):
     file_num0 = "{}_num0.png".format(file_prefix)
     file_num = "{}_num.png".format(file_prefix)
     file_pct = "{}_pct.png".format(file_prefix)
-    make_hist(num_changed, image_path + file_num0,
+    make_hist(num_changed, image_path + file_num0, bins=bins,
               xlab="Number {} Changed".format(label), ylab="Frequency",
               title="All queries, by number of changed {}".format(label))
-    make_hist([x for x in num_changed if x != 0], image_path + file_num,
+    make_hist([x for x in num_changed if x != 0], image_path + file_num, bins=bins,
               xlab="Number {} Changed".format(label), ylab="Frequency",
               title="Changed queries, by number of changed {}".format(label))
-    make_hist([x for x in pct_changed if x != 0], image_path + file_pct,
+    make_hist([x for x in pct_changed if x != 0], image_path + file_pct, bins=bins,
               xlab="Percent {} Changed".format(label), ylab="Frequency", xformat="pct",
               title="Changed queries, by percent of changed {}".format(label))
     ret_string += indent + "Num {} Changed: &mu;: ".format(label) +\
-        "{:0.2f}; &sigma;: {:0.2f}; median: {:0.2f}<br>\n".format(
-        numpy.mean(num_changed), numpy.std(num_changed), numpy.median(num_changed))
+        "{:0.2f}; &sigma;: {:0.2f}; median: {:0.2f}; range: [{:0.0f}, {:0.0f}]<br>\n".format(
+        numpy.mean(num_changed), numpy.std(num_changed), numpy.median(num_changed),
+        numpy.amin(num_changed), numpy.amax(num_changed))
     ret_string += indent + "Pct {} Changed: &mu;: ".format(label) +\
-        "{:0.1f}%; &sigma;: {:0.1f}%; median: {:0.1f}%<br>\n".format(
-        numpy.mean(pct_changed)*100, numpy.std(pct_changed)*100, numpy.median(pct_changed)*100)
+        "{:0.1f}%; &sigma;: {:0.1f}%; median: {:0.1f}%; range: [{:0.2f}%, {:0.2f}%]<br>\n".format(
+        numpy.mean(pct_changed)*100, numpy.std(pct_changed)*100, numpy.median(pct_changed)*100,
+        numpy.amin(pct_changed)*100, numpy.amax(pct_changed)*100)
     ret_string += indent + "Charts " + toggle_string() + "<br>\n" +\
         indent + "<a href='{0}'><img src='{0}' height=125></a>".format(image_dir + file_num0) +\
-        indent + "<a href='{0}'><img src='{0}' height=125></a>".format(image_dir + file_num) +\
-        indent + "<a href='{0}'><img src='{0}' height=125></a>".format(image_dir + file_pct) +\
-        "</span><br>\n"
+        indent + "<a href='{0}'><img src='{0}' height=125></a>".format(image_dir + file_num)
+    if (lessThan1000):
+        file_within100 = "{}_within100.png".format(file_prefix)
+        make_hist([x for x in num_changed if abs(x) < 1000 and x != 0],
+                  image_path + file_within100, bins=100,
+                  xlab="Number {} Changed".format(label), ylab="Frequency",
+                  title="Changed queries, changed by < 1000, by number of changed {}".format(label))
+        ret_string += indent + "<a href='{0}'><img src='{0}' height=125></a>".\
+            format(image_dir + file_within100)
+
+    ret_string += indent + "<a href='{0}'><img src='{0}'".format(image_dir + file_pct) +\
+        " height=125></a></span><br>\n"
     return ret_string
 
 
@@ -498,7 +516,8 @@ def main():
     # TODO: make this configurable from the .ini file
     myMetrics = [
         QueryCount(),
-        ZeroResultsRate(printnum=printnum),
+        HitsWithinRange("Zero Results Rate", 0, 0, printnum=printnum),
+        HitsWithinRange("Poorly Performing Percentage", 2, 0, printnum=printnum),
         TopNDiff(3, sorted=True, printnum=printnum),
         TopNDiff(3, sorted=False, printnum=printnum),
         TopNDiff(5, sorted=True, printnum=printnum),
