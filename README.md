@@ -23,6 +23,7 @@ The primary purpose of the Relevance Forge is to allow us<sup>†</sup> to exper
  * The package `termcolor` is required by the Cirrus Query Debugger.
  * The package `scipy` is required by the Engine Score Optimizer
  * The package `matplotlib` is required by the Engine Score Optimizer
+ * The package `PyYAML` is required by the Engine Score Optimizer
  * If you don't have one of these packages, you can get it with `pip install <package-name>` (`sudo` may be required to install packages).
 * SSH access to the host you intend to connect to.
 
