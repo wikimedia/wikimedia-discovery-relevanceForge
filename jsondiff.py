@@ -54,6 +54,8 @@ def extract_ids(results, key):
 
 
 def ascii(the_string):
+    if type(the_string) is int:
+        return str(the_string)
     return the_string.encode('ascii', 'xmlcharrefreplace')
 
 
@@ -255,10 +257,12 @@ def html_results(results, map, filename, key, baseline=True):
             <span class={2:} onclick="comp({3:},{4:},'{0:}{1:}')"><b>{1:}</b>{5:}</span>
                 <b>title:</b> {6:}<br>
             <div class=indent>
-                <b>{7:}:</b> {8:}<br>
-                <b>score:</b> {9:}<br>\n'''.format(this_id, res_count, rankclass, comp1, comp2,
-                                                   extra, title, key, ascii(result[key]),
-                                                   result['score'])
+                <b>{7:}:</b> {8:}<br>'''.format(this_id, res_count, rankclass, comp1, comp2,
+                                                extra, title, key, ascii(result[key]))
+
+            if 'score' in result:
+                retval += '''\
+                    <b>score:</b> {0:}<br>\n'''.format(result['score'])
 
             for item in sorted(result.keys()):
                 if item not in ('pageId', 'score', 'title'):

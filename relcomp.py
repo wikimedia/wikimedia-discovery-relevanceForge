@@ -256,6 +256,10 @@ class TopNDiff(Metric):
                 self.magnitude.append([0, 0])
             return 0  # no hits means no diff
 
+        if "rows" not in x:
+            x["rows"] = list()
+        if "rows" not in y:
+            y["rows"] = list()
         x_ids = map((lambda r: r["pageId"]), x["rows"][0:self.topN])
         y_ids = map((lambda r: r["pageId"]), y["rows"][0:self.topN])
 
