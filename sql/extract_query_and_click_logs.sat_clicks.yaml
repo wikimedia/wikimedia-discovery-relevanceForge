@@ -1,0 +1,37 @@
+scoring:
+    algorithm: PaulScore
+    options:
+        factor: 0.7
+
+servers:
+    - host: stat1002.eqiad.wmnet
+      cmd: mysql --defaults-extra-file=/etc/mysql/conf.d/analytics-research-client.cnf --host dbstore1002.eqiad.wmnet
+
+variables:
+    schema_revision: 15700292
+    date_start: 20160801000000
+    date_end: 20160808000000
+    dwell_threshold: 10
+    wiki: enwiki
+    num_sessions: 10000
+
+query: >
+    select distinct tss.event_searchSessionId, tss.event_articleId, tss.event_query
+      from log.TestSearchSatisfaction2_{schema_revision} tss
+      join (select event_searchSessionId
+              from log.TestSearchSatisfaction2_{schema_revision}
+             where timestamp between {date_start} and {date_end}
+               and wiki = '{wiki}'
+               and event_source = 'fulltext'
+               and event_action = 'checkin'
+               and event_checkin >= {dwell_threshold}
+             group by event_searchSessionId
+             order by rand()
+             limit {num_sessions}
+           ) sessions
+        on sessions.event_searchSessionId = tss.event_searchSessionId
+     where tss.timestamp between {date_start} and {date_end}
+       and tss.event_source = 'fulltext'
+       and ((tss.event_action = 'checkin' and tss.event_checkin >= {dwell_threshold})
+            or tss.event_action = 'searchResultPage');
+

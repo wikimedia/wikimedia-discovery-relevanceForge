@@ -1,0 +1,20 @@
+scoring:
+    algorithm: nDCG
+    options:
+        p: 20
+
+servers:
+    - host: rel.eqiad.wmflabs
+      cmd: cd /srv/discernatron && mwvagrant ssh -- mysql -u root -proot
+
+variables: {}
+
+query: >
+    SELECT q.query as query,
+           r.title as title,
+           AVG(s.score) as score
+      FROM relevance.scores s
+      JOIN relevance.results r on r.id = s.result_id
+      JOIN relevance.queries q on q.id = r.query_id
+     GROUP BY r.id
+
