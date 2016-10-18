@@ -100,6 +100,7 @@ class CachedQuery:
             with open(cache_path, 'r') as f:
                 return f.read().split("\n")
         except IOError:
+            debug("No cached query result available.")
             pass
 
         result = self._run_query()
@@ -108,7 +109,7 @@ class CachedQuery:
             try:
                 os.makedirs(self._cache_dir)
             except OSError:
-                # directory created since checking
+                debug("cache directory created since checking")
                 pass
 
         with open(cache_path, 'w') as f:
@@ -235,8 +236,13 @@ class nDCG(object):
             except KeyError:
                 # @todo this shouldn't be necessary, but there is some sort
                 # of utf8 round tripping problem that breaks a few queries
+                debug("failed to find query (%s) in scores" % (query))
                 pass
         # print(json.dumps(debug))
+
+        if len(self.dcg.dcgs) != len(debug):
+            print("Expected %d queries, but only got %d" % (len(self.dcg.dcgs), len(debug)))
+
         return sum(ndcgs) / len(ndcgs)
 
 
