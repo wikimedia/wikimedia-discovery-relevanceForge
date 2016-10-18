@@ -126,7 +126,7 @@ def load_results(results_path):
             if 'error' not in decoded:
                 for hit in decoded['rows']:
                     hits.append({
-                        'pageId': hit['pageId'],
+                        'docId': hit['docId'],
                         'title': hit['title'],
                     })
             results[decoded['query']] = hits
@@ -279,7 +279,7 @@ class PaulScore:
         clicks = self._sessions[sessionId]['clicks']
         score = 0.
         for hit, pos in zip(hits, itertools.count()):
-            if hit['page_id'] in clicks:
+            if hit['docId'] in clicks:
                 score += self.factor ** pos
                 self.histogram.add(pos)
         return score
