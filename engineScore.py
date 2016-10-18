@@ -29,6 +29,7 @@ import math
 import pprint
 import relevancyRunner
 import yaml
+import codecs
 
 verbose = False
 
@@ -60,7 +61,7 @@ class CachedQuery:
     def __init__(self, settings):
         self._cache_dir = settings('workDir') + '/cache'
 
-        with open(settings('query')) as f:
+        with codecs.open(settings('query'), "r", "utf-8") as f:
             sql_config = yaml.load(f.read())
 
         try:
@@ -91,13 +92,24 @@ class CachedQuery:
         if len(stdout) == 0:
             raise RuntimeError("Couldn't run SQL query:\n%s" % (stderr))
 
-        return stdout
+        try:
+            return stdout.decode('utf-8')
+        except UnicodeDecodeError:
+            # Some unknown problem ... let's just work through it line by line
+            # and throw out bad data :(
+            clean = []
+            for line in stdout.split("\n"):
+                try:
+                    clean.append(line.decode('utf-8'))
+                except UnicodeDecodeError:
+                    debug("Non-utf8 data: %s" % (line))
+            return u"\n".join(clean)
 
     def fetch(self):
         query_hash = hashlib.md5(self._query).hexdigest()
         cache_path = "%s/click_log.%s" % (self._cache_dir, query_hash)
         try:
-            with open(cache_path, 'r') as f:
+            with codecs.open(cache_path, 'r', 'utf-8') as f:
                 return f.read().split("\n")
         except IOError:
             debug("No cached query result available.")
@@ -112,7 +124,7 @@ class CachedQuery:
                 debug("cache directory created since checking")
                 pass
 
-        with open(cache_path, 'w') as f:
+        with codecs.open(cache_path, 'w', 'utf-8') as f:
             f.write(result)
         return result.split("\n")
 
@@ -272,7 +284,7 @@ class PaulScore:
             _, clicks, queries = zip(*group)
             sessions[sessionId] = {
                 'clicks': set(filter(not_null, clicks)),
-                'queries': set(filter(not_null, queries)),
+                'queries': set(filter(not_null, [q.strip() for q in queries])),
             }
         return sessions
 
@@ -499,7 +511,7 @@ if __name__ == '__main__':
     queries_temp = tempfile.mkstemp('_engine_score_queries')
     try:
         with os.fdopen(queries_temp[0], 'w') as f:
-            f.write("\n".join(scorer.queries))
+            f.write("\n".join(scorer.queries).encode('utf-8'))
         config.set('test1', 'queries', queries_temp[1])
 
         if config.has_section('optimize'):
