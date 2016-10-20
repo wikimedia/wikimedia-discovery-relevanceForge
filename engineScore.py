@@ -149,7 +149,11 @@ def load_results(results_path):
 # Discounted Cumulative Gain
 class DCG(object):
     def __init__(self, sql_result, options):
-        self.k = int(options.get('k', 20))
+        self.k = options.get('k', 20)
+        if type(self.k) == list:
+            self.k = self.k[0]
+        else:
+            self.k = int(self.k)
         self._relevance = {}
 
         # burn the header
@@ -165,6 +169,9 @@ class DCG(object):
             if query not in self._relevance:
                 self._relevance[query] = {}
             self._relevance[query][title] = float(score)
+
+    def name(self):
+        return "DCG@%d" % (self.k)
 
     def _relevance_score(self, query, hit):
         if query not in self._relevance:
@@ -187,7 +194,7 @@ class DCG(object):
                 # we would have a div by zero problem otherwise
                 dcg += top / math.log(i+2, 2)
             self.dcgs[query] = dcg
-        return sum(self.dcgs.values()) / len(results)
+        return EngineScore(self.name(), sum(self.dcgs.values()) / len(results))
 
 
 # Idealized Discounted Cumulative Gain. Computes DCG against the ideal
@@ -196,6 +203,9 @@ class DCG(object):
 class IDCG(DCG):
     def __init__(self, sql_result, options):
         super(IDCG, self).__init__(sql_result, options)
+
+    def name(self):
+        return "IDCG@%d" % (self.k)
 
     # The results argument is unused here, as this is the ideal and unrelated
     # to the actual search results returned
@@ -212,7 +222,7 @@ class IDCG(DCG):
             ideal_results[query] = sorted(ideal_hits, key=sorter, reverse=True)
 
         # Run DCG against the ideal ordered results
-        return super(IDCG, self).engine_score(ideal_results)
+        return EngineScore(self.name(), super(IDCG, self).engine_score(ideal_results))
 
 
 # Normalized Discounted Cumulative Gain
@@ -222,40 +232,54 @@ class nDCG(object):
         self.dcg = DCG(list(sql_result), options)
         self.idcg = IDCG(list(sql_result), options)
         self.queries = self.dcg._relevance.keys()
+        self.k = options.get('k', 20)
+        if type(self.k) != list:
+            self.k = [self.k]
+
+    def name(self, k=None):
+        if k is None:
+            # A bit of a lie...but whatever
+            k = self.k[0]
+        return "nDCG@%d" % (k)
 
     def report(self):
         num_results = sum([len(self.dcg._relevance[title]) for title in self.dcg._relevance])
         print("Loaded nDCG with %d queries and %d scored results" %
               (len(self.queries), num_results))
 
+    def _query_score(self, query):
+        try:
+            dcg = self.dcg.dcgs[query]
+            idcg = self.idcg.dcgs[query]
+            return dcg / idcg if idcg > 0 else 0
+        except KeyError:
+            # @todo this shouldn't be necessary, but there is some sort
+            # of utf8 round tripping problem that breaks a few queries
+            debug("failed to find query (%s) in scores" % (query))
+            return None
+
     def engine_score(self, results):
-        self.dcg.engine_score(results)
-        self.idcg.engine_score(results)
+        scores = []
+        for k in self.k:
+            self.dcg.k = k
+            self.dcg.engine_score(results)
+            self.idcg.k = k
+            self.idcg.engine_score(results)
 
-        ndcgs = []
-        debug = {}
-        for query in self.dcg.dcgs:
-            try:
-                dcg = self.dcg.dcgs[query]
-                idcg = self.idcg.dcgs[query]
-                ndcg = dcg / idcg if idcg > 0 else 0
-                ndcgs.append(ndcg)
-                debug[query] = {
-                    'dcg': dcg,
-                    'idcg': idcg,
-                    'ndcg': dcg / idcg if idcg > 0 else 0
-                }
-            except KeyError:
-                # @todo this shouldn't be necessary, but there is some sort
-                # of utf8 round tripping problem that breaks a few queries
-                debug("failed to find query (%s) in scores" % (query))
-                pass
-        # print(json.dumps(debug))
+            ndcgs = []
+            errors = 0
+            for query in self.dcg.dcgs:
+                ndcg = self._query_score(query)
+                if ndcg is None:
+                    errors += 1
+                else:
+                    ndcgs.append(ndcg)
 
-        if len(self.dcg.dcgs) != len(debug):
-            print("Expected %d queries, but only got %d" % (len(self.dcg.dcgs), len(debug)))
+            if errors > 0:
+                print("Expected %d queries, but %d were missing" % (len(self.dcg.dcgs), errors))
 
-        return sum(ndcgs) / len(ndcgs)
+            scores.append(EngineScore(self.name(k), sum(ndcgs) / len(ndcgs)))
+        return EngineScoreSet(scores)
 
 
 # Formula from talk given by Paul Nelson at ElasticON 2016
@@ -264,7 +288,15 @@ class PaulScore:
 
         self._sessions = self._extract_sessions(sql_result)
         self.queries = set([q for s in self._sessions.values() for q in s['queries']])
-        self.factor = float(options['factor'])
+        self.factors = options['factor']
+        if type(self.factors) != list:
+            self.factors = [self.factors]
+
+    def name(self, factor=None):
+        if factor is None:
+            # This is a complete lie...but whatever
+            factor = self.factors[0]
+        return "PaulScore@%.2f" % (factor)
 
     def report(self):
         num_clicks = sum([len(s['clicks']) for s in self._sessions.values()])
@@ -288,7 +320,7 @@ class PaulScore:
             }
         return sessions
 
-    def _query_score(self, sessionId, query):
+    def _query_score(self, factor, sessionId, query):
         try:
             hits = self.results[query]
         except KeyError:
@@ -298,24 +330,29 @@ class PaulScore:
         score = 0.
         for hit, pos in zip(hits, itertools.count()):
             if hit['docId'] in clicks:
-                score += self.factor ** pos
+                score += factor ** pos
                 self.histogram.add(pos)
         return score
 
-    def _session_score(self, sessionId):
+    def _session_score(self, factor, sessionId):
         queries = self._sessions[sessionId]['queries']
         if len(queries) == 0:
             # sometimes we get a session with clicks but no queries...
             # might want to filter those at the sql level
             debug("\tsession has no queries...")
             return 0.
-        scorer = functools.partial(self._query_score, sessionId)
+        scorer = functools.partial(self._query_score, factor, sessionId)
         return sum(map(scorer, queries))/len(queries)
 
     def engine_score(self, results):
         self.results = results
-        self.histogram = Histogram()
-        return sum(map(self._session_score, self._sessions))/len(self._sessions)
+        scores = []
+        for factor in self.factors:
+            self.histogram = Histogram()
+            scorer = functools.partial(self._session_score, factor)
+            score = sum(map(scorer, self._sessions))/len(self._sessions)
+            scores.append(EngineScore(self.name(factor), score, self.histogram))
+        return EngineScoreSet(scores)
 
 
 class Histogram:
@@ -342,6 +379,46 @@ class Histogram:
         return res
 
 
+class EngineScore(object):
+    def __init__(self, name, score, histogram=None):
+        self.name = name
+        self.score = score
+        self.histogram = histogram
+
+    def name(self):
+        return self.name
+
+    def score(self):
+        return self.score
+
+    def output(self, verbose=True):
+        print('%s: %0.2f' % (self.name, self.score))
+        if verbose and self.histogram is not None:
+            print('Histogram:')
+            print(str(self.histogram))
+
+
+class EngineScoreSet(object):
+    def __init__(self, scores):
+        self.scores = scores
+
+    def name(self):
+        # While wasteful, if the receiving code doesnt care about
+        # the difference between EngineScore and EngineScoreSet just
+        # give them the first one
+        return self.scores[0].name()
+
+    def score(self):
+        # While wasteful, if the receiving code doesnt care about
+        # the difference between EngineScore and EngineScoreSet just
+        # give them the first one
+        return self.scores[0].score()
+
+    def output(self, verbose=True):
+        for score in self.scores:
+            score.output(verbose)
+
+
 def score(scorer, config):
     # Run all the queries
     print('Running queries')
@@ -349,11 +426,7 @@ def score(scorer, config):
     results = load_results(results_dir)
 
     print('Calculating engine score')
-    score = scorer.engine_score(results)
-    try:
-        return score, scorer.histogram
-    except AttributeError:
-        return score, None
+    return scorer.engine_score(results)
 
 
 def make_search_config(config, x):
@@ -369,21 +442,20 @@ def minimize(scorer, config):
     from scipy import optimize
 
     engine_scores = {}
-    histograms = {}
 
     def f(x):
         search_config = make_search_config(config, x)
         if search_config in engine_scores:
-            return engine_scores[search_config]
+            return engine_scores[search_config].score
 
         print("Trying: " + search_config)
         config.set('test1', 'config', search_config)
-        engine_score, histogram = score(scorer, config)
-        histograms[search_config] = histogram
-        print('Engine Score: %f' % (engine_score))
-        engine_score *= -1
+        engine_score = score(scorer, config)
+        print('Engine Score: %f' % (engine_score.score))
+        # Our optimizer is a minimizer, so flip the score
+        engine_score.score *= -1
         engine_scores[search_config] = engine_score
-        return engine_score
+        return score.engine_score
 
     # Make sure we don't reuse query results between runs
     config.set('test1', 'allow_reuse', 0)
@@ -410,20 +482,22 @@ def minimize(scorer, config):
 
     # f() returned negative engine scores, because scipy only does minimization
     jout *= -1
-    fval *= -1
 
     pprint.pprint(grid)
     pprint.pprint(jout)
-    print("optimum config: " + make_search_config(config, x))
+    optimized_config = make_search_config(config, x)
+    print("optimum config: " + optimized_config)
 
     results_dir = relevancyRunner.getSafeWorkPath(config, 'test1', 'optimize')
     relevancyRunner.refreshDir(results_dir)
-    optimized_config = make_search_config(config, x)
     with open(results_dir + '/config.json', 'w') as f:
         f.write(optimized_config)
     plot_optimize_result(len(x.shape) + 1, grid, jout, results_dir + '/optimize.png', config)
 
-    return fval, histograms[optimized_config]
+    engine_score = engine_scores[optimized_config]
+    # Flip the score back to it's true value
+    engine_score.score *= -1
+    return engine_score
 
 
 def plot_optimize_result(dim, grid, jout, filename, config):
@@ -515,13 +589,10 @@ if __name__ == '__main__':
         config.set('test1', 'queries', queries_temp[1])
 
         if config.has_section('optimize'):
-            engine_score, histogram = minimize(scorer, config)
+            engine_score = minimize(scorer, config)
         else:
-            engine_score, histogram = score(scorer, config)
+            engine_score = score(scorer, config)
     finally:
         os.remove(queries_temp[1])
 
-    print('Engine Score: %0.2f' % (engine_score))
-    if histogram is not None:
-        print('Histogram:')
-        print(str(histogram))
+    engine_score.output()
