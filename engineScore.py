@@ -149,7 +149,7 @@ def load_results(results_path):
 # Discounted Cumulative Gain
 class DCG(object):
     def __init__(self, sql_result, options):
-        self.p = int(options.get('p', 20))
+        self.k = int(options.get('k', 20))
         self._relevance = {}
 
         # burn the header
@@ -180,7 +180,7 @@ class DCG(object):
         for query in results:
             hits = results[query]
             dcg = 0
-            for i in xrange(0, min(self.p, len(hits))):
+            for i in xrange(0, min(self.k, len(hits))):
                 top = math.pow(2, self._relevance_score(query, hits[i])) - 1
                 # Note this is i+2, rather than i+1, because the i+1 algo starts
                 # is 1 indexed, and we are 0 indexed. log base 2 of 1 is 0 and

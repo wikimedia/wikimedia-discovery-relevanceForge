@@ -1,7 +1,7 @@
 scoring:
     algorithm: nDCG
     options:
-        p: 20
+        k: 20
 
 servers:
     - host: rel.eqiad.wmflabs
