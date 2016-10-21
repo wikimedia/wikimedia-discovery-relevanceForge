@@ -40,21 +40,31 @@ def debug(string):
 
 
 def init_scorer(settings):
-    scorers = {
+    scoring_algos = {
         'PaulScore': PaulScore,
         'nDCG': nDCG,
+        'ERR': ERR,
     }
 
     query = CachedQuery(settings)
-    algo = query.scoring_config['algorithm']
-    print('Initializing engine scorer: %s' % (algo))
+    query_data = query.fetch()
+    scoring_configs = query.scoring_config
+    if type(scoring_configs) != list:
+        scoring_configs = [scoring_configs]
 
-    scoring_class = scorers[algo]
-    scorer = scoring_class(query.fetch(), query.scoring_config['options'])
+    scorers = []
+    for config in scoring_configs:
+        algo = config['algorithm']
+        print('Initializing engine scorer: %s' % (algo))
+        scoring_class = scoring_algos[algo]
+        scorer = scoring_class(query_data, config['options'])
+        scorer.report()
+        scorers.append(scorer)
 
-    scorer.report()
-
-    return scorer
+    if len(scorers) > 1:
+        return MultiScorer(scorers)
+    else:
+        return scorers[0]
 
 
 class CachedQuery:
@@ -144,6 +154,29 @@ def load_results(results_path):
                     })
             results[decoded['query']] = hits
     return results
+
+
+class MultiScorer(object):
+    def __init__(self, scorers):
+        self.scorers = scorers
+        self.queries = set([q for s in scorers for q in s.queries])
+
+    def name(self):
+        return ", ".join([s.name() for s in self.scorers])
+
+    def report(self):
+        for scorer in self.scorers:
+            scorer.report()
+
+    def engine_score(self, results):
+        scores = []
+        for scorer in self.scorers:
+            score = scorer.engine_score(results)
+            if type(score) == EngineScoreSet:
+                scores = scores + score.scores
+            else:
+                scores.append(score)
+        return EngineScoreSet(scores)
 
 
 # Discounted Cumulative Gain
@@ -279,6 +312,67 @@ class nDCG(object):
                 print("Expected %d queries, but %d were missing" % (len(self.dcg.dcgs), errors))
 
             scores.append(EngineScore(self.name(k), sum(ndcgs) / len(ndcgs)))
+        return EngineScoreSet(scores)
+
+
+# http://olivier.chapelle.cc/pub/err.pdf
+# http://don-metzler.net/presentations/err_cikm09.pdf
+# A drawback of DCG is its additive nature and the underlying independence
+# assumption: a document in a given position has always the same gain and
+# discount independently of the documents shown above it. This new metric is
+# defined as the expected reciprocal length of time that the user will take to
+# find a relevant document.
+# Compared to position-based metrics such as DCG and RBP for which the discount
+# depends only the position, the discount in ERR depends on the relevance of
+# documents shown above it.
+#
+# Note this isn't really a sub-thing of DCG, it just happens to be computed similarly
+# enough we can reused all its code except engine_score()
+class ERR(DCG):
+    def __init__(self, sql_result, options):
+        super(ERR, self). __init__(sql_result, options)
+        # Assuming a relevance scale of {0, 1, 2, 3}
+        # max is 2^3 = 8
+        self.max_rel = pow(2, options.get('max_relevance_scale'))
+        self.k = options.get('k', 20)
+        if type(self.k) != list:
+            self.k = [self.k]
+        self.queries = self._relevance.keys()
+
+    def report(self):
+        num_results = sum([len(self._relevance[title]) for title in self._relevance])
+        print("Loaded ERR with %d queries and %d scored results" %
+              (len(self.queries), num_results))
+
+    def name(self, k=None):
+        if k is None:
+            k = self.k[0]
+        return "ERR@%d" % (k)
+
+    def _probability_of_relevance(self, query, hit):
+        # Map from hit to relevance grade
+        score = self._relevance_score(query, hit)
+        # Map from relevance grade to probability of relevance
+        # On the example scale of {0, 1, 2, 3} this gives
+        # probabilities of {0, 12.5, 37.5, 87.5}
+        return (pow(2, score) - 1) / self.max_rel
+
+    def _query_score(self, k, query, hits):
+        p = 1
+        err = 0
+        for i in xrange(0, min(k, len(hits))):
+            # The r value is 1-indexed
+            r = i + 1
+            R = self._probability_of_relevance(query, hits[i])
+            err = err + p * (R / r)
+            p = p * (1 - R)
+        return err
+
+    def engine_score(self, results):
+        scores = []
+        for k in self.k:
+            total_err = sum([self._query_score(k, q, results[q]) for q in results])
+            scores.append(EngineScore(self.name(k), total_err / len(results)))
         return EngineScoreSet(scores)
 
 
