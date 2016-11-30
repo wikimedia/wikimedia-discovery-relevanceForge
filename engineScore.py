@@ -638,6 +638,7 @@ def genSettings(config):
             return config.get('settings', key)
     return get
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Calculate an engine score', prog=sys.argv[0])
     parser.add_argument('-c', '--config', dest='config', help='Configuration file name',

@@ -134,5 +134,6 @@ def read_dump(inputf, outputf, data, fieldname):
         else:
             outputf.write(line)
 
+
 if __name__ == "__main__":
     main()
