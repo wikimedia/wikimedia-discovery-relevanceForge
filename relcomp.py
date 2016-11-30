@@ -218,7 +218,7 @@ class HitsWithinRange(Metric):
 
 class TopNDiff(Metric):
     """Percentage of query pairs where the top N results DO NOT have the
-       same pageIds (ignoring order by default)
+       same docIds (ignoring order by default)
     """
 
     __metaclass__ = ABCMeta
@@ -260,8 +260,8 @@ class TopNDiff(Metric):
             x["rows"] = list()
         if "rows" not in y:
             y["rows"] = list()
-        x_ids = map((lambda r: r["pageId"]), x["rows"][0:self.topN])
-        y_ids = map((lambda r: r["pageId"]), y["rows"][0:self.topN])
+        x_ids = map((lambda r: r["docId"]), x["rows"][0:self.topN])
+        y_ids = map((lambda r: r["docId"]), y["rows"][0:self.topN])
 
         if self.sorted:
             if len(x_ids) != len(y_ids):

@@ -5,7 +5,7 @@
 # This program does diffs of two files with one JSON blob per line,
 # outputting one color-coded HTML diff per line into a target directory.
 # It performs a diff on the ordered list of results (based on a key value,
-# either pageId or title). It then notes differences within the details of
+# either docId or title). It then notes differences within the details of
 # a given result.
 #
 # It has a number of hacks specific to diffing JSON from CirrusSearch
@@ -265,7 +265,7 @@ def html_results(results, map, filename, key, baseline=True):
                     <b>score:</b> {0:}<br>\n'''.format(result['score'])
 
             for item in sorted(result.keys()):
-                if item not in ('pageId', 'score', 'title'):
+                if item not in ('docId', 'score', 'title'):
                     retval += html_result_item(result[item], item)
 
             retval += '''\
@@ -469,10 +469,10 @@ def main():
     parser.add_argument('-d', '--dir', dest='dir', default='./diffs/',
                         help='output directory, default is ./diffs/')
     parser.add_argument("-t", "--bytitle", dest="bytitle", action='store_true', default=False,
-                        help="use title rather than pageId to match results")
+                        help="use title rather than docId to match results")
     args = parser.parse_args()
 
-    key = 'pageId'
+    key = 'docId'
     if (args.bytitle):
         key = 'title'
 
