@@ -23,6 +23,7 @@ import shutil
 import subprocess
 import re
 import json
+import base64
 
 
 def getSafeName(name):
@@ -75,8 +76,8 @@ def runSearch(config, section):
                 search_options = f.read()
         with open(qdir + '/config.json', 'w') as f:
             f.write(search_options)  # archive search config
-        search_options = search_options.replace("\n", "")
-        cmdline += " --options " + pipes.quote(search_options.strip())
+        search_options = "B64://" + base64.b64encode(search_options)
+        cmdline += " --options " + search_options
     runCommand("cat %s | ssh %s %s > %s" % (config.get(section, 'queries'),
                                             config.get(section, 'labHost'),
                                             pipes.quote(cmdline),
