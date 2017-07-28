@@ -1,0 +1,10 @@
+# Hebrew
+
+# Far from complete. Just a list of the most common affixes.
+
+# https://en.wikipedia.org/wiki/Prefixes_in_Hebrew
+regular_prefixes		ו	ל	ב	כ	מ	ה	א	י	נ	ת	שׁ	ש	ו
+
+# https://en.wikipedia.org/wiki/Suffixes_in_Hebrew
+regular_suffixes		ה	ים	וֹת	יִם	ות	ת	י	ךָ	ךְ	ך	וֹ	ו	הּ	ה	נוּ	נו	כֶם	כם	כֶן	כן	ם	ן	י	יךָ	יך	יִךְ	יו	יהָ	יה	ינוּ	ינו	יכֶם	יכם	יכֶן	יכן	יהֶם	יהם	יהֶן	יהן	וֹן	ון	ית	ית
+regular_suffixes		ה	תָּ	ת	תְּ	תִּי	תִי	וּ	וּ	תֶּם	תם	תֶּן	תן	נוּ	נו	י	וּ	ו	נָה	נה	י	וּ	ו	נָה	נה

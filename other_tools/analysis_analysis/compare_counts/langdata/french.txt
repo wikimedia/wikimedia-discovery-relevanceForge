@@ -1,0 +1,6 @@
+# French
+
+# Just a test of stripping words that glom on to the front of other
+# words due to elision.
+
+strip_prefixes	l['‘’]	m['‘’]	t['‘’]	qu['‘’]	n['‘’]	s['‘’]	j['‘’]	d['‘’]	c['‘’]	jusqu['‘’]	quoiqu['‘’]	lorsqu['‘’]	puisqu['‘’]

@@ -1,0 +1,64 @@
+# Ukrainian
+
+# This list is extensive, but not exhaustive--but it is good enough to
+# be helpful.
+
+# nouns http://www.ukrainianlanguage.org.uk/read/unit05/page5-5.htm
+regular_suffixes	а	и	і	у	ою	о		ам	ами	ах
+regular_suffixes	я	і	ю	ею	е	ь	ям	ями	ях
+regular_suffixes	я	ії	ію	ією	іє	ій	іям	іями	іях
+regular_suffixes	а	і	у	ею	е		ам	ами	ах
+regular_suffixes	о	а	ові	у	ом	и	ів	ам	ами	ах
+regular_suffixes		а	ові	у	ом	и	ів	ам	ами	ах
+regular_suffixes		а	ові	у	ом	і	е	и	ів	ам	ами	ах
+regular_suffixes		я	еві	ю	ем	і	ів	ям	ями	ях
+regular_suffixes	ь	я	еві	ю	ем	і	е	ів	ям	ями	ях
+regular_suffixes	й	я	єві	ю	я	єм	ї	їв	ям	ями	ях
+regular_suffixes		а	еві	у	ем	і	ів	ам	ами	ах
+regular_suffixes		а	еві	у	ем	і	е	ів	ам	ами	ах
+regular_suffixes	о	а	у	ом	і		ам	ами	ах
+regular_suffixes	е	я	ю	ем	і	ів	ям	ями	ях
+regular_suffixes	я	ю	ям	і	ів	ями	ях
+regular_suffixes	я	ю	ям	ї	їв	ями	ях
+regular_suffixes	е	а	у	ем	і		ам	ами	ах
+
+# adjectives http://www.ukrainianlanguage.org.uk/read/unit09/page9-3.htm
+regular_suffixes	ий	е	а	і	ого	ої	их	ому	ій	им	у	ою	ими
+regular_suffixes	ій	є	я	і	ього	ьої	іх	ьому	ім	ю	ьою	іми
+
+# verbs http://www.ukrainianlanguage.org.uk/read/unit10/page10-2.htm
+# + gerund http://www.ukrainianlanguage.org.uk/read/unit12/page12-2.htm
+regular_suffixes	ю	їш	їть	їмо	їте	ять	ячи
+regular_suffixes	у	еш	е	емо	ете	уть	учи
+regular_suffixes	ю	єш	є	ємо	єте	ють	ючи
+regular_suffixes	у	иш	ить	имо	ите	ать	ачи
+regular_suffixes	лю	иш	ить	имо	ите	лять	лячи
+regular_suffixes	у	иш	ить	имо	ите	ять	ячи
+regular_suffixes	ю	иш	ить	имо	ите	ять	ячи
+
+# aspect http://www.ukrainianlanguage.org.uk/read/unit11/page11-2.htm
+# verbs of motion http://www.ukrainianlanguage.org.uk/read/unit13/page13-5.htm
+regular_prefixes		з
+regular_prefixes		по
+regular_prefixes		п
+regular_prefixes		на
+regular_prefixes		про
+regular_prefixes		за
+regular_prefixes		ви
+regular_prefixes		с
+regular_prefixes		від
+regular_prefixes		при
+regular_suffixes	ати	ити
+regular_suffixes	яти	ити
+regular_suffixes	ати	увати
+regular_suffixes	ати	авати
+regular_suffixes	ити	ювати
+regular_suffixes	ити	ивати
+regular_suffixes	ляти	ити
+regular_suffixes	нути	ати
+regular_suffixes	нути	іти
+
+# I got tired at the imperative http://www.ukrainianlanguage.org.uk/read/unit13/page13-6.htm
+
+# ignore the stress accent
+fold	́	

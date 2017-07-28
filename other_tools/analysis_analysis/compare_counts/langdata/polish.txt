@@ -1,0 +1,17 @@
+# Polish
+
+# This is a moderate list, but far from exhaustive.
+
+regular_suffixes		y	a	ów	e	ach	owi	om	em	ami
+regular_suffixes		e	a	y	u	ach	owi	om	em	ami
+regular_suffixes		a	y	ę	e	ach	om	ą	ami	o
+regular_suffixes		o	a	ach	om	ami	u	em
+regular_suffixes	e	a	ach	om	ami	u	em
+regular_suffixes	ę	ona	enia	eniu	onach	onom	eniem	onami
+regular_suffixes	ę	ęta	ęcia	eniu	ąt	ęciu	ętach	ętom	ęciem	ętami
+regular_suffixes		ć	m	ją	sz	my	cie	łem	łeś	ł	łam	łaś	ła	ło	ły	łyśmy	łyście	li	liśmy	liście	łbym	łbyś	łby	łabym	łabyś	łaby	łoby	łyby	łybyśmy	łybyście	liby	libyśmy	libyście	ący	ąca	ące
+regular_suffixes		ć	ę	ą	sz	my	cie	łem	łeś	ł	łam	łaś	ła	ło	ły	łyśmy	łyście	li	liśmy	liście	łbym	łbyś	łby	łabym	łabyś	łaby	łoby	łyby	łybyśmy	łybyście	liby	libyśmy	libyście	ący	ąca	ące
+
+strip_prefixes	nie	naj	anty	nad	bez
+
+# strip_suffixes	ąca	ące	ach	ący	ami	cie	ęcia	ęciem	ęciu	enia	eniem	eniu	ęta	ętach	ętami	ętom	łaby	łabym	łabyś	łam	łaś	łby	łbym	łbyś	łem	łeś	liby	libyście	libyśmy	liście	liśmy	łoby	łyby	łybyście	łybyśmy	łyście	łyśmy	ona	onach	onami	onom	owi

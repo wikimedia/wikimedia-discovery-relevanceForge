@@ -1,0 +1,62 @@
+# Example
+
+# Example config for language data for compare_counts.pl
+# Lines beginning with hashes are comments and are ignored.
+# Blank lines are also ignored.
+
+# Judicious use of regular expressions is allowed (see the French
+# config), except for folding.
+
+# Values in config lines are tab-separated. An empty value is the
+# empty string. Empty strings can go anywhere, but putting them at the
+# end is asking for trouble, so always put them first when possible,
+# for your sanity, and the sanity of others.
+
+# regular_suffixes and regular_prefixes are those that alternate so
+# commonly that it is not surprising if words differing only in those
+# affixes end up stemming together (even if they really are different
+# words). A minimal stem length (default 5) is required, so that
+# "nation" and "ned" stemming together doesn't count as "not
+# surprising". These are used when deciding whether new additions to
+# existing stemmming groups match with other existing members of the
+# stemming group. i.e., when using both -n and -o.
+
+# Example: English regular suffixes. Note that the first item here is
+# the empty string.
+
+regular_suffixes		ing	ed	er	ers	s	es	e	ation
+
+# strip_prefixes and strip_suffixes are strippable affixes that can be
+# stripped off when looking for common substrings of stemming groups.
+# These are used when doing analysis on one set of results, not a
+# comparison; i.e., when using only -n. Single letter affixes should
+# probably not be included here because the possibility for ambiguity is
+# too high.
+
+# Example: Polish strippable affixes.
+
+strip_prefixes	nie	naj	anty	nad	bez
+
+strip_suffixes	ąca	ące	ach	ący	ami	cie	ęcia
+
+# fold provides a list of characters (or, sometimes, strings) that should
+# be folded together whenever folding is done. The first item is folded
+# into the second item, which may be empty. Folding is case insensitive,
+# but that may not always work as expected for non-Latin characters.
+
+# NO REGULAR EXPRESSIONS CAN BE USED IN FOLDING!
+
+# Folds are NOT performed in order, so be wary of interactions in
+# really complex folding configs. Folds on longer strings are
+# performed first, and the token being folded is processed left to
+# right, though all replacements for a given string to be folded are
+# done at once. (This is a performance hack so that Chinese folding
+# finishes before the heat death of the universe.)
+
+# Example: Russian character folding. The first line folds ́ into
+# nothing, so the empty string comes at the end of the line, alas.
+
+fold	́	
+fold	ё	е
+fold	Ё	Е
+

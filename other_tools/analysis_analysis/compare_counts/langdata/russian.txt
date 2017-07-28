@@ -1,0 +1,9 @@
+# Russian
+
+# Minimal config to ignore the updated language analyzer for Russian,
+# which ignores stress accents and folds Cyrillic Ёё to Ее because Ёё
+# is generally ignored in Russian.
+
+fold	́	
+fold	ё	е
+fold	Ё	Е

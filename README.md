@@ -16,6 +16,31 @@ The primary purpose of the Relevance Forge is to allow us<sup>†</sup> to exper
 § "How many searches does it affect?"
 </small>
 
+## Table of Contents
+1. Prerequisites
+1. Invocation
+  1. Processes
+  1. Configuration
+    1. Example JSON configs
+1. Input
+1. Output
+  1. Report Metrics
+1. Engine Scoring Optimizer
+1. Other Tools
+  1. Analysis Analysis
+  1. Augment Dump
+  1. Cirrus Query Debugger
+  1. Import Indices
+  1. Index Metadata dump
+  1. Piecewise Linear Model of an Empirical Distribution Function
+    1. Stopping criteria
+    1. Runtime and sub-sampling
+    1. Input and output
+  1. Miscellaneous HQL & R Files
+1. Needs Documentation
+1. Gerrit Config
+1. Options!
+
 ## Prerequisites
 
 * Python: There's nothing too fancy here, and it works with Python 2.7, though a few packages are required:
@@ -37,7 +62,7 @@ The main Rel Forge process is `relevancyRunner.py`, which takes a `.ini` config 
 
 `relevancyRunner.py` parses the `.ini` file (see below), manages configuration, runs the queries against the Elasticsearch cluster and outputs the results, and then delegates diffing the results to the `jsonDiffTool` specified in the `.ini` file, and delegated the final report to the `metricTool` specified in the `.ini` file. It also archives the original queries and configuration (`.ini` and JSON `config` files) with the Rel Forge run output.
 
-The `jsonDiffTool` is implemented as `jsondiff.py`, "a somewhat smarter search result JSON diff tool". This version does an automatic alignment at the level of results pages (matching pagIds), munges the JSON results, and does a structural diff of the results. Structural elements that differ are marked as differing (yellow highlight), but no details are given on the diffs (i.e., only binary diffing of leaf nodes of the JSON structure). Changes in position from the baseline to delta are marked (e.g., ↑1 (light green) or ↓2 (light red)). New items are bright green and marked with "\*". Lost items are bright red and marked with "·". Clicking on an item number will display the item in the baseline and delta sife-by-side. Diffing results with explanations (i.e., using `--explain` in the `searchCommand`) is currently *much* slower, so don't enable that unless you are going to use it.
+The `jsonDiffTool` is implemented as `jsondiff.py`, "a somewhat smarter search result JSON diff tool". This version does an automatic alignment at the level of results pages (matching pagIds), munges the JSON results, and does a structural diff of the results. Structural elements that differ are marked as differing (yellow highlight), but no details are given on the diffs (i.e., only binary diffing of leaf nodes of the JSON structure). Changes in position from the baseline to delta are marked (e.g., ↑1 (light green) or ↓2 (light red)). New items are bright green and marked with "\*". Lost items are bright red and marked with "·". Clicking on an item number will display the item in the baseline and delta side-by-side. Diffing results with explanations (i.e., using `--explain` in the `searchCommand`) is currently *much* slower, so don't enable that unless you are going to use it.
 
 The `metricTool` is implemented as `relcomp.py`, which generates an HTML report comparing two Relevance Forge query runs. A number of metrics are defined, including generic metrics based on number of results provided and top-N diffs (sorted or not). Adding and configuring these metrics can be done in `main`, in the array `myMetrics`. Examples of queries that change from one run to the next for each metric are provided, with links into the diffs created by `jsondiff.py`.
 
@@ -57,7 +82,7 @@ Each `[test#]` contains the `name` of the query set, and the file containing the
 
 The settings `queries`, `labHost`, `config`, and `searchCommand` can be specified globally under `[settings]` or per-run under `[test#]`. If both exist, `[test#]` will override `[settings]`.
 
-#### Example JSON configs:
+#### Example JSON configs
 
 * `{"wgCirrusSearchFunctionRescoreWindowSize": 1, "wgCirrusSearchPhraseRescoreWindowSize" : 1}`
 	* Set the Function Rescore Window Size to 1, and set the Phrase Rescore Window Size to 1.
@@ -111,10 +136,40 @@ The charts are presented in the report scaled fairly small, though they are pres
 
 **Diffs and `printnum`:** For metrics that report Diffs, the Diffs section of the report gives examples of queries that show the differences in question. Each metrics takes a `printnum` parameter that determines how many examples to show. By default, the parameter is set on the command line (default to 20) and shared across all metrics, though that can be overriden for any particular metric. If all the instances of a diff are to be shown (e.g., because `printnum` is 20 but there are only 5 examples), then they are shown in the order they appear in the corpora. If the only a sample is to be shown, then a random sample of size `printnum` is randomly selected and shown in a random order.
 
+## Engine Scoring Optimizer
+
+The Engine Scoring Optimizer ( engineScore.py ) generates a single number representing the score of the engine for the query set. It can combine this calculation with scipy brute force optimization to explore a multi-dimensional space of numeric config values to attempt to find the best values. This works similar to the main relevancy runner, which is reused here for running the queries.
+
+The Engine Scoring process takes an `.ini` file similar to the main relevancy runner:
+
+    engineScore.py -c engineScore.ini
+
 
 ## Other Tools
 
-There are a few other bits and bobs included with the Rel Forge.
+There are a few other bits and bobs included with the Rel Forge. They are in the `other_tools/` directory.
+
+### Analysis Analysis
+
+The `analysis_analysis/` directory contains tools for analyzing changes to Elasticsearch language analyzers. It contains sample data, sample output, and too much documentations. See its README file.
+
+### Augment Dump
+
+`augmentdump.py` lets you augment a cirrus dump with data stored in a csv file.
+
+The augmented is loaded into memory for simplicity reasons and thus is only suited for short string or numeric values.
+
+Example augmenting with defaultsort and wp10:
+
+		DUMP=https://dumps.wikimedia.org/other/cirrussearch/current/enwiki-20160829-cirrussearch-content.json.gz
+		DEFAULTSORT=/plat/wp_dump/enwiki_defaultsort.csv.gz
+		WP10=/plat/wp_dump/wp10-scores-enwiki-20160820.tsv.bz2
+		ELASTIC=relforge1001.eqiad.wmnet:9200/enwikisourceprod_content/_bulk
+		wget -qO- $DUMP | zcat |\
+		  ./augmentdump.py --csv $DEFAULTSORT --id 0 --data 1 --newprop defaultsort |\
+		  ./augmentdump.py --csv $WP10 --delim "        " --id page_id --data weighted_sum \
+							--newprop wp10 --datatype float |\
+		  split -l 100 --filter 'curl -s -XPOST $ELASTIC --data-binary "@-" | jq .errors
 
 ### Cirrus Query Debugger
 
@@ -126,13 +181,17 @@ Note that `cqd.py` requires the `termcolor` package.
 
 Helpful hint: If you want to pipe the output of `cqd.py` through `less`, you will want to use `less`'s `-R` option, which makes it understand and preserve the color output from `cqd.py`, and you might want to use `less`'s `-S` option, which doesn't wrap lines (arrow left and right to see long lines), depending on which part of the output you are using most.
 
+### Import Indices
+
+Import Indices (`importindices.py`) downloads Elasticsearch indices from wikimedia dumps and imports them to an Elasticsearch cluster. It lives with the Rel Forge but is used on the Elasticsearch server you connect to, not your local machine.
+
 ### Index Metadata dump
 
 `metastats.py` is a command line too to export various metadata from cirrus indices. It works by reading dumps on http://dumps.wikimedia.org/other/cirrussearch
 
 Run `python metastats.py -w enwiki -t content -d 20160222 -u en.wikipedia.org > enwiki_meta_20160222.csv` to dump metadata for the enwiki content index.
 
-See `misc/comp_suggest_score.R` for more details on what you can do with this data.
+See `other_tools/comp_suggest_score.R` for more details on what you can do with this data.
 
 Columns:
 * page: The title
@@ -146,13 +205,9 @@ Columns:
 * pop_score: popularity score based on pageviews (pageview/total project pageviews)
 * tmplBoost: product of all the template boosts
 
-### Import Indices
-
-Import Indices (`importindices.py`) downloads Elasticsearch indices from wikimedia dumps and imports them to an Elasticsearch cluster. It lives with the Rel Forge but is used on the Elasticsearch server you connect to, not your local machine.
-
 ### Piecewise Linear Model of an Empirical Distribution Function
 
-`pwf_edf.py` generates a [piecewise linear model](https://en.wikipedia.org/wiki/Piecewise_linear_function) of an [empirical distribution function](https://en.wikipedia.org/wiki/Empirical_distribution_function) for the [cumulative probability distribution](https://en.wikipedia.org/wiki/Cumulative_distribution_function) of the data given to it.
+`pwl_edf.py` generates a [piecewise linear model](https://en.wikipedia.org/wiki/Piecewise_linear_function) of an [empirical distribution function](https://en.wikipedia.org/wiki/Empirical_distribution_function) for the [cumulative probability distribution](https://en.wikipedia.org/wiki/Cumulative_distribution_function) of the data given to it.
 
 This allows for a fairly simple empirical normalization of values to percentiles, effectively mapping the distribution of the values onto a straight line from 0 to 1. (Though when there are a very large number of occurrences of a given value—usually 0—that line is broken, alas.)
 
@@ -186,21 +241,19 @@ Out of bounds values: values outside the original distribution (i.e., below the 
 
 Segment specification: The segment specification is an array of tuples, `[x, y, slope]`. `(x,y)` is the end of one line segment and the beginning of the next (except for the first and last tuple, naturally), and `slope` is the slope of the line segment from the previous endpoint (used in the generic and custom functions to save on re-computing (y[i]-y[i-1])/(x[i]-x[i-1]) for every single evaluation). The first point is given a `slope` of 0, though it isn't used.
 
-### Engine Scoring Optimizer
+### Miscellaneous HQL & R Files
 
-The Engine Scoring Optimizer ( engineScore.py ) generates a single number representing the score of the engine for the query set. It can combine this calculation with scipy brute force optimization to explore a multi-dimensional space of numeric config values to attempt to find the best values. This works similar to the main relevancy runner, which is reused here for running the queries.
-
-The Engine Scoring process takes an `.ini` file similar to the main relevancy runner:
-
-    engineScore.py -c engineScore.ini
-
-### Miscellaneous
-
-The `misc/` directory contains additional useful stuff:
+The `other_tools/` directory contains additional useful stuff:
 
 * `fulltextQueriesSample.hql` contains a well-commented example HQL query to run against HIVE to extract a sample query set of fulltext queries.
+* `comp_suggest_score.R` is an R file to experiment with the completion suggester score.
+* `count_keyword_usage.hql` is a simple HQL query to count keyword usage.
 
-### Gerrit Config
+## Needs Documentation
+
+* `sql/`: Whatever it is, it's full of yaml.
+
+## Gerrit Config
 
 These files help Gerrit process patches correctly and are not directly part of the Rel Forge:
 

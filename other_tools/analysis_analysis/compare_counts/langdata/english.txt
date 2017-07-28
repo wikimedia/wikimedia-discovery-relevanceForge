@@ -1,0 +1,10 @@
+# English
+
+# Obviously this list is far from complete.
+
+regular_suffixes		ing	ed	er	ers	s	es	e	ation
+regular_suffixes		al
+regular_suffixes		ly
+regular_suffixes		ness
+regular_suffixes		ism
+regular_suffixes	able	ed	ing	s	es	e	er	ers
