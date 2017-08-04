@@ -276,8 +276,21 @@ if ($oldfile) {
 				$mapping{$final}{old} ne $mapping{$final}{new}) {
 			my $mapo = $mapping{$final}{old};
 			my $mapn = $mapping{$final}{new};
-			my $ocnt = () = ($mapo =~ /\[(.*?)\]/g);
-			my $ncnt = () = ($mapn =~ /\[(.*?)\]/g);
+			my $ocnt = 0;
+			my $ncnt = 0;
+			my $o_token_cnt = 0;
+			my $n_token_cnt = 0;
+
+			while ($mapo =~ /\[(\d+) (.*?)\]/g) {
+				$ocnt++;
+				$o_token_cnt += $1;
+				}
+
+			while ($mapn =~ /\[(\d+) (.*?)\]/g) {
+				$ncnt++;
+				$n_token_cnt += $1;
+				}
+
 			if ($config{terse} > 0) {
 				$mapo =~ s/\[\d+ /[/g;
 				$mapn =~ s/\[\d+ /[/g;
@@ -288,7 +301,17 @@ if ($oldfile) {
 					next if $mapo eq $mapn;
 					}
 				}
-			push @{$old_v_new_results{($ocnt > $ncnt)?'decreased':'increased'}}, $final;
+
+			my $incrdecr = 'increased';
+
+			if ($ocnt > $ncnt) {
+				$incrdecr = 'decreased';
+				}
+			elsif ($ocnt == $ncnt && $o_token_cnt > $n_token_cnt ) {
+				$incrdecr = 'decreased';
+				}
+
+			push @{$old_v_new_results{$incrdecr}}, $final;
 			}
 		}
 
@@ -306,7 +329,7 @@ else { # new file only
 			}
 
 		$statistics{count_histogram}{scalar(@terms)}++;
-		
+
 		my $final_len = length($final);
 		push @{$statistics{token_length}{$final_len}}, $final;
 
@@ -671,7 +694,7 @@ sub fold {
 				my $to = $language_data{fold}{strings}{$from};
 				if (defined $to) {
 					$term =~ s/$from/$to/g;
-					# account for differences in string 
+					# account for differences in string
 					# length after substitution, if any
 					$i -= length($from) - length($to);
 					}
@@ -745,8 +768,10 @@ print "&nbsp;&nbsp;&nbsp;<a href='#bad_splits_q'>Bad Splits?</a><br>" if $old_v_
 		);
 
 	print_section_head('New Collision Stats', 'new_collision_stats');
+	$old_v_new_results{collision}{type} ||= 0;
+	$old_v_new_results{collision}{token} ||= 0;
 	print ' types: ', "$old_v_new_results{collision}{type} (", ( int($old_v_new_results{collision}{type} * 100000 / $statistics{type_count}{final}{old} + 0.5) / 1000 ), '%) [post-analysis types]', $cr;
-	print 'tokens: ', "$old_v_new_results{collision}{token} (", ( int($old_v_new_results{collision}{token} * 100000 / $statistics{total_tokens}{old} + 0.5) / 1000 ), '%', $cr;
+	print 'tokens: ', "$old_v_new_results{collision}{token} (", ( int($old_v_new_results{collision}{token} * 100000 / $statistics{total_tokens}{old} + 0.5) / 1000 ), '%)', $cr;
 
 	print_section_head('New Split Stats', 'new_split_stats');
 	$old_v_new_results{splits}{type} ||= 0;
@@ -773,7 +798,7 @@ print "&nbsp;&nbsp;&nbsp;<a href='#bad_splits_q'>Bad Splits?</a><br>" if $old_v_
 	print_section_head('Lost and Found Tokens', 'lost_and_found');
 	my %tot = ();
 	my %only = ();
-	
+
 	foreach my $origfinal ('original', 'final') {
 		my $pre_post = $origfinal eq 'original' ? 'pre' : 'post';
 
@@ -793,6 +818,8 @@ print "&nbsp;&nbsp;&nbsp;<a href='#bad_splits_q'>Bad Splits?</a><br>" if $old_v_
 			}
 
 		if ($tot{$origfinal}{lost} || $tot{$origfinal}{found}) {
+			$tot{$origfinal}{lost} ||= 0;
+			$tot{$origfinal}{found} ||= 0;
 			print " Lost $pre_post-analysis tokens (old only): $tot{$origfinal}{lost}", $cr;;
 			print "Found $pre_post-analysis tokens (new only): $tot{$origfinal}{found}", $cr;
 			print $cr;
@@ -1089,13 +1116,13 @@ sub print_table_key {
 #
 sub print_lost_found_token_stats {
 	my ($lostfound, $origfinal, $oldnew, $only_ref) = @_;
-	
+
 	my $joiner = "\t";
-	
+
 	if ($config{HTML}) {
 		$joiner = " &bull; ";
 		}
-	
+
 	my $pre_post = $origfinal eq 'original' ? 'pre' : 'post';
 	print $bold_open, "$lostfound $pre_post-analysis tokens by category", $bold_close, $cr, $cr;
 	foreach my $category (sort keys %{$only_ref->{$origfinal}{$oldnew}}) {
@@ -1136,8 +1163,8 @@ sub print_changed_collisions {
 	foreach my $final (@{$old_v_new_results{$incrdecr}}) {
 		# Ugh, this just doesn't want to abstract properly; Hack, hack, hack.
 		if ($config{HTML}) {
-			print_table_row(["$final $arr", 
-				$div_open . "o: $mapping{$final}{old}" . $div_close . 
+			print_table_row(["$final $arr",
+				$div_open . "o: $mapping{$final}{old}" . $div_close .
 				$div_open . "n: $mapping{$final}{new}" . $div_close]);
 			}
 		else {
@@ -1217,6 +1244,19 @@ sub token_category {
 	if ($token =~ s/\$$//g) {
 		$modifier .= '+$';
 		}
+	if ($token =~ / /) {
+		$modifier .= '+sp';
+		}
+	if ($token =~ /\t/) {
+		$modifier .= '+tab';
+		}
+	if ($token =~ /\n/) {
+		$modifier .= '+cr';
+		}
+
+	my $num_pat = '(\d+([.,]\d\d\d)*([.,]\d+)?)';
+	my $unit_pat = '([ap]\.?m|[AP]\.?M|°|°C|°F|a|b|B|C|cm|d|eV|F|fps|g|GB|GHz|h|Hz|k|K|kbit|keV|kg|kgm|kJ|km|Km|km2|L|lb|m|M|m2|Ma|MeV|mg|MHz|MHZ|ml|mm|mol|mph|º|ºC|ºF|Pa|ppm|rpm|s|T|Ts|W|x)';
+
 
 	if ($token =~ /^([A-Z]\.)+[A-Z]\.?$/) { $category = 'acronyms'; }
 	elsif ($token =~ /^\p{Punctuation}+$/i) { $category = 'Punctuation'; }
@@ -1224,21 +1264,21 @@ sub token_category {
 	elsif ($token =~ /^([A-Z]\.){1,3}[A-Z]\p{Latin}+$/) { $category = 'name-like'; }
 	elsif ($token =~ /^www\.(\S+\.)+\S{2,3}$/i) { $category = 'web domains'; }
 	elsif ($token =~ /^(\S+\.)+(com|org|co\.uk|edu|gov|net|de|info)$/i) { $category = 'web domains'; }
-	elsif ($token =~ /^\d+$/) { $category = 'numbers, integers'; }
-	elsif ($token =~ /^\d+\.\d+$/) { $category = 'numbers, decimals'; }
-	elsif ($token =~ /^\d{1,3}\,(\d\d\d,)*\d\d\d(\.\d+)?$/) { $category = 'numbers, with commas'; }
+	elsif ($token =~ /^[+-]?\d+$/) { $category = 'numbers, integers'; }
+	elsif ($token =~ /^[+-]?\d+\.\d+$/) { $category = 'numbers, decimals'; }
+	elsif ($token =~ /^[+-]?\d{1,3}\,(\d\d\d,)*\d\d\d(\.\d+)?$/) { $category = 'numbers, with commas'; }
 	elsif ($token =~ /^\d+(,\d+)+$/) { $category = 'numbers lists, comma-sep'; }
-	elsif ($token =~ /^\d+(\.\d+)+$/) { $category = 'numbers, period-sep'; }
+	elsif ($token =~ /^[+-]?\d+(\.\d+)+$/) { $category = 'numbers, period-sep'; }
 	elsif ($token =~ /^\d*(1st|2nd|3rd|\dth)$/i) { $category = 'numbers, ordinals'; }
 	elsif ($token =~ /^[A-Z0-9-]+$/ && $token =~ /[A-Z]/ && $token =~ /[0-9]/) { $category = 'ID-like'; }
 	elsif ($token =~ /\p{IPA_Extensions}|\p{Phonetic_Ext}|\p{Phonetic_Ext_Sup}/i) { $category = 'IPA-ish'; }
 
-	elsif ($token =~ /^[a-z]+(\.[a-z]+)+$/i) { $category = 'words, period-sep'; }
-	elsif ($token =~ /^[a-z]+(\:[a-z]+)+$/i) { $category = 'words, colon-sep'; }
-	elsif ($token =~ /^[a-z]+(\,[a-z]+)+$/i) { $category = 'words, comma-sep'; }
+	elsif ($token =~ /^[a-z'’-]+(\.[a-z'’-]+)+$/i) { $category = 'words, period-sep'; }
+	elsif ($token =~ /^[a-z'’-]+(\:[a-z'’-]+)+$/i) { $category = 'words, colon-sep'; }
+	elsif ($token =~ /^[a-z'’-]+(\,[a-z'’-]+)+$/i) { $category = 'words, comma-sep'; }
 
-	elsif ($token =~ /^[a-z'’]+$/i) { $category = 'Latin (Basic)'; }
-	elsif ($token =~ /^([a-z'’]|\p{Latin})+$/i) { $category = 'Latin (Extended)'; }
+	elsif ($token =~ /^[a-z'’-]+$/i) { $category = 'Latin (Basic)'; }
+	elsif ($token =~ /^([a-z'’-]|\p{Latin})+$/i) { $category = 'Latin (Extended)'; }
 	elsif ($token =~ /^([́']|\p{Cyrillic})+$/i) { $category = 'Cyrillic'; }
 	elsif ($token =~ /^\p{Greek}+$/i) { $category = 'Greek'; }
 	elsif ($token =~ /^(\p{Arabic}|\p{Arabic_Ext_A}|\p{Arabic_Supplement}|\x{200E})+$/i) { $category = 'Arabic'; }
@@ -1273,7 +1313,10 @@ sub token_category {
 	elsif ($token =~ /^\p{Ugaritic}+$/i) { $category = 'Ugaritic'; }
 	elsif ($token =~ /^\p{Unified_Canadian_Aboriginal_Syllabics}+$/i) { $category = 'Canadian Syllabics'; }
 	elsif ($token =~ /^\p{Ideographic}+$/i) { $category = 'Ideographic'; }
-	elsif ($token =~ /^\d+(,\d\d\d)*(\.\d+)?(T|Pa|mol|F|C|GHz|L|a|kJ|mg|Hz|Km|km|eV|g|m|m2|mm|Ts|lb|s|cm|MHz|MHZ|ml|kgm|keV|rpm|fps|kbit|mph|MeV|[ap]\.?m|[AP]\.?M|x|b|B|k|K|M|W|ºC|ºF|°C|°F|ppm)$/) { $category = 'measurements'; }
+	elsif ($token =~ /^$num_pat$unit_pat$/) { $category = 'measurements'; }
+	elsif ($token =~ /^$num_pat[xh']$num_pat$/i) { $category = 'measurements'; }
+	elsif ($token =~ /^$num_pat[x]$num_pat$unit_pat$/i) { $category = 'measurements'; }
+	elsif ($token =~ /^\d+[°º](\d+('\d+)?)?$/i) { $category = 'measurements'; }
 	elsif ($token =~ /^0x[0-9A-F]+$/i) { $category = 'hex'; }
 
 	return $category . $modifier;

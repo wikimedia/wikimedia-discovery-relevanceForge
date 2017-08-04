@@ -36,6 +36,8 @@ while (my $line = <FILE>) {
 	chomp $line;
 	$linecnt++;
 
+	my $start_linecnt = $linecnt;
+
 	# ~30x speed up to process 100 lines at a time.
 	my $linelen = length($line);
 	foreach my $i (1..99) {
@@ -69,6 +71,11 @@ while (my $line = <FILE>) {
 
 	my $json = `curl -s localhost:9200/wiki_content/_analyze?pretty -d '{"analyzer": "text", "text" : "$escline" }'`;
 	$json = decode_utf8($json);
+
+	if ($json =~ /"error" :\s*{\s*"root_cause" :/s) {
+		print STDERR "\n_analyze error (somewhere on lines $start_linecnt-$linecnt):\n$json\n";
+		exit;
+		}
 
 	my %tokens = ();
 	my $hs_offset = 0;  # offset to compensate for errors caused by high-surrogate characters
@@ -137,6 +144,7 @@ sub urlize {
 	$rv =~ s/\x{0}/ /g;
 	$rv =~ s/(["\\])/\\$1/g;
 	$rv =~ s/'/'"'"'/g;
+	$rv =~ s/\t/\\t/g;
 	return $rv;
 }
 
