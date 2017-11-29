@@ -43,17 +43,17 @@ def dumpReader(url, callback):
     FNULL = open(os.devnull, 'w')
     p = subprocess.Popen('curl -L ' + url + ' | gzip -cd', shell=True,
                          stdout=subprocess.PIPE, stderr=FNULL)
-    l = 0
+    i = 0
     for line in p.stdout:
-        l += 1
+        i += 1
         page = json.loads(line)
-        if(l % 2 == 1):
+        if(i % 2 == 1):
             pageId = page['index']['_id']
             continue
         try:
             int(pageId)
         except ValueError:
-            print("*** line:" + str(l) + " is not a valid id : '" + str(pageId) + "'")
+            print("*** line:" + str(i) + " is not a valid id : '" + str(pageId) + "'")
             continue
 
         callback(pageId, page)

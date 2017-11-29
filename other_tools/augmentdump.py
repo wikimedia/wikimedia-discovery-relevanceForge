@@ -112,12 +112,12 @@ def read_csv(csvfile, delim, quotechar, idcol, valuecol, datatype):
 
 
 def read_dump(inputf, outputf, data, fieldname):
-    l = 0
+    i = 0
     pageId = -1
     for line in inputf:
-        l += 1
+        i += 1
         page = {}
-        if l % 2 == 1:
+        if i % 2 == 1:
             outputf.write(line)
             page = json.loads(line)
             pageId = -1
