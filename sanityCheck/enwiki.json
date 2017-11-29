@@ -1,0 +1,14 @@
+{
+    "api": "https://en.wikipedia.org/w/api.php",
+    "queries": {
+        "example": [
+            "Example"
+        ],
+        "JFK": [
+            "John F. Kennedy"
+        ],
+        "legend film 2015": [
+            "Legend (2015 film)"
+        ]
+    }
+}
