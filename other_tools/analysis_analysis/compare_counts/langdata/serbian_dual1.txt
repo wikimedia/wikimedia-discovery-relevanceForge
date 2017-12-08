@@ -1,0 +1,41 @@
+# Serbian
+
+# Fold everything to dual1 Latin encoding
+
+fold	а	a
+fold	б	b
+fold	в	v
+fold	г	g
+fold	д	d
+fold	ђ	dy
+fold	е	e
+fold	ж	zx
+fold	з	z
+fold	и	i
+fold	ј	j
+fold	к	k
+fold	л	l
+fold	љ	ly
+fold	м	m
+fold	н	n
+fold	њ	ny
+fold	о	o
+fold	п	p
+fold	р	r
+fold	с	s
+fold	т	t
+fold	ћ	cy
+fold	у	u
+fold	ф	f
+fold	х	h
+fold	ц	c
+fold	ч	cx
+fold	џ	dx
+fold	ш	sx
+
+fold	ć	cy
+fold	č	cx
+fold	š	sx
+fold	đ	dy
+fold	dž	dx
+fold	ž	zx

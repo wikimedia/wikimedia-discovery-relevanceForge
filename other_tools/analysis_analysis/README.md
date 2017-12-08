@@ -1,6 +1,6 @@
 # Trey's Language Analyzer Analysis Tools
 
-July 2017
+December 2017
 
 These are the tools I use to do analysis of Elasticsearch language analyzers and custom analysis chains. Most of [my analysis write ups](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes#Elasticsearch_Analysis_Chain_Analysis) are available on MediaWiki.org. The older ones, naturally, used less complex versions of this code—I update it whenever something weird happens!
 
@@ -58,13 +58,15 @@ Let's see what we've got:
 
 This is a pretty straightforward program to run:
 
-    ./analyze_counts.pl input_file.txt > output_file.txt
+    ./analyze_counts.pl [-t <tag>] [-d <dir>] input_file.txt
 
 * The input file is just a UTF-8–encoded text file with the text to be analyzed.
   * It is not strictly necessary, but it seems helpful to remove markup unless you are testing your analyzer's ability to handle markup.
   * I like to deduplicate lines to decrease the apparent importance of domain-specific patterns when I'm looking for general language behavior. For example, in Wikipedia, exact paragraphs don't repeat often, but headings like "See Also" and "References" certainly do. Deduping helps keep the counts for "see", "also", and "references" at more typical levels for general text.
   * It is more efficient for `analyze_counts.pl` to batch up lines of text and send them to Elasticsearch together. Up to 100 lines can be grouped together, up to around 30,000 characters (over 50K seems to cause problems). If your input file has lots of individual lines with significantly more than 10K characters per line, you could have trouble.
 * The output file, which I call a "counts file", is pretty self-explanatory, but very long, so note that there are two sections: *original tokens mapped to final tokens* and *final tokens mapped to original tokens.*
+  * The output file name will be `<input_file>.counts.<tag>.txt`. If no `<tag>` is specified with `-t`, then `baseline` is used.
+  * By default, the counts file will be written to the same directory as the input file. If you'd like it to written to a different directory, use `-d <dir>`
   * The output is optimized for human readability, so there's *lots* of extra whitespace.
   * Obviously, if you had another source of pre- and post-analysis tokens, you could readily reformat them into the format output by `analyze_counts.pl` and then use `compare_counts.pl` to analyze them.
 * While the program is running, dots and numbers are output to STDERR as a progress indicator. Each dot represents 1000 lines of input and the numbers are running totals of lines of input processed. On the 1MB sample files, this isn't really necessary, but when processing bigger corpora, I like it.
@@ -154,11 +156,11 @@ Among the details reported are:
 <a name="FoldingLanguages_1" />
 #### Folding & Languages
 
-For a comparison analysis, enabling folding (`-f`) applies the available folding to tokens for computing Near Match Stats and detecting potential bad collisions. Default folding (`./compare_counts/langdata/default.txt`) is always available, and additional folding can be specified in a language-specific config (e.g., `./compare_counts/langdata/russian.txt`).
+For a comparison analysis, enabling folding (`-f`) applies the available folding to tokens for computing Near Match Stats and detecting potential bad collisions. Default folding (`./compare_counts/langdata/default.txt`) is normally available, and additional folding can be specified in a language-specific config (e.g., `./compare_counts/langdata/russian.txt`).
 
 So, with folding enabled, *léo* being merged with *Leo* is no longer a potential bad collision because the difference is gone after default folding. Note that the folding specified in the default config is intentionally incomplete as all of it has been manually added. If ICU folding or some other change causes an unexpected collision I don't want to miss it because I was using the same or a similar library for folding here.
 
-Additional language configs can be supplied. Use `-d` to specify the directory and `-l` to specify a comma-separated list, though usually only one language is needed. (**NB:** "default" is always loaded.) To specify that `compare_counts/langdata/russian.txt` should be loaded, use `-d compare_counts/langdata -l russian`. All language config files should end in `.txt`. Note that `-d compare_counts/langdata` is the default, so if you don't move that directory, you should only need `-l`.
+Additional language configs can be supplied. Use `-d` to specify the directory and `-l` to specify a comma-separated list of languages, though usually only one language is needed. (**NB:** "default" is normally loaded, but it can be disabled by specifying "-default" with `-l`; see Serbian example under **Folding across character sets** below.) To specify that `compare_counts/langdata/russian.txt` should be loaded, use `-d compare_counts/langdata -l russian`. All language config files should end in `.txt`. Note that `-d compare_counts/langdata` is the default, so if you don't move that directory, you should only need `-l`.
 
 Additional folding, such as Cyrillic Ё/ё to Е/е, or stress accent to nothing can be specified in a language config file.
 
@@ -244,9 +246,9 @@ A *lot* of terms only show up once and have unique stems, particularly numbers, 
 <a name="FoldingLanguages_2" />
 #### Folding & Languages
 
-The `-f` option, which enables folding, doesn't do anything for a self analysis. The `default` folding config is loaded and used in the Stemming Results as a last-ditch attempt to find a common substring.
+The `-f` option, which enables folding, doesn't do anything for a self analysis. The `default` folding config is normally loaded and used in the Stemming Results as a last-ditch attempt to find a common substring.
 
-As with Comparison Analysis, additional language configs can be supplied. Use `-d` to specify the directory and `-l` to specify a comma-separated list, though usually only one language is needed. (**NB:** `default` is always loaded.) To specify that `compare_counts/langdata/polish.txt` should be loaded, use `-d compare_counts/langdata -l polish`. All language config files should end in `.txt`. Note that `-d compare_counts/langdata` is the default, so if you don't move that directory, you should only need `-l`.
+As with Comparison Analysis, additional language configs can be supplied. Use `-d` to specify the directory and `-l` to specify a comma-separated list, though usually only one language is needed. (**NB:** "default" is normally loaded, but it can be disabled by specifying "-default" with `-l`; see Serbian example under **Folding across character sets** below.) To specify that `compare_counts/langdata/polish.txt` should be loaded, use `-d compare_counts/langdata -l polish`. All language config files should end in `.txt`. Note that `-d compare_counts/langdata` is the default, so if you don't move that directory, you should only need `-l`.
 
 The config for `strip_prefixes` and `strip_suffixes` is similar to the regular morphology used in a *Comparison Analysis* (q.v.) specified by `regular_suffixes` and `regular_prefixes`.<sup>§</sup>
 
@@ -353,7 +355,7 @@ On the one hand, that's why using vagrant is easy—everything is all set up. On
 #### Re-Configure MediaWiki/Elasticsearch for English *Without* Folding Enabled
 
 * in `LocalSettings.php` set `$wgLanguageCode = "en";`
-* in `AnalysisConfigBuilder.php` comment out the `$filters[] = 'asciifolding';` line from function `customize()`
+* in `AnalysisConfigBuilder.php` comment out the `$filters[] = 'asciifolding';` line from function `customize()` under `case 'english'`
 * inside vagrant (i.e., do `vagrant ssh` first), run:
   * `mwscript extensions/CirrusSearch/maintenance/updateSearchIndexConfig.php --reindexAndRemoveOk --indexIdentifier now`
   * for a faster re-index on really small document sets, change `MONITOR_SLEEP_SECONDS` in `Reindexer.php` to `1` first.
@@ -365,7 +367,7 @@ You can check on your config after running `updateSearchIndexConfig.php` above a
 <a name="GeneratetheBeforeUnfoldedCountsFile" />
 #### Generate the "Before"/Unfolded Counts File
 
-* inside vagrant, run: `./analyze_counts.pl samples/data/en.txt > samples/output/en.counts.unfolded.txt`
+* inside vagrant, run: `./analyze_counts.pl -t unfolded -d samples/output/ samples/data/en.txt`
   * STDERR output: `..... 5385`
 
 `samples/output/en.counts.unfolded.txt` now contains the counts for normalized tokens found by the English analyzer *without* ASCII/ICU folding. It maps both original tokens (found in the text) to final tokens (those that would be indexed).
@@ -376,7 +378,7 @@ You can check on your config after running `updateSearchIndexConfig.php` above a
 Some of the steps and info are the same as above, but are repeated here for completeness.
 
 * in `LocalSettings.php`, you should still have `$wgLanguageCode = "en";`
-* in `AnalysisConfigBuilder.php` un-comment out the `$filters[] = 'asciifolding';` line from function `customize()`
+* in `AnalysisConfigBuilder.php` un-comment out the `$filters[] = 'asciifolding';` line from function `customize()` under `case 'english'`
 * inside vagrant (i.e., do `vagrant ssh` first), run:
   * `mwscript extensions/CirrusSearch/maintenance/updateSearchIndexConfig.php --reindexAndRemoveOk --indexIdentifier now`
   * for a faster re-index on really small document sets, change `MONITOR_SLEEP_SECONDS` in `Reindexer.php` to `1` first.
@@ -388,7 +390,7 @@ You can check on your config after running `updateSearchIndexConfig.php` above a
 <a name="GeneratetheAfterFoldedCountsFile" />
 #### Generate the "After"/Folded Counts File
 
-* inside vagrant, run: `./analyze_counts.pl samples/data/pl.txt > samples/output/en.counts.folded.txt`
+* inside vagrant, run: `./analyze_counts.pl -t folded -d samples/output/ samples/data/en.txt`
   * STDERR output: `..... 5385`
 
 The output to STDERR is the same—it's just a progress indicator on the number of lines in the input file.
@@ -517,6 +519,11 @@ Since the English example ended up being longer than I expected, I'm not going t
 
 * **Loooooooong Japanese Tokens:** The switch from the default CJK analyzer (which uses overlapping bigrams for [CJK characters](https://en.wikipedia.org/wiki/CJK_characters)) to the Japanese-specific Kuromoji decreased [the number of tokens found from 5.5M to 2.4M](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes/Kuromoji_Analyzer_Analysis#Baseline_.28CJK.29_vs_Kuromoji) in my corpus—that's a lot fewer overlapping tokens, and many words longer than 2 characters. However, the lost/found token analysis showed that it was ignoring tokens in at least a dozen other scripts, and doing weird things with fullwidth numbers. The Kuromoji analyzer also revealed the need to look at [really long tokens](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes/Kuromoji_Analyzer_Analysis#Longest_Tokens). In addition to some long Latin-script and Thai tokens, there were some really long Japanese tokens, which turned out to be tokenizing errors; these phrases and sentences just weren't broken up.
 
+* **Folding across character sets with Japanese Kana and in Serbian:**
+  * We got a [request](https://phabricator.wikimedia.org/T176197) to fold Japanese [Hiragana and Katakana](https://en.wikipedia.org/wiki/Kana#Hiragana_and_katakana) on English-language wiki. There's a straightforward 1-to-1 mapping (in `compare_counts/langdata/kana.txt`) that allows `compare_counts.pl` to ignore that alternation and only pay attention to other changes. It worked [fine for English](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes/Hiragana_to_Katakana_Mapping_for_English_and_Japanese), but unpacking the CJK analyzer for Japanese caused too many other problems.
+
+  * Serbian has both a [Cyrillic](https://en.wikipedia.org/wiki/Serbian_Cyrillic_alphabet) and a [Latin](https://en.wikipedia.org/wiki/Gaj%27s_Latin_alphabet) alphabet. When [assessing a potential Serbian stemmer](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes/Serbian_Stemmer_Analysis) it was helpful to not count Cyrillic/Latin alternations as Potential Problem Stems. There is a one-to-one mapping between the Serbian Cyrillic and Serbian Latin alphabets, but the normal Serbian Latin alphabet uses characters with diacritics (*ć, č, đ, š,* and *ž*). Using this direct Cyrillic-to-Latin mapping (in `compare_counts/langdata/serbian_c2l.txt`) does not play well with the `default` mapping. Serbian Cyrillic *ш* is mapped to Latin *š,* but Latin *š* is mapped to *s.* The default mapping, which maps *š* to *s,* can be disabled by specifying "-default" as a language, as in `-l serbian_c2l,-default`. Alternatively, there is a Serbian encoding called "dual1"—used in some academic papers and by the Serbian stemming library I was investigating—that uses *x* and *y* to represent characters that have diacritic in the Latin alphabet. So, both *ш* and *š* would be represented as *sx* (similar to how the same sound is represented in English by *sh*). `-l serbian_dual1` works fine without disabling the `default` mapping, but the resulting stems are less transparent.
+
 * **Custom tools:** Sometimes you need custom tools because there is no end to the weird and wonderful variation that is the awesomeness of language.
   * Another problem with Japanese was that speakers doing review asked for samples of where the tokens had come from. I was able to hack `analyze_counts.pl` to generate samples for a specific list of tokens, but it was too messy to keep in the code. A proper implementation might be useful.
   * For Chinese and Japanese—both spaceless languages—I used an external tool to evaluate segmentation done by the analyzer. For Chinese, the tool came with a segmented corpus. For Japanese I had to find an annotated corpus and munge it into a useful form. Fun times! (Everything is described in more detail, with links, in my write ups.)
@@ -546,6 +553,7 @@ Here are a bunch of things I should probably do, but may never get around to:
   * Add samples to Common Prefix/Suffix Alternations.
   * Expose the hidden parameters.
   * Add a random seed so Histogram of Final Type Lengths is consistent between runs (useful during dev).
+  * Put lost and found categories next to each other for easier comparison.
 * Why Not Both!
   * Use proper JSON parsing.
   * Explicitly specify output files.

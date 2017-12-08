@@ -1,0 +1,35 @@
+# Serbian
+
+# Fold Cyrillic to Latin
+# !! Does not play nice with default folding !!
+
+fold	а	a
+fold	б	b
+fold	в	v
+fold	г	g
+fold	д	d
+fold	ђ	đ
+fold	е	e
+fold	ж	ž
+fold	з	z
+fold	и	i
+fold	ј	j
+fold	к	k
+fold	л	l
+fold	љ	lj
+fold	м	m
+fold	н	n
+fold	њ	nj
+fold	о	o
+fold	п	p
+fold	р	r
+fold	с	s
+fold	т	t
+fold	ћ	ć
+fold	у	u
+fold	ф	f
+fold	х	h
+fold	ц	c
+fold	ч	č
+fold	џ	dž
+fold	ш	š

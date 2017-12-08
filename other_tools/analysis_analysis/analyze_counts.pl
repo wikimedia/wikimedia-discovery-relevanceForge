@@ -21,16 +21,32 @@ use utf8;
 no warnings 'utf8';
 use IO::Handle;
 use Encode;
+use Getopt::Std;
+
+our ($opt_d, $opt_t);
+getopts('d:t:');
+
+my $tag = $opt_t || 'baseline';
+my $dir = $opt_d;
 
 my ($file) = @ARGV;
 my $linecnt = 0;
 my %final_count = ();
 my %reverse = ();
 
+my $outfile = $file;
+$outfile =~ s/\.txt$//;
+$outfile .= ".counts.$tag.txt";
+
+if ($dir) {
+	$outfile =~ s!.*/!$dir/!;
+	}
+
 *STDERR->autoflush();
 
 binmode(STDOUT, ':encoding(UTF-8)');
 open(FILE, '<:encoding(UTF-8)', $file);
+open(OUTFILE, '>:encoding(UTF-8)', $outfile);
 
 while (my $line = <FILE>) {
 	chomp $line;
@@ -119,21 +135,21 @@ unless ($linecnt % 50_000 == 0) {
 	}
 print STDERR "\n";
 
-print "original tokens mapped to final tokens\n";
+print OUTFILE "original tokens mapped to final tokens\n";
 foreach my $otoken (sort keys %final_count) {
-	print "$otoken\n";
+	print OUTFILE "$otoken\n";
 	foreach my $mapto (sort keys %{$final_count{$otoken}}) {
-		print "\t$final_count{$otoken}{$mapto}\t$mapto\n";
+		print OUTFILE "\t$final_count{$otoken}{$mapto}\t$mapto\n";
 		}
 	}
 
-print "\n";
+print OUTFILE "\n";
 
-print "final tokens mapped to original tokens\n";
+print OUTFILE "final tokens mapped to original tokens\n";
 foreach my $token (sort keys %reverse) {
-	print "$token\n";
+	print OUTFILE "$token\n";
 	foreach my $otoken (sort keys %{$reverse{$token}}) {
-		print "\t$reverse{$token}{$otoken}\t$otoken\n";
+		print OUTFILE "\t$reverse{$token}{$otoken}\t$otoken\n";
 		}
 	}
 

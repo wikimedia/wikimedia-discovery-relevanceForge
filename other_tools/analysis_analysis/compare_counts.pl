@@ -468,7 +468,15 @@ sub lang_specific_setup {
 	my %regular_prefixes = ();
 	$language_data{fold}{maxlen} ||= 0;
 
-	foreach my $language ('default', keys %{$config{lang}}) {
+	if ($config{lang}{'-default'}) {
+		delete $config{lang}{'-default'};
+		}
+	else {
+		$config{lang}{'default'} = 1;
+		}
+	my @langlist = keys %{$config{lang}};
+
+	foreach my $language (@langlist) {
 		open(my $FILE, "<:encoding(UTF-8)", $config{data_directory} . "/$language.txt");
 		while (<$FILE>) {
 			chomp;
@@ -672,7 +680,6 @@ sub affix_fold {
 #
 sub fold {
 	my ($term, $force) = @_;
-
 	if (!$config{fold} && !$force) {
 		return $term;
 		}
@@ -963,17 +970,12 @@ HTML
 		}
 
 	# some stats
-	if ($HTML) {
-		foreach my $tc (keys %type_ref_cnt) {
-			print "<a name='count$tc." . $type_ref_cnt{$tc} ."'>\n";
-			}
-		}
 	print_section_head("Histogram of Case-Insensitive Type Group Counts", "typeCountHistogram");
 	print_table_head("count", "freq");
 	foreach my $cnt (sort {$a <=> $b} keys %{$statistics{count_histogram}}) {
 		my $cnt_display = $cnt;
 		if ($HTML && $cnt >= $min_histogram_link) {
-			$cnt_display = "<a href='#count$cnt.1'>$cnt</a>";
+			$cnt_display = "<a name='count$cnt." . $type_ref_cnt{$cnt} ."'><a href='#count$cnt.1'>$cnt</a>";
 			}
 		print_table_row([$cnt_display, $statistics{count_histogram}{$cnt}]);
 		}
