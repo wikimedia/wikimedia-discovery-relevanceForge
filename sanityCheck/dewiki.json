@@ -1,0 +1,14 @@
+{
+    "api": "https://de.wikipedia.org/w/api.php",
+    "queries": {
+        "Bundestagswahl 2017": [
+            "Bundestagswahl 2017"
+        ],
+        "FIFA WM 2018": [
+            "Fußball-Weltmeisterschaft 2018"
+        ],
+        "Rechtswesen Österreichs": [
+            "Österreich"
+        ]
+    }
+}

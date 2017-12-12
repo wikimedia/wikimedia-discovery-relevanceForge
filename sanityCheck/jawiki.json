@@ -1,0 +1,17 @@
+{
+    "api": "https://ja.wikipedia.org/w/api.php",
+    "queries": {
+        "吉木りさ": [
+            "吉木りさ"
+        ],
+        "HXH": [
+            "HUNTER×HUNTER"
+        ],
+        "ハンター×ハンターR": [
+            "HUNTER×HUNTER"
+        ],
+        "ファン太郎": [
+            "朝青龍明徳"
+        ]
+    }
+}

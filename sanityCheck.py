@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from __future__ import print_function
 import argparse
 import json
@@ -37,6 +38,9 @@ def check(model, config):
             print('')
         else:
             print("PASSED\n")
+
+    print("OVERALL: %s" % ("PASSED" if ok else "FAILED"))
+
     return ok
 
 

@@ -1,0 +1,17 @@
+{
+    "api": "https://zh.wikipedia.org/w/api.php",
+    "queries": {
+        "邓伦": [
+            "邓伦"
+        ],
+        "李鐘奭": [
+            "李鍾碩"
+        ],
+        "Master Key": [
+            "Master Key"
+        ],
+        "火鸡节": [
+            "感恩节"
+        ]
+    }
+}

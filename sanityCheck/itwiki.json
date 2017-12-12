@@ -1,0 +1,11 @@
+{
+    "api": "https://it.wikipedia.org/w/api.php",
+    "queries": {
+        "Suburra - La serie": [
+            "Suburra - La serie"
+        ],
+        "Dolcetto o scherzetto?": [
+            "Halloween"
+        ]
+    }
+}
