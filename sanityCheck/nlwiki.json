@@ -1,0 +1,14 @@
+{
+    "api": "https://nl.wikipedia.org/w/api.php",
+    "queries": {
+        "Anouk": [
+            "Anouk"
+        ],
+        "A1 (papier)": [
+            "Papierformaat"
+        ],
+        "Max Verstappen": [
+            "Max Verstappen (coureur)"
+        ]
+    }
+}

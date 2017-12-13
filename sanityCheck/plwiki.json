@@ -1,0 +1,14 @@
+{
+    "api": "https://pl.wikipedia.org/w/api.php",
+    "queries": {
+        "Urugwaj": [
+            "Urugwaj"
+        ],
+        "Miasto stołeczne Warszawa": [
+            "Warszawa"
+        ],
+        "XBT": [
+            "Bitcoin"
+        ]
+    }
+}

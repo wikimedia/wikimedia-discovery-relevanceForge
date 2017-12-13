@@ -1,0 +1,14 @@
+{
+    "api": "https://pt.wikipedia.org/w/api.php",
+    "queries": {
+        "Pablo Escobar": [
+            "Pablo Escobar"
+        ],
+        "Lutero": [
+            "Martinho Lutero"
+        ],
+        "Paris sg": [
+            "Paris Saint-Germain Football Club"
+        ]
+    }
+}

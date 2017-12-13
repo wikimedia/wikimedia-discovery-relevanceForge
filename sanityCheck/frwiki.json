@@ -1,0 +1,14 @@
+{
+    "api": "https://fr.wikipedia.org/w/api.php",
+    "queries": {
+        "U Arena": [
+            "U Arena"
+        ],
+        "DALS": [
+            "Danse avec les stars"
+        ],
+        "Tableau périodique des éléments": [
+            "Tableau périodique des éléments"
+        ]
+    }
+}

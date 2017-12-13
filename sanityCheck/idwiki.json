@@ -1,0 +1,14 @@
+{
+    "api": "https://id.wikipedia.org/w/api.php",
+    "queries": {
+        "Pemerintahan daerah di Indonesia": [
+            "Pemerintahan daerah di Indonesia"
+        ],
+        "Undang-undang dasar": [
+            "Konstitusi"
+        ],
+        "Srivijaya": [
+            "Sriwijaya"
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "api": "https://fi.wikipedia.org/w/api.php",
+    "queries": {
+        "Happamuus": [
+            "Happamuus"
+        ],
+        "Veljessota": [
+            "Suomen sisällissota"
+        ],
+        "Mannerheim": [
+            "Carl Gustaf Emil Mannerheim"
+        ]
+    }
+}

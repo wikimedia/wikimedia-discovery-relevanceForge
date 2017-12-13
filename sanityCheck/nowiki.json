@@ -1,0 +1,14 @@
+{
+    "api": "https://no.wikipedia.org/w/api.php",
+    "queries": {
+        "Buddhisme": [
+            "Buddhisme"
+        ],
+        "Elisabeth II": [
+            "Elizabeth II av Storbritannia"
+        ],
+        "Fotball-VM 2018": [
+            "VM i fotball 2018"
+        ]
+    }
+}

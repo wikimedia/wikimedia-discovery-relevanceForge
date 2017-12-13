@@ -1,0 +1,14 @@
+{
+    "api": "https://vi.wikipedia.org/w/api.php",
+    "queries": {
+        "Ngày Nhà giáo Việt Nam": [
+            "Ngày Nhà giáo Việt Nam"
+        ],
+        "Đời Trần": [
+            "Nhà Trần"
+        ],
+        "Alibaba": [
+            "Alibaba (tập đoàn)"
+        ]
+    }
+}

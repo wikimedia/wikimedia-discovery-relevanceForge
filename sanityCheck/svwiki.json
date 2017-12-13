@@ -1,0 +1,14 @@
+{
+    "api": "https://sv.wikipedia.org/w/api.php",
+    "queries": {
+        "Stockholm": [
+            "Stockholm"
+        ],
+        "Wachtmeister": [
+            "Ian Wachtmeister"
+        ],
+        "Riddare av Nordstjärneorden": [
+            "Nordstjärneorden"
+        ]
+    }
+}
