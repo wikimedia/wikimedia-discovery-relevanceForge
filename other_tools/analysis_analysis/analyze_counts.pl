@@ -23,8 +23,14 @@ use IO::Handle;
 use Encode;
 use Getopt::Std;
 
-our ($opt_d, $opt_t);
-getopts('d:t:');
+our ($opt_a, $opt_d, $opt_h, $opt_i, $opt_p, $opt_t);
+getopts('a:d:h:i:p:t:');
+
+# -h host, -p port, -i index, -a analyzer
+my $host = $opt_h || 'localhost';
+my $port = $opt_p || '9200';
+my $index = $opt_i || 'wiki_content';
+my $analyzer = $opt_a || 'text';
 
 my $tag = $opt_t || 'baseline';
 my $dir = $opt_d;
@@ -85,7 +91,7 @@ while (my $line = <FILE>) {
 	my $escline = $line;
 	$escline = urlize($escline);
 
-	my $json = `curl -s localhost:9200/wiki_content/_analyze?pretty -d '{"analyzer": "text", "text" : "$escline" }'`;
+	my $json = `curl -s $host:$port/$index/_analyze?pretty -d '{"analyzer": "$analyzer", "text" : "$escline" }'`;
 	$json = decode_utf8($json);
 
 	if ($json =~ /"error" :\s*{\s*"root_cause" :/s) {
@@ -93,27 +99,27 @@ while (my $line = <FILE>) {
 		exit;
 		}
 
+	# Elastic interprets high surrogate/low surrogate pairs as two characters.
+	# Add ^A as padding after high-value Unicode characters so offsets are correct.
+	my $pad = chr(1);
+	$line =~ s/(\p{InSurrogates})/$1$pad/g;
+
 	my %tokens = ();
-	my $hs_offset = 0;  # offset to compensate for errors caused by high-surrogate characters
 	my $token;
 	my $start;
 	my $end;
-	my $offset;
+
 	foreach my $jline (split(/\n\s*/, $json)) {
 		if ($jline =~ /^"token" : "(.*)",$/) {
 			$token = $1;
 			}
 		elsif ($jline =~ /^"start_offset" : (\d+),$/) {
-			$start = $1 - $hs_offset;
-			# handle rare UTF-16 & UTF-32 Chinese characters
-			$offset = ( $token =~ s/\\u(D8[0-9A-F]{2})/ pack 'U*', hex($1) /eg );
-			$hs_offset += $offset;
-			$token =~ s/\\u([0-9A-F]{4})/ pack 'U*', hex($1) /eg;
+			$start = $1;
 			}
 		elsif ($jline =~ /^"end_offset" : (\d+),$/) {
-			$end = $1 - $hs_offset;
-			next if $offset;
+			$end = $1;
 			my $otoken = substr($line, $start, $end-$start);
+			$otoken =~ s/$pad//g; # remove any ^A padding from actual tokens
 			$tokens{"$start|$end|$otoken"}{$token}++;
 			}
 		}
@@ -164,3 +170,9 @@ sub urlize {
 	return $rv;
 }
 
+# user-defined character class for high-value Unicode characters
+sub InSurrogates {
+        return <<END;
+10000	FFFCFF
+END
+    }

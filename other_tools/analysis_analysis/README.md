@@ -58,7 +58,7 @@ Let's see what we've got:
 
 This is a pretty straightforward program to run:
 
-    ./analyze_counts.pl [-t <tag>] [-d <dir>] input_file.txt
+    ./analyze_counts.pl [-t <tag>] [-d <dir>] [-h host] [-p port] [-i index] [-a analyzer] input_file.txt
 
 * The input file is just a UTF-8–encoded text file with the text to be analyzed.
   * It is not strictly necessary, but it seems helpful to remove markup unless you are testing your analyzer's ability to handle markup.
@@ -69,8 +69,9 @@ This is a pretty straightforward program to run:
   * By default, the counts file will be written to the same directory as the input file. If you'd like it to written to a different directory, use `-d <dir>`
   * The output is optimized for human readability, so there's *lots* of extra whitespace.
   * Obviously, if you had another source of pre- and post-analysis tokens, you could readily reformat them into the format output by `analyze_counts.pl` and then use `compare_counts.pl` to analyze them.
+* The default host:port, index, analyzer combo is `localhost:9200`, `wiki_content`, and `text`. You can overrride any or all of these with `-h`, `-p`, `-i`, and `-a`.
 * While the program is running, dots and numbers are output to STDERR as a progress indicator. Each dot represents 1000 lines of input and the numbers are running totals of lines of input processed. On the 1MB sample files, this isn't really necessary, but when processing bigger corpora, I like it.
-* The program does some hocus-pocus with 32-bit CJK characters that use [high and low surrogates](https://en.wikipedia.org/wiki/Universal_Character_Set_characters#Surrogates), because these have caused problems with character counts with the tokenizer I was using. I haven't run into any difficulties, but that bit of code has not been severely stress-tested.
+* The program does some hocus-pocus with 32-bit CJK characters, emoji, and other characters that use [high and low surrogates](https://en.wikipedia.org/wiki/Universal_Character_Set_characters#Surrogates), because these have caused problems with character counts with various tokenizers I've used. Elasticsearch internally counts such characters as two characters, and this breaks the offsets into the original string. So, the program adds `^A` ([ASCII code 1](https://en.wikipedia.org/wiki/C0_and_C1_control_codes#SOH)) after such characters in the original string so the offsets are correct. The `^A` is stripped from tokens found in the original string. If your input contains `^A`, you are going to have a bad day. Overall, it seems to work, but that bit of code has not been severely stress-tested.
 
 <a name="Runningcomparecountspl" />
 ## Running `compare_counts.pl`
@@ -345,11 +346,7 @@ The primary purpose of this example is to do a comparison analysis between confi
 
 Since generating the counts files requires re-configuring Elasticsearch and/or MediaWiki, you can skip these first few steps and just jump down to **Comparison Analysis of the Unfolded and Folded Count Files** and use the provided English count files, `samples/output/en.counts.unfolded.txt` and `samples/output/en.counts.folded.txt`.
 
-To generate the count files, `analyze_counts.pl` needs access to the English language analyzer; it assumes Elasticsearch is running on localhost at port 9200, with an index called `wiki_content` and a properly configured analyzer called `text`.
-
-On the one hand, that's why using vagrant is easy—everything is all set up. On the other hand, all those assumptions are built into one `curl` command inside `analyze_counts.pl`, and can easily be changed:
-
-> curl -s **localhost**:**9200**/**wiki\_content**/\_analyze?pretty -d '{"analyzer": "**text**", "text" : "$escline" }'
+To generate the count files, `analyze_counts.pl` needs access to the English language analyzer; it assumes Elasticsearch is running on localhost at port 9200, with an index called `wiki_content` and a properly configured analyzer called `text`, which are the defaults when using vagrant. You can change them as necessary when running `analyze_counts.pl` by using `-h`, `-p`, `-i`, and `-a`.
 
 <a name="ReConfigureMediaWikiElasticsearchforEnglishWithoutFoldingEnabled" />
 #### Re-Configure MediaWiki/Elasticsearch for English *Without* Folding Enabled
@@ -538,7 +535,6 @@ Since the English example ended up being longer than I expected, I'm not going t
 Here are a bunch of things I should probably do, but may never get around to:
 
 * `analyze_counts.pl`
-  * Add config options for host, port, index, and analyzer.
   * Line batching:
     * Add config for number of lines and total size of input.
     * Check for max input size before tacking on the new line rather than after (but it's *so much more complicated!*).
