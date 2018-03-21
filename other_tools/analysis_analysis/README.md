@@ -1,12 +1,14 @@
 # Trey's Language Analyzer Analysis Tools
 
-December 2017
+March 2018
 
 These are the tools I use to do analysis of Elasticsearch language analyzers and custom analysis chains. Most of [my analysis write ups](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes#Elasticsearch_Analysis_Chain_Analysis) are available on MediaWiki.org. The older ones, naturally, used less complex versions of this code—I update it whenever something weird happens!
 
 ## Table of Contents
 1. [What's Here?](#WhatsHere)
 1. [Running `analyze_counts.pl`](#Runninganalyzecountspl)
+  1. [Default Usage](#DefaultUsage)
+  1. [Using an External Stemmer](#UsinganExternalStemmer)
 1. [Running `compare_counts.pl`](#Runningcomparecountspl)
   1. [A Few Useful Notes](#AFewUsefulNotes)
     1. [On Types and Tokens](#OnTypesandTokens)
@@ -48,7 +50,7 @@ These are the tools I use to do analysis of Elasticsearch language analyzers and
 
 Let's see what we've got:
 
-* `analyze_counts.pl`: This is a simple program to run sample text against a language analyzer. It asks Elasticsearch to analyze the text, maps tokens in the output back to strings in the input, and keeps count of how often each mapping occurs.
+* `analyze_counts.pl`: This is a program to run sample text against a language analyzer. It asks Elasticsearch to analyze the text, maps tokens in the output back to strings in the input, and keeps count of how often each mapping occurs. It can also output tokens in the middle of the process, allow you to run an external stemmer on them, read them back in, and continue counting from there.
 * `compare_counts.pl`: This is a much more complex program that does the real analysis of the language analyzer. It can perform either a "self analysis" on one counts file, or a "comparison analysis" between two counts files. See more below.
 * `samples/data/`: This directory contains 1MB samples of text from articles from various Wikipedias. The corpora have had markup removed, and lines have been deduped.
 * `samples/output/`: This directory contains output from the English examples below, so you can check them out without having to run everything yourself.
@@ -56,9 +58,50 @@ Let's see what we've got:
 <a name="Runninganalyzecountspl" />
 ## Running `analyze_counts.pl`
 
-This is a pretty straightforward program to run:
+Here's the usage for reference:
 
-    ./analyze_counts.pl [-t <tag>] [-d <dir>] [-h host] [-p port] [-i index] [-a analyzer] input_file.txt
+    usage: ./analyze_counts.pl  [-t <tag>] [-d <dir>]
+        [-h <host>] [-p <port>] [-i <index>] [-a <analyzer>]
+        [-1] <input_file>.txt | -2 <input_counts>.txt <input_stemmed>.txt
+
+        -t <tag>   tag added to the names of output files (default: baseline)
+                     e.g., <input_file>.counts.<tag>.txt
+        -d <dir>   directory output files should be written to
+                     (default: same as <input_file>.txt or <input_stemmed>.txt)
+
+        -h <host>  specify host for analysis (default: localhost)
+        -p <port>  specify port for analysis (default: 9200)
+        -i <index> specify index for analysis (default: wiki_content)
+        -a <analyzer>
+                   specify analyzer for analysis (default: text)
+
+          Analyzer information is used for normal processing, or when creating
+          output for an external stemmer (-1), but not when using input from an
+          external stemmer (-2).
+
+        Create a one-token-per-line output for an external stemmer
+        -1         instead of normal counts output file, create two files:
+                   - <input_file>.tok-count.<tag>.txt, with original tokens
+                        and counts
+                   - <input_file>.tok-unstemmed.<tag>.txt, with analyzed
+                        tokens to be stemmed
+
+                   The tok-unstemmed file should be stemmed by the external
+                     stemmer, returning new tokens on matching lines.
+
+        Use one-token-per-line input from an external stemmer
+        -2 <input_counts>.txt <input_stemmed>.txt
+                   instead of the normal input text, the original tokens and
+                     counts are read from <input_counts>.txt, and the stemmed
+                     tokens are read from <input_stemmed>.txt. The normal
+                     counts output file is generated as output.
+
+        -1 and -2 cannot be used at the same time.
+
+<a name="DefaultUsage" />
+### Default Usage
+
+(i.e., not using -1 or -2)
 
 * The input file is just a UTF-8–encoded text file with the text to be analyzed.
   * It is not strictly necessary, but it seems helpful to remove markup unless you are testing your analyzer's ability to handle markup.
@@ -68,17 +111,37 @@ This is a pretty straightforward program to run:
   * The output file name will be `<input_file>.counts.<tag>.txt`. If no `<tag>` is specified with `-t`, then `baseline` is used.
   * By default, the counts file will be written to the same directory as the input file. If you'd like it to written to a different directory, use `-d <dir>`
   * The output is optimized for human readability, so there's *lots* of extra whitespace.
-  * Obviously, if you had another source of pre- and post-analysis tokens, you could readily reformat them into the format output by `analyze_counts.pl` and then use `compare_counts.pl` to analyze them.
+  * Obviously, if you had another source of pre- and post-analysis tokens, you could readily reformat them into the format output by `analyze_counts.pl` and then use `compare_counts.pl` to analyze them. (See also [Using an External Stemmer](#UsinganExternalStemmer) below.)
 * The default host:port, index, analyzer combo is `localhost:9200`, `wiki_content`, and `text`. You can overrride any or all of these with `-h`, `-p`, `-i`, and `-a`.
 * While the program is running, dots and numbers are output to STDERR as a progress indicator. Each dot represents 1000 lines of input and the numbers are running totals of lines of input processed. On the 1MB sample files, this isn't really necessary, but when processing bigger corpora, I like it.
 * The program does some hocus-pocus with 32-bit CJK characters, emoji, and other characters that use [high and low surrogates](https://en.wikipedia.org/wiki/Universal_Character_Set_characters#Surrogates), because these have caused problems with character counts with various tokenizers I've used. Elasticsearch internally counts such characters as two characters, and this breaks the offsets into the original string. So, the program adds `^A` ([ASCII code 1](https://en.wikipedia.org/wiki/C0_and_C1_control_codes#SOH)) after such characters in the original string so the offsets are correct. The `^A` is stripped from tokens found in the original string. If your input contains `^A`, you are going to have a bad day. Overall, it seems to work, but that bit of code has not been severely stress-tested.
+
+<a name="UsinganExternalStemmer" />
+### Using an External Stemmer
+
+As I started to run out of Elasticsearch analyzers to test, I started looking for stemmers (and potentially other morphological analysis software, but mostly stemmers) that could be wrapped up into Elasticsearch analyzers. I didn't want to necessarily have to do all the work to create an Elasticsearch analyzer (which could also involve changing the programming language of the stemmer) just to be able to test it. So I built out a way to outsource part of the analysis to an external, command line stemmer (or other analysis software).
+
+The stemmers I've played with have different input and output formats, but they all seem to be able to handle taking one token per line and returning one token per line.
+
+So, after configuring an Elasticsearch analyzer with some basic tokenization and maybe basic normalization—I used the standard tokenizer and ICU Normalizer—you can use an external stemmer as follows.
+
+* **Generate Stemmer Input File:** Use `-1` (for "one-token-per-line") to generate a one-token-per-line file that can be fed to the stemmer. It will also generate a corresponding file with counts for original tokens. (Because of normalization, even if it is just lowercasing, you can have multiple original tokens matching one token to be stemmed.) Given the command line `./analyze_counts.pl -1 input.txt` (using the default tag `baseline`), you'll get two output files:
+  * `input.tok-count.baseline.txt`, which contains a tab-separated list of original tokens and counts for each normalized token in the other file. For example: `MUSIC	2 Music	3	music	1`.
+  * `input.tok-unstemmed.baseline.txt`, which contains the corresponding normalized token, one per line. For example: `music`.
+* **Stem Your Tokens:** Use your command-line stemmer or whatever other process to generate a stemmed version of the tok-unstemmed file. For example, if your stemmer has both a "light" and "aggressive" version you want to test, you might run these two commands:
+  * `cl_stemmer -light < input.tok-unstemmed.baseline.txt > input.light-stem.txt`
+  * `cl_stemmer -aggressive < input.tok-unstemmed.baseline.txt > input.aggressive-stem.txt`
+* **Generate Counts Files from Stemmer Output Files:** Use `-2` (for "that which comes after 1") to generate a normal counts file based on the `tok-count` file and the output of the stemmer. So, if you had a counts file named `input.tok-counts.baseline.txt` you could generate counts file for your "light" stemmed filed above like this:
+  * `./analyze_counts.pl -t light -2 input.tok-counts.baseline.txt input.light-stem.txt`, which would generate `input.light-stem.counts.light.txt`.
+
+Yeah, the file names can get mildly ridiculous.
 
 <a name="Runningcomparecountspl" />
 ## Running `compare_counts.pl`
 
 Here's the usage for reference:
 
-    usage: $0 -n <newfile> [-o <oldfile>] [-d <dir>] [-l <lang,lang,...>]
+    usage: ./compare_counts.pl -n <newfile> [-o <oldfile>] [-d <dir>] [-l <lang,lang,...>]
         [-x] [-1] [-h] [-f] [-s <#>] [-t <#>]
 
         -n <file>  "new" counts file
@@ -452,7 +515,7 @@ The remaining two, though, show something interesting:
 
 If you look in `AnalysisConfigBuilder.php` you'll see that `asciifolding` is configured to happen right before `kstem`, which does the actual stemming for English. With diacritics, *gábor* and *wörner* are untouched. Without the diacritics, their final *-er* and *-or* are seen as suffixes (like *work-er* and *direct-or*) and stripped off.
 
-Unless you try to maintain a complete lexicon of every word in a language—which is impossible!—this kind of thing is going to happen, because heuristics are never perfect. (If they were, they'd be *rules,* and English has never met a spelling "rule" it couldn't break.) So, while this isn't particularly *good,* it is understandable, and more or less expected. 
+Unless you try to maintain a complete lexicon of every word in a language—which is impossible!—this kind of thing is going to happen, because heuristics are never perfect. (If they were, they'd be *rules,* and English has never met a spelling "rule" it couldn't break.) So, while this isn't particularly *good,* it is understandable, and more or less expected.
 
 Whether or not ASCII folding should happen before or after stemming in English is something I looked at with a much earlier (and more confusing) version of these tools. My [detailed write up](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes/Re-Ordering_Stemming_and_Ascii-Folding_on_English_Wikipedia) is on MediaWiki.org.
 
@@ -539,6 +602,7 @@ Here are a bunch of things I should probably do, but may never get around to:
     * Add config for number of lines and total size of input.
     * Check for max input size before tacking on the new line rather than after (but it's *so much more complicated!*).
   * Proper implementation of context sampling for specified tokens.
+  * Consider allowing calling out to external command-line stemmer
 * `compare_counts.pl`
   * Add checks that language files and other config files exist and/or open properly.
   * Refactor / consolidate `strip_*fixes` and `regular_*fixes`.
@@ -550,7 +614,10 @@ Here are a bunch of things I should probably do, but may never get around to:
   * Expose the hidden parameters.
   * Add a random seed so Histogram of Final Type Lengths is consistent between runs (useful during dev).
   * Put lost and found categories next to each other for easier comparison.
+  * Allow some folding on "old" tokens to compare to "new" tokens. (This came up in Serbian—old token is Cyrillic, new token is Latin, everything is folded to Latin, so new token can't match old, generating lots of unneeded "bad" collisions.)
+  * Sample Lost and Found tokens down to 1,000 (by default, configurable) of each type.
 * Why Not Both!
+  * Add checks that input files exist, open properly, and are properly formatted
   * Use proper JSON parsing.
   * Explicitly specify output files.
   * Optionally disable progress indicator.

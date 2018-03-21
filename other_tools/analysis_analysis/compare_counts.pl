@@ -410,7 +410,7 @@ sub common_suffix {
 	my @terms = @_;
 	my $common = shift @terms;
 	foreach my $s (@terms) {
-		while ($s !~ /$common$/) {
+		while ($s !~ /\Q$common\E$/) {
 			$common = substr $common, 1;
 			}
 		}
@@ -421,7 +421,7 @@ sub common_prefix {
 	my @terms = @_;
 	my $common = shift @terms;
 	foreach my $s (@terms) {
-		while ($s !~ /^$common/) {
+		while ($s !~ /^\Q$common\E/) {
 			chop $common;
 			}
 		}
@@ -897,6 +897,10 @@ sub print_new_report {
 	print $bold_open, "Processing $newfile as \'new\'.", $bold_close, $cr;
 	print $cr;
 	print $bold_open, "Total new tokens: ", $bold_close, $statistics{total_tokens}{new}, $cr;
+
+	print $indent, $bold_open, 'pre-analysis types: ', $bold_close, $statistics{type_count}{orig}{new}, $cr;
+	print $indent, $bold_open, 'post-analysis types: ', $bold_close, $statistics{type_count}{final}{new}, $cr;
+
 	print $cr;
 	if (0 < keys %{$config{lang}}) {
 		print $bold_open, "Language processing: ", $bold_close, join(", ", sort keys %{$config{lang}}), $cr;
@@ -1243,6 +1247,12 @@ sub token_category {
 	if ($token =~ s/\x{200E}|\x{200F}|\x{202A}|\x{202B}|\x{202C}|\x{202D}|\x{202E}|\x{2066}|\x{2067}|\x{2068}|\x{2069}|\x{061C}//g) {
 		$modifier .= '+bidi';
 		}
+	if ($token =~ s/\p{Block: Combining_Diacritical_Marks}//g) {
+		$modifier .= '+comb';
+		}
+	if ($token =~ s/\p{Block: Modifier_Letters}//g) {
+		$modifier .= '+mod';
+		}
 	if ($token =~ s/\$$//g) {
 		$modifier .= '+$';
 		}
@@ -1283,8 +1293,9 @@ sub token_category {
 	elsif ($token =~ /^([a-z'’-]|\p{Latin})+$/i) { $category = 'Latin (Extended)'; }
 	elsif ($token =~ /^([́']|\p{Cyrillic})+$/i) { $category = 'Cyrillic'; }
 	elsif ($token =~ /^\p{Greek}+$/i) { $category = 'Greek'; }
-	elsif ($token =~ /^(\p{Arabic}|\p{Arabic_Ext_A}|\p{Arabic_Supplement}|\x{200E})+$/i) { $category = 'Arabic'; }
+	elsif ($token =~ /^(\p{Block: Arabic}|\p{Arabic_Ext_A}|\p{Arabic_Supplement}|\x{200E})+$/i) { $category = 'Arabic'; }
 	elsif ($token =~ /^\p{Armenian}+$/i) { $category = 'Armenian'; }
+	elsif ($token =~ /^\p{Bopomofo}+$/i) { $category = 'Bopomofo'; }
 	elsif ($token =~ /^\p{Bengali}+$/i) { $category = 'Bengali'; }
 	elsif ($token =~ /^\p{Devanagari}+$/i) { $category = 'Devanagari'; }
 	elsif ($token =~ /^\p{Ethiopic}+$/i) { $category = 'Ethiopic'; }
