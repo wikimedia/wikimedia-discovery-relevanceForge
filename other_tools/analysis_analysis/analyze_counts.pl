@@ -140,7 +140,7 @@ if ($ext_stem_in) {
 				}
 			}
 
-		next if !$token;
+		next if $token eq '';
 
 		while (@counts) {
 			my $otoken = shift @counts;
