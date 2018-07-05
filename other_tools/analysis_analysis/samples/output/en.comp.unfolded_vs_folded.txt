@@ -3,6 +3,7 @@ Processing samples/output/en.counts.folded.txt as 'new'.
 
 Total old tokens: 116241
 Total new tokens: 116241
+Language processing: default
 
 
 Pre/Post Type & Token Stats
@@ -37,20 +38,20 @@ Categories overlap. Numbers are usually unchanged, and all lc_unchanged are also
 
 New Collision Stats
 -------------------
- types: 156 (0.898%) [post-analysis types]
-tokens: 123 (0.106%)
+New collisions: 70 (0.403% of post-analysis types)
+    added types: 73 (0.307% of pre-analysis types)
+    added tokens: 123 (0.106% of tokens)
+    total types in collisions: 179 (0.752% of pre-analysis types)
 
+Narrative: 73 pre-analysis types (0.307% of pre-analysis types) / 123 tokens (0.106% of tokens) were added to 70 groups (0.403% of post-analyis types), affecting a total of 179 pre-analysis types (0.752% of pre-analysis types) in those groups.
 
-New Split Stats
----------------
- types: 0 (0%) [post-analysis types]
-tokens: 0 (0%)
+Note: All percentages are relative to old token/type counts.
 
 
 New Collision Near Match Stats
 ------------------------------
 type	token	kind
-71	123	other
+73	123	other
 
 Key
 New collision type is a near match for a type already in the group after...
@@ -60,18 +61,15 @@ New collision type is a near match for a type already in the group after...
     folded_regulars: applying generic and language-specific character
         folding, de-spacing, de-hyphenation, and removing language-specific
         regular prefixes and suffixes
-Categories do not overlap.
+Categories do not overlap. Types are post-analysis types
 
 
 Lost and Found Tokens
 ---------------------
- Lost post-analysis tokens (old only): 484
-Found post-analysis tokens (new only): 409
+ Lost post-analysis types/tokens (old only): 484 / 661
+Found post-analysis types/tokens (new only): 409 / 535
 
 Lost post-analysis tokens by category
-
-     other: 1 types, 1 tokens
-    ˈzbraxlin
 
     Arabic: 6 types, 6 tokens
     أبو	جمعية	عودة	هزارگی	کرمی	یوسف
@@ -85,14 +83,26 @@ Lost post-analysis tokens by category
     Hebrew: 4 types, 4 tokens
     יִשְׂרְאֵלִית	יִשׂרְאְלִיּוֹת	לִירָה	לִירוֹת
 
-    IPA-ish: 11 types, 11 tokens
-    flœʁ	pɛl	ɡɔˈʂɨt͡sɛ	ɢ	ɨ	ʁɛ̃	ˈeːijaˌfjœrðʏr̥	ˈveɾð	ˈvilɐ	ˈɕt͡ɕeɡnɨ	ˈɡrabuf
+    IPA-ish: 4 types, 4 tokens
+    flœʁ	pɛl	ɢ	ɨ
+
+    IPA-ish+comb: 1 types, 1 tokens
+    ʁɛ̃
+
+    IPA-ish+comb+mod: 3 types, 3 tokens
+    ɡɔˈʂɨt͡sɛ	ˈeːijaˌfjœrðʏr̥	ˈɕt͡ɕeɡnɨ
+
+    IPA-ish+mod: 3 types, 3 tokens
+    ˈveɾð	ˈvilɐ	ˈɡrabuf
 
     Kannada: 1 types, 1 tokens
     ಸಂಕೇಶ್ವರ
 
     Katakana: 2 types, 2 tokens
     ガス	テレビ
+
+    Latin (Basic)+mod: 1 types, 1 tokens
+    ˈzbraxlin
 
     Latin (Extended): 451 types, 627 tokens
     abū	adhémar	administrația	adésio	ajilimójili	ají	alexandrín	alfréd	aliæ	almási	altădată	améleté	américaine	andrás	andrés	angélica	antónio	apatzingán	archäologische	armançon	arê	associação	atlética	atê	autónoma	ayê	aýlagy	bahá	balgstädt	bartolomé	baçente	baš	bengoué	bibliothèque	bjølsegrøvvatnet	bjørgvin	blatný	bobuțac	bolesław	boulangère	boţan	bragança	brașov	bucurești	burău	buṭ	bäčkäm	béla	bílý	bóbr	bû	bălan	běh	café	camões	casé	charrière	chorągiews	châtelain	città	constanța	cristóvão	créole	crépin	crónica	cárdenas	césar	cîrstea	córdoba	cărturari	dalvík	decepción	democrático	diabétique	domicó	domínguez	début	défense	département	dépistage	día	efraín	eheverhältnisse	ejército	emām	epistolæ	erótico	escultórico	esitelmä	esmé	españa	estádio	etelä	eyjafjarðardalur	eyjafjarðará	eyjafjörður	fatwās	fehér	fehérvári	fernández	fiancé	filisţīnī	flatabø	fnjóská	franché	français	françois	frédéric	fáil	félicien	garcía	geográfico	gjögurtá	godeliève	gonzález	grabów	grenivík	grévin	grímsey	grímsson	grünberg	guatémalienne	guillén	guimarães	guérard	győr	gábor	gérard	góra	głogowa	głogów	haendŭp	hamlagrøvatnet	haïti	haïtiens	hebräer	hlavní	hlaváček	hrál	hrísey	häcken	hälströmin	hébertville	hörgá	hörgárdalur	hā	ichirō	iidesjärvi	ildikó	ilić	imrûz	imām	intégration	inéditos	isrāīlī	itäinen	jiménez	jiří	josé	județului	jutarō	jóhanna	jüdische	jüdischen	jürgen	kalû	kaposvár	kaški	kaṭa	keflavík	khairābād	kheyrābād	khālid	kocmyrzów	koppányszántó	kraków	květa	kállay	kálmán	käerjéng	kärryseppiä	könnin	kōgen	kōkai	latinského	lehkých	león	liebedswíller	lillafüred	linné	loué	lucía	luleå	lusíadas	luziânia	luís	lycée	läntinen	lékó	léo	lópez	löf	maatalousnäyttelyyn	manjirō	martyniów	martynów	masqué	maḥmud	mețianu	michoacán	microïds	mondragón	monáe	munții	munților	muḥammad	mácha	mádl	mékambo	métabetchouan	métis	méxico	mê	møre	mākānī	nakło	națională	neguța	neuchâtel	nièvre	niérika	nopankylän	nygårdshaug	nyström	nyströmøya	nyynäinen	náhrada	näscher	näyttely	née	nóra	nāga	ogooué	oldřich	olléon	opéra	országos	ouèssè	paraná	patiția	patrícia	paweł	pašm	penélope	pernía	personæ	perényi	pestszentlőrinc	petőfi	pirḥe	podgórzyn	polatlı	polgár	porównawcza	pourtalès	protégé	protégés	przekładu	prémonition	prénoms	ptáků	páramos	pärt	péter	póšum	păcurariu	păun	přízvučná	québec	radioélectrique	raça	rațiu	rené	rhône	rivière	român	române	româniei	ropočevo	rozdół	rychlé	règles	rémi	rétinopathie	rîurile	römischen	salomón	santé	seinäjoen	sekä	seán	señora	sgallová	shā	shāfī	shǔ	siglufjörður	sigurðardóttir	sinéad	snälla	soirée	spånga	stanisław	století	sueños	suárez	svalbarðseyri	svarfaðardalur	sá	süddeutsche	südtirol	sącz	słowiańska	słowiańskich	tecnológico	telepacífico	terán	théâtre	topográfico	toruń	tréteaux	tröllaskagi	tulḡa	tunkúl	tájékoztató	tánchéng	tène	tête	tír	tørvikbygd	türkmenbaşy	tǐyù	umeå	união	urlăţelu	vaigattøyane	valérie	varaldsøy	varietät	varietäten	varèse	vemmelsääri	veslování	vieuchêne	vikør	vikøy	vikøyar	vladimír	vlădeasa	vršovci	vyhlídal	vác	värmland	värnamo	vålerenga	vítězslav	wahlbergøya	worî	wrocław	wuḵt	wörner	władysław	yši	zadié	zeleném	zihlbrücke	zoltán	zsófia	zöllner	à	álava	álmos	árpád	árskógssandur	å	ålvik	åsegrenda	åsgrenda	ælfric	école	écus	étoile	été	évelyne	évêque	í	ía	íba	în	ó	óg	ólafsfjörður	ólafur	östers	øre	øystese	øyvind	úrvalsdeild	û	ûw	über	überzone	ā	āb	ān	čaman	červenka	česká	český	čiz	člůnků	ēm	ēw	łaszcz	łódź	łęczyca	řeckého	ściegny	świecie	şafī	şanlıurfaspor	šaydi	ši	šuda	ţării	ūdah	șaguna	și	țurcan	țăranu	ḍ	ḥarbī	ḵona	ḵondagi	ḵot	ḵu	ḵun	ḵût	ḵāh	ṭ	ẓefirah
@@ -122,10 +132,11 @@ Found post-analysis tokens by category
 
 
 
-Changed Collisions
-------------------
-    <<: indicates net loss of types merged
-    >>: indicates net gain of types merged
+Changed Groups
+--------------
+    <<: indicates net loss of types/tokens
+    ><: indicates mixed gains and losses of types/tokens
+    >>: indicates net gain of types/tokens
     terseness: 0
 
 Net Gains:
@@ -344,78 +355,80 @@ worn >>
 
 Bad Collisions?
 ---------------
-    71 collisions vs mininmum stem length: 5
+    73 collisions vs mininmum stem length: 5
 
 stemmed	added type -> group
 ab	[1 āb] -> [2 AB][1 ab]
-abu	[1 abū] -> [8 Abu]
+abu	[1 Abū] -> [8 Abu]
 alexandrin	[2 alexandrín] -> [1 alexandrin]
-alfred	[2 alfréd] -> [5 Alfred]
-antonio	[2 antónio] -> [4 Antonio]
-bela	[1 béla] -> [2 Bela]
-cafe	[2 café] -> [2 Cafe][1 cafe]
-case	[1 casé] -> [1 Case][1 Cases][33 case][18 cases]
-creole	[3 créole] -> [3 Creole]
+alfred	[2 Alfréd] -> [5 Alfred]
+antonio	[2 António] -> [4 Antonio]
+bela	[1 Béla] -> [2 Bela]
+cafe	[1 Café] -> [2 Cafe][1 cafe]
+cafe	[1 café] -> [2 Cafe][1 cafe]
+case	[1 Casé] -> [1 Case][1 Cases][33 case][18 cases]
+creole	[3 Créole] -> [3 Creole]
 d	[1 ḍ] -> [48 D][16 d]
 debut	[1 début] -> [19 debut][3 debuted]
 defense	[1 défense] -> [3 Defense][6 defense][1 defenses]
-dia	[1 día] -> [3 Dia]
+dia	[1 Día] -> [3 Dia]
 em	[1 ēm] -> [2 EM]
-emam	[2 emām] -> [1 Emam]
-esme	[1 esmé] -> [1 Esme]
-ete	[1 été] -> [1 ete]
-fail	[1 fáil] -> [2 Failed][1 fail][20 failed]
-francoi	[1 françois] -> [1 Francois]
+emam	[2 Emām] -> [1 Emam]
+esme	[1 Esmé] -> [1 Esme]
+ete	[1 Été] -> [1 ete]
+fail	[1 Fáil] -> [2 Failed][1 fail][20 failed]
+francoi	[1 François] -> [1 Francois]
 g	[1 ɢ] -> [23 G][35 g]
-gab	[1 gábor] -> [1 Gabes][1 gabions]
-glogow	[13 głogów] -> [1 GLOGOW]
+gab	[1 Gábor] -> [1 Gabes][1 gabions]
+glogow	[13 Głogów] -> [1 GLOGOW]
 ha	[1 hā] -> [5 Ha][8 ha]
-harbi	[1 ḥarbī] -> [17 Harbi]
-hebertville	[2 hébertville] -> [1 Hebertville]
+harbi	[1 Ḥarbī] -> [17 Harbi]
+hebertville	[2 Hébertville] -> [1 Hebertville]
 i	[2 í] -> [153 I][30 i]
 i	[1 ɨ] -> [153 I][30 i]
-imam	[1 imām] -> [1 Imam][1 imams]
-integrate	[1 intégration] -> [1 Integration][1 integrate][2 integrates][1 integrating][2 integration][1 integrative]
-jose	[3 josé] -> [5 Jose]
-kheyrabad	[1 kheyrābād] -> [1 Kheyrabad]
+imam	[1 Imām] -> [1 Imam][1 imams]
+integrate	[1 Intégration] -> [1 Integration][1 integrate][2 integrates][1 integrating][2 integration][1 integrative]
+jose	[3 José] -> [5 Jose]
+kheyrabad	[1 Kheyrābād] -> [1 Kheyrabad]
 ku	[3 ḵu] -> [1 ku]
 kun	[1 ḵun] -> [1 kun]
-leo	[1 léo] -> [4 Leo]
-leon	[1 león] -> [6 Leon]
-lopez	[4 lópez] -> [3 Lopez]
-lucia	[1 lucía] -> [1 Lucia]
-lui	[1 luís] -> [3 Luis]
-mahmud	[1 maḥmud] -> [1 Mahmud]
+leo	[1 Léo] -> [4 Leo]
+leon	[1 León] -> [6 Leon]
+lopez	[4 López] -> [3 Lopez]
+lucia	[1 Lucía] -> [1 Lucia]
+lui	[1 Luís] -> [3 Luis]
+mahmud	[1 Maḥmud] -> [1 Mahmud]
 me	[1 mê] -> [14 Me][7 me]
-mexico	[4 méxico] -> [24 Mexican][21 Mexico]
-more	[2 møre] -> [12 More][166 more]
-muhammad	[1 muḥammad] -> [4 Muhammad]
-naga	[1 nāga] -> [3 Naga][1 Nagas][2 naga][2 nagas]
-o	[1 ó] -> [41 O][22 o]
-og	[1 óg] -> [3 og]
+mexico	[3 México] -> [24 Mexican][21 Mexico]
+mexico	[1 méxico] -> [24 Mexican][21 Mexico]
+more	[2 Møre] -> [12 More][166 more]
+muhammad	[1 Muḥammad] -> [4 Muhammad]
+naga	[1 Nāga] -> [3 Naga][1 Nagas][2 naga][2 nagas]
+o	[1 Ó] -> [41 O][22 o]
+og	[1 Óg] -> [3 og]
 opera	[1 opéra] -> [1 opera][1 operas]
-ore	[1 øre] -> [1 ore]
-part	[1 pärt] -> [14 Part][104 part]
+ore	[1 Øre] -> [1 ore]
+part	[1 Pärt] -> [14 Part][104 part]
 personae	[1 personæ] -> [1 personae]
-peter	[1 péter] -> [44 Peter][1 peter]
-polgar	[2 polgár] -> [1 Polgar]
-quebec	[3 québec] -> [14 Quebec]
+peter	[1 Péter] -> [44 Peter][1 peter]
+polgar	[2 Polgár] -> [1 Polgar]
+quebec	[3 Québec] -> [14 Quebec]
 re	[1 ʁɛ̃] -> [3 Re][26 re]
-remi	[1 rémi] -> [1 Remi]
-rene	[12 rené] -> [2 Rene]
-roman	[1 român] -> [25 Roman][2 Romanized][5 Romans]
-sa	[1 sá] -> [2 SA]
-safi	[1 şafī] -> [1 Safi]
-sean	[1 seán] -> [2 Sean]
-senora	[2 señora] -> [2 Senora]
-sha	[1 shā] -> [1 Sha]
+remi	[1 Rémi] -> [1 Remi]
+rene	[12 René] -> [2 Rene]
+roman	[1 Român] -> [25 Roman][2 Romanized][5 Romans]
+sa	[1 Sá] -> [2 SA]
+safi	[1 Şafī] -> [1 Safi]
+sean	[1 Seán] -> [2 Sean]
+senora	[2 Señora] -> [2 Senora]
+sha	[1 Shā] -> [1 Sha]
 t	[1 ṭ] -> [29 T][32 t]
-theatre	[2 théâtre] -> [5 theatre]
+theatre	[2 Théâtre] -> [5 theatre]
 u	[4 û] -> [76 U][3 u]
-valerie	[1 valérie] -> [1 Valerie]
+valerie	[1 Valérie] -> [1 Valerie]
 vila	[1 ˈvilɐ] -> [3 Vila]
-vladimir	[1 vladimír] -> [1 Vladimir]
-worn	[2 wörner] -> [6 worn]
+vladimir	[1 Vladimír] -> [1 Vladimir]
+worn	[2 Wörner] -> [6 worn]
 ישראלית	[1 יִשְׂרְאֵלִית] -> [1 ישראלית]
 לירה	[1 לִירָה] -> [2 לירה]
 

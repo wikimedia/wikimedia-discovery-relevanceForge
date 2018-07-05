@@ -65,6 +65,7 @@ $config{terse} ||= 0;
 my $min_histogram_link = 10;
 my $token_length_examples = 10;
 my $min_alternation_freq = 4;
+my $max_lost_found_sample = 500;
 
 # get to work
 lang_specific_setup();
@@ -98,71 +99,104 @@ if ($config{HTML}) {
 	$indent = '&nbsp;&nbsp;&nbsp;';
 	}
 
-my $HTMLmeta = "
+my $HTMLmeta = <<"HTML";
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
-	th, td { text-align:left; vertical-align: top; border: 1px solid black; dir:auto; }
-	table { border-collapse: collapse; }
-	.red { color: red; font-weight: bold; }
-	tr:nth-child(even) { background: #f8f8f8 }
-	.hang {padding-left: 2em ; text-indent: -2em}
+    th, td { text-align:left; vertical-align: top; border: 1px solid black; dir:auto; }
+    table { border-collapse: collapse; }
+    .red { color: red; font-weight: bold; }
+    tr:nth-child(even) { background: #f8f8f8 }
+    .hang {padding-left: 2em ; text-indent: -2em}
 </style>
-";
+HTML
 
 if ($oldfile) {
 
 	my %is_overlap = ();
 
-	foreach my $final (sort keys %mapping) {
+	foreach my $final (keys %mapping) {
 		if ($mapping{$final}{old} &&
 				$mapping{$final}{new} &&
 				$mapping{$final}{old} ne $mapping{$final}{new}) {
 			my %old = ();
 			my %new = ();
+			my %lc_old = ();
+			my %lc_new = ();
 			while ($mapping{$final}{old} =~ /\[(\d+) (.*?)\]/g) {
-				$old{lc($2)} += $1;
+				$old{$2} += $1;
+				$lc_old{lc($2)} = 1;
 				}
 			while ($mapping{$final}{new} =~ /\[(\d+) (.*?)\]/g) {
-				$new{lc($2)} += $1;
+				$new{$2} += $1;
+				$lc_new{lc($2)} = 1;
 				}
 
 			my %counts = ();
 			foreach my $term (uniq(keys %old, keys %new)) {
 				if ($old{$term} && $new{$term}) {
-					$counts{both}{type}++;
-					$counts{both}{token} += $new{$term} - $old{$term};
+					$counts{both}{pre_type}++;
+					if ($new{$term} != $old{$term}) {
+						$counts{both}{net_tokens} += $new{$term} - $old{$term};
+						if ($new{$term} > $old{$term}) {
+							$counts{gains}{pre_type}++;
+							$counts{gains}{token} += $new{$term} - $old{$term};
+							}
+						elsif ($new{$term} < $old{$term}) {
+							$counts{losses}{pre_type}++;
+							$counts{losses}{token} += $old{$term} - $new{$term};
+							}
+						}
 					}
 				elsif ($old{$term}) {
-					$counts{old}{type}++;
+					$counts{old}{pre_type}++;
 					$counts{old}{token} += $old{$term};
 					}
 				else {
-					$counts{new}{type}++;
+					$counts{new}{pre_type}++;
 					$counts{new}{token} += $new{$term};
 					}
 				}
 
-			if (!defined $counts{both}{type} || $counts{both}{type} == 0) {
+
+			if (!defined $counts{both}{pre_type} || $counts{both}{pre_type} == 0) {
 				next;
 				}
 
 			$is_overlap{$final} = 1;
 
-			if ($counts{new}{type}) {
-				$old_v_new_results{collision}{type} += $counts{both}{type} + $counts{new}{type};
-				$old_v_new_results{collision}{token} += $counts{both}{token} + $counts{new}{token};
+			if ($counts{new}{pre_type}) {
+				$old_v_new_results{collision}{post_type}++;
+				$old_v_new_results{collision}{pre_type_total} += $counts{both}{pre_type} +
+					$counts{new}{pre_type};
+				$old_v_new_results{collision}{pre_type_new} += $counts{new}{pre_type};
+				$old_v_new_results{collision}{token} += $counts{new}{token};
 				}
 
-			if ($counts{old}{type}) {
-				$old_v_new_results{splits}{type} += $counts{both}{type} + $counts{old}{type};
-				$old_v_new_results{splits}{token} += $counts{both}{token} + $counts{old}{token};
+			if ($counts{old}{pre_type}) {
+				$old_v_new_results{splits}{post_type}++;
+				$old_v_new_results{splits}{pre_type_total} += $counts{both}{pre_type} + $counts{old}{pre_type};
+				$old_v_new_results{splits}{pre_type_new} += $counts{old}{pre_type};
+				$old_v_new_results{splits}{token} += $counts{old}{token};
+				}
+
+			if ($counts{gains}{pre_type}) {
+				$old_v_new_results{gains}{post_type}++;
+				$old_v_new_results{gains}{pre_type} += $counts{gains}{pre_type};
+				$old_v_new_results{gains}{token} += $counts{gains}{token};
+				}
+
+			if ($counts{losses}{pre_type}) {
+				$old_v_new_results{losses}{post_type}++;
+				$old_v_new_results{losses}{pre_type} += $counts{losses}{pre_type};
+				$old_v_new_results{losses}{token} += $counts{losses}{token};
 				}
 
 			foreach my $n (keys %new) {
-				if ($old{$n}) {
+				my $lc_n = lc($n);
+				if ($lc_old{$lc_n}) {
 					next;
 					}
-				if ( $old{fold($n)} || $old{despace($n)} || $old{dehyphenate($n)} ) {
+				if ( $lc_old{fold($lc_n)} || $lc_old{despace($lc_n)} || $lc_old{dehyphenate($lc_n)} ) {
 					$old_v_new_results{collision}{near_match}{folded}{type}++;
 					$old_v_new_results{collision}{near_match}{folded}{token} += $new{$n};
 					next;
@@ -174,15 +208,15 @@ if ($oldfile) {
 					my $alt2 = $ref->[1];
 					my $min_stem_len = $config{min_stem_len};
 
-					if ($n =~ /^(.{$min_stem_len}.*)$alt1$/) {
+					if ($lc_n =~ /^(.{$min_stem_len}.*)$alt1$/) {
 						my $nn = $1 . $alt2;
-						if ($old{$nn}) {
+						if ($lc_old{$nn}) {
 							$old_v_new_results{collision}{near_match}{regulars}{type}++;
 							$old_v_new_results{collision}{near_match}{regulars}{token} += $new{$n};
 							$morph_match = 1;
 							last;
 							}
-						if ($old{fold($nn)} || $old{despace($nn)} || $old{dehyphenate($nn)} ) {
+						if ($lc_old{fold($nn)} || $lc_old{despace($nn)} || $lc_old{dehyphenate($nn)} ) {
 							$old_v_new_results{collision}{near_match}{folded_regulars}{type}++;
 							$old_v_new_results{collision}{near_match}{folded_regulars}{token} += $new{$n};
 							$morph_match = 1;
@@ -190,15 +224,15 @@ if ($oldfile) {
 							}
 						} # ends in alt1
 
-					if (!$morph_match && $n =~ /^(.{$min_stem_len}.*)$alt2$/) {
+					if (!$morph_match && $lc_n =~ /^(.{$min_stem_len}.*)$alt2$/) {
 						my $nn = $1 . $alt1;
-						if ($old{$nn}) {
+						if ($lc_old{$nn}) {
 							$old_v_new_results{collision}{near_match}{regulars}{type}++;
 							$old_v_new_results{collision}{near_match}{regulars}{token} += $new{$n};
 							$morph_match = 1;
 							last;
 							}
-						if ($old{fold($nn)} || $old{despace($nn)} || $old{dehyphenate($nn)} ) {
+						if ($lc_old{fold($nn)} || $lc_old{despace($nn)} || $lc_old{dehyphenate($nn)} ) {
 							$old_v_new_results{collision}{near_match}{folded_regulars}{type}++;
 							$old_v_new_results{collision}{near_match}{folded_regulars}{token} += $new{$n};
 							$morph_match = 1;
@@ -215,15 +249,15 @@ if ($oldfile) {
 					my $alt1 = $ref->[0];
 					my $alt2 = $ref->[1];
 					my $min_stem_len = $config{min_stem_len};
-					if ($n =~ /^$alt1(.{$min_stem_len}.*)$/) {
+					if ($lc_n =~ /^$alt1(.{$min_stem_len}.*)$/) {
 						my $nn = $alt2 . $1;
-						if ($old{$nn}) {
+						if ($lc_old{$nn}) {
 							$old_v_new_results{collision}{near_match}{regulars}{type}++;
 							$old_v_new_results{collision}{near_match}{regulars}{token} += $new{$n};
 							$morph_match = 1;
 							last;
 							}
-						if ($old{fold($nn)} || $old{despace($nn)} || $old{dehyphenate($nn)} ) {
+						if ($lc_old{fold($nn)} || $lc_old{despace($nn)} || $lc_old{dehyphenate($nn)} ) {
 							$old_v_new_results{collision}{near_match}{folded_regulars}{type}++;
 							$old_v_new_results{collision}{near_match}{folded_regulars}{token} += $new{$n};
 							$morph_match = 1;
@@ -231,15 +265,15 @@ if ($oldfile) {
 							}
 						} # begins in alt1
 
-					if (!$morph_match && $n =~ /^$alt2(.{$min_stem_len}.*)$/) {
+					if (!$morph_match && $lc_n =~ /^$alt2(.{$min_stem_len}.*)$/) {
 						my $nn = $alt1 . $1;
-						if ($old{$nn}) {
+						if ($lc_old{$nn}) {
 							$old_v_new_results{collision}{near_match}{regulars}{type}++;
 							$old_v_new_results{collision}{near_match}{regulars}{token} += $new{$n};
 							$morph_match = 1;
 							last;
 							}
-						if ($old{fold($nn)} || $old{despace($nn)} || $old{dehyphenate($nn)} ) {
+						if ($lc_old{fold($nn)} || $lc_old{despace($nn)} || $lc_old{dehyphenate($nn)} ) {
 							$old_v_new_results{collision}{near_match}{folded_regulars}{type}++;
 							$old_v_new_results{collision}{near_match}{folded_regulars}{token} += $new{$n};
 							$morph_match = 1;
@@ -258,9 +292,10 @@ if ($oldfile) {
 				push @{$old_v_new_results{bad_collisions}}, [$final, $new{$n}, $n];
 				}
 
-			if ($counts{both}{type}) {
+			if ($counts{both}{pre_type}) {
 				foreach my $o (keys %old) {
-					if (!$new{$o}) {
+					my $lc_o = lc($o);
+					if (!$lc_new{$lc_o}) {
 						push @{$old_v_new_results{bad_splits}}, [$final, $old{$o}, $o];
 						}
 					}
@@ -276,19 +311,29 @@ if ($oldfile) {
 				$mapping{$final}{old} ne $mapping{$final}{new}) {
 			my $mapo = $mapping{$final}{old};
 			my $mapn = $mapping{$final}{new};
-			my $ocnt = 0;
-			my $ncnt = 0;
-			my $o_token_cnt = 0;
-			my $n_token_cnt = 0;
+			my %old_tokens = ();
+			my %tok_cnt = ();
+			my $incr = 0;
+			my $decr = 0;
 
 			while ($mapo =~ /\[(\d+) (.*?)\]/g) {
-				$ocnt++;
-				$o_token_cnt += $1;
+				$tok_cnt{$2} = $1;
+				$old_tokens{$2} = 1;
 				}
 
 			while ($mapn =~ /\[(\d+) (.*?)\]/g) {
-				$ncnt++;
-				$n_token_cnt += $1;
+				my $tok = $2;
+				$tok_cnt{$2} -= $1;
+				if ($old_tokens{$tok}) {
+					delete $old_tokens{$tok};
+					}
+				else {
+					$incr = 1;
+					}
+				}
+
+			if (scalar(keys %old_tokens)) {
+				$decr = 1;
 				}
 
 			if ($config{terse} > 0) {
@@ -302,12 +347,24 @@ if ($oldfile) {
 					}
 				}
 
-			my $incrdecr = 'increased';
-
-			if ($ocnt > $ncnt) {
-				$incrdecr = 'decreased';
+			foreach my $tok (keys %tok_cnt) {
+				if ($tok_cnt{$tok} < 0) {
+					$incr = 1;
+					}
+				elsif ($tok_cnt{$tok} > 0) {
+					$decr = 1;
+					}
 				}
-			elsif ($ocnt == $ncnt && $o_token_cnt > $n_token_cnt ) {
+
+			my $incrdecr = '';
+
+			if ($incr && $decr) {
+				$incrdecr = 'mixed';
+				}
+			elsif ($incr) {
+				$incrdecr = 'increased';
+				}
+			else {
 				$incrdecr = 'decreased';
 				}
 
@@ -432,7 +489,7 @@ sub common_prefix {
 # Show usage
 #
 sub usage {
-print <<USAGE;
+print <<"USAGE";
 usage: $0 -n <newfile> [-o <oldfile>] [-d <dir>] [-l <lang,lang,...>]
     [-x] [-1] [-h] [-f] [-s <#>] [-t <#>]
 
@@ -503,7 +560,7 @@ sub lang_specific_setup {
 					}
 				$language_data{fold}{strings}{$from} = $to;
 				my $len = length($from);
-				if ($len  > $language_data{fold}{maxlen}) {
+				if ($len > $language_data{fold}{maxlen}) {
 					$language_data{fold}{maxlen} = $len;
 					}
 				}
@@ -516,22 +573,24 @@ sub lang_specific_setup {
 
 	if (%regular_suffixes) {
 		# convert hash to array
-		foreach my $set (keys %regular_suffixes) {
-			my @bits = split(/\|/, $set);
+		foreach my $suffs (keys %regular_suffixes) {
+			my @bits = split(/\|/, $suffs);
 			push @{$language_data{regular_suffixes_array}}, \@bits;
 			}
-		@{$language_data{regular_suffixes_array}} = sort { $a->[0] cmp $b->[0] ||  $a->[1] cmp $b->[1] } @{$language_data{regular_suffixes_array}};
+		@{$language_data{regular_suffixes_array}} =
+			sort { $a->[0] cmp $b->[0] || $a->[1] cmp $b->[1] } @{$language_data{regular_suffixes_array}};
 
 		%{$language_data{regular_suffixes_hash}} = %regular_suffixes;
 		}
 
 	if (%regular_prefixes) {
 		# convert hash to array
-		foreach my $set (keys %regular_prefixes) {
-			my @bits = split(/\|/, $set);
+		foreach my $prefs (keys %regular_prefixes) {
+			my @bits = split(/\|/, $prefs);
 			push @{$language_data{regular_prefixes_array}}, \@bits;
 			}
-		@{$language_data{regular_prefixes_array}} = sort { $a->[0] cmp $b->[0] ||  $a->[1] cmp $b->[1] } @{$language_data{regular_prefixes_array}};
+		@{$language_data{regular_prefixes_array}} =
+			sort { $a->[0] cmp $b->[0] || $a->[1] cmp $b->[1] } @{$language_data{regular_prefixes_array}};
 
 		%{$language_data{regular_prefixes_hash}} = %regular_prefixes;
 		}
@@ -547,8 +606,8 @@ sub process_token_count_file {
 	my $ready = 0;
 	my $final;
 
-	open(FILE, "<:encoding(UTF-8)", $filename);
-	while (<FILE>) {
+	open(my $FILE, "<:encoding(UTF-8)", $filename);
+	while (<$FILE>) {
 		if (/original tokens mapped to final tokens/) {
 			$ready = 1;
 			next;
@@ -700,10 +759,13 @@ sub fold {
 				my $from = substr($term, $i, $maxlen);
 				my $to = $language_data{fold}{strings}{$from};
 				if (defined $to) {
+					my $oterm = $term;
 					$term =~ s/$from/$to/g;
 					# account for differences in string
 					# length after substitution, if any
 					$i -= length($from) - length($to);
+					# account for multiple substitutions
+					$termlen -= length($oterm) - length($term);
 					}
 				}
 			$maxlen--;
@@ -731,23 +793,37 @@ sub print_old_v_new_report {
 	print $bold_open, "Total old tokens: ", $bold_close, $statistics{total_tokens}{old}, $cr;
 	print $bold_open, "Total new tokens: ", $bold_close, $statistics{total_tokens}{new}, $cr;
 	if (0 < keys %{$config{lang}}) {
-		print $bold_open, "Language processing: ", $bold_close, join(", ", sort keys %{$config{lang}}), $cr;
+		print $bold_open, "Language processing: ", $bold_close,
+			join(", ", sort keys %{$config{lang}}), $cr;
 		}
 
 	# HTML navigation links
 	if ($HTML) {
-		print <<HTML;
+		my $new_split_stats = $old_v_new_results{splits}{post_type} ?
+			"$indent<a href='#new_split_stats'>New Split Stats</a><br>" : "";
+		my $token_count_gains = $old_v_new_results{gains}{post_type} ?
+			"$indent<a href='#token_count_gains'>Token Count Gains</a><br>" : "";
+		my $token_count_losses = $old_v_new_results{losses}{post_type} ?
+			"$indent<a href='#token_count_losses'>Token Count Losses</a><br>" : "";
+		print <<"HTML";
 <br>
 <a href='#PPTTS'>Pre/Post Type & Token Stats</a><br>
 <a href='#new_collision_stats'>New Collision Stats</a><br>
-&nbsp;&nbsp;&nbsp;<a href='#new_split_stats'>New Split Stats</a><br>
-&nbsp;&nbsp;&nbsp;<a href='#new_collision_near_match_stats'>New Collision Near Match Stats</a><br>
+$new_split_stats
+$token_count_gains
+$token_count_losses
+$indent<a href='#new_collision_near_match_stats'>New Collision Near Match Stats</a><br>
 <a href='#lost_and_found'>Lost and Found Tokens</a><br>
-<a href='#changed_collisions'>Changed Collisions</a><br>
+<a href='#changed_collisions'>Changed Groups</a><br>
 HTML
 
-print "&nbsp;&nbsp;&nbsp;<a href='#bad_collisions_q'>Bad Collisions?</a><br>" if $old_v_new_results{bad_collisions};
-print "&nbsp;&nbsp;&nbsp;<a href='#bad_splits_q'>Bad Splits?</a><br>" if $old_v_new_results{bad_splits};
+		if ($old_v_new_results{bad_collisions}) {
+			print "$indent<a href='#bad_collisions_q'>Bad Collisions?</a><br>";
+			}
+
+		if ($old_v_new_results{bad_splits}) {
+			print "$indent<a href='#bad_splits_q'>Bad Splits?</a><br>";
+			}
 
 		} # if HTML
 
@@ -774,17 +850,95 @@ print "&nbsp;&nbsp;&nbsp;<a href='#bad_splits_q'>Bad Splits?</a><br>" if $old_v_
 		'number', 'pre-analysis token is all numerical digits'
 		);
 
-	print_section_head('New Collision Stats', 'new_collision_stats');
-	$old_v_new_results{collision}{type} ||= 0;
-	$old_v_new_results{collision}{token} ||= 0;
-	print ' types: ', "$old_v_new_results{collision}{type} (", ( int($old_v_new_results{collision}{type} * 100000 / $statistics{type_count}{final}{old} + 0.5) / 1000 ), '%) [post-analysis types]', $cr;
-	print 'tokens: ', "$old_v_new_results{collision}{token} (", ( int($old_v_new_results{collision}{token} * 100000 / $statistics{total_tokens}{old} + 0.5) / 1000 ), '%)', $cr;
+	{ # block to limit scope of temporary variables
+		print_section_head('New Collision Stats', 'new_collision_stats');
+		my $post = $old_v_new_results{collision}{post_type} || 0;
+		my $pre_new = $old_v_new_results{collision}{pre_type_new} || 0;
+		my $pre_tot = $old_v_new_results{collision}{pre_type_total} || 0;
+		my $tok = $old_v_new_results{collision}{token} || 0;
+		my $type_old = $statistics{type_count}{final}{old};
+		my $pre_old = $statistics{type_count}{orig}{old};
+		my $tok_old = $statistics{total_tokens}{old};
 
-	print_section_head('New Split Stats', 'new_split_stats');
-	$old_v_new_results{splits}{type} ||= 0;
-	$old_v_new_results{splits}{token} ||= 0;
-	print ' types: ', $old_v_new_results{splits}{type}, ' (', ( int($old_v_new_results{splits}{type} * 100000 / $statistics{type_count}{final}{old} + 0.5) / 1000 ), '%) [post-analysis types]', $cr;
-	print 'tokens: ', $old_v_new_results{splits}{token}, ' (', ( int($old_v_new_results{splits}{token} * 100000 / $statistics{total_tokens}{old} + 0.5) / 1000 ), '%)', $cr;
+		my $post_pct = int($post * 100_000 / $type_old + 0.5) / 1000;
+		my $pre_new_pct = int($pre_new * 100_000 / $pre_old + 0.5) / 1000;
+		my $pre_tot_pct = int($pre_tot * 100_000 / $pre_old + 0.5) / 1000;
+		my $tok_pct = int($tok * 100_000 / $tok_old + 0.5) / 1000;
+
+		print "New collisions: $post ($post_pct% of post-analysis types)", $cr;
+		print $indent, "added types: $pre_new ($pre_new_pct% of pre-analysis types)", $cr if $pre_new;
+		print $indent, "added tokens: $tok ($tok_pct% of tokens)", $cr if $tok;
+		print $indent, "total types in collisions: $pre_tot ($pre_tot_pct% of pre-analysis types)", $cr if $pre_tot;
+		print $cr;
+		print "Narrative: $pre_new pre-analysis types ($pre_new_pct% of pre-analysis types) / $tok tokens ($tok_pct% of tokens) were added to $post groups ($post_pct% of post-analyis types), affecting a total of $pre_tot pre-analysis types ($pre_tot_pct% of pre-analysis types) in those groups.", $cr, $cr if $post;
+		print 'Note: All percentages are relative to old token/type counts.', $cr;
+		}
+
+	if ($old_v_new_results{splits}{post_type}) {
+		print_section_head('New Split Stats', 'new_split_stats');
+		my $post = $old_v_new_results{splits}{post_type} || 0;
+		my $pre_new = $old_v_new_results{splits}{pre_type_new} || 0;
+		my $pre_tot = $old_v_new_results{splits}{pre_type_total} || 0;
+		my $tok = $old_v_new_results{splits}{token} || 0;
+		my $type_old = $statistics{type_count}{final}{old};
+		my $pre_old = $statistics{type_count}{orig}{old};
+		my $tok_old = $statistics{total_tokens}{old};
+
+		my $post_pct = int($post * 100_000 / $type_old + 0.5) / 1000;
+		my $pre_new_pct = int($pre_new * 100_000 / $pre_old + 0.5) / 1000;
+		my $pre_tot_pct = int($pre_tot * 100_000 / $pre_old + 0.5) / 1000;
+		my $tok_pct = int($tok * 100_000 / $tok_old + 0.5) / 1000;
+
+		print "New splits: $post ($post_pct% of post-analysis types)", $cr;
+		print $indent, "lost types: $pre_new ($pre_new_pct% of pre-analysis types)", $cr if $pre_new;
+		print $indent, "lost tokens: $tok ($tok_pct% of tokens)", $cr if $tok;
+		print $indent, "total types in splits: $pre_tot ($pre_tot_pct% of pre-analysis types)", $cr if $pre_tot;
+		print $cr;
+		print "Narrative: $pre_new pre-analysis types ($pre_new_pct% of pre-analysis types) / $tok tokens ($tok_pct% of tokens) were lost from $post groups ($post_pct% of post-analyis types), affecting a total of $pre_tot pre-analysis types ($pre_tot_pct% of pre-analysis types) in those groups.", $cr, $cr;
+		print 'Note: All percentages are relative to old token/type counts.', $cr;
+		}
+
+	if ($old_v_new_results{gains}{post_type}) {
+		print_section_head('Token Count Gains', 'token_count_gains');
+		my $post = $old_v_new_results{gains}{post_type} || 0;
+		my $pre = $old_v_new_results{gains}{pre_type} || 0;
+		my $tok = $old_v_new_results{gains}{token} || 0;
+		my $type_old = $statistics{type_count}{final}{old};
+		my $pre_old = $statistics{type_count}{orig}{old};
+		my $tok_old = $statistics{total_tokens}{old};
+
+		my $post_pct = int($post * 100_000 / $type_old + 0.5) / 1000;
+		my $pre_pct = int($pre * 100_000 / $pre_old + 0.5) / 1000;
+		my $tok_pct = int($tok * 100_000 / $tok_old + 0.5) / 1000;
+
+		print "Gains: $post ($post_pct% of post-analysis types)", $cr;
+		print $indent, "types with gains: $pre ($pre_pct% of pre-analysis types)", $cr if $pre;
+		print $indent, "tokens gained: $tok ($tok_pct% of tokens)", $cr if $tok;
+		print $cr;
+		print "Narrative: $pre pre-analysis types ($pre_pct% of pre-analysis types) gained $tok tokens ($tok_pct% of tokens) across $post groups ($post_pct% of post-analyis types).", $cr, $cr;
+		print 'Note: All percentages are relative to old token/type counts.', $cr;
+		}
+
+	if ($old_v_new_results{losses}{post_type}) {
+		print_section_head('Token Count Losses', 'token_count_losses');
+		my $post = $old_v_new_results{losses}{post_type} || 0;
+		my $pre = $old_v_new_results{losses}{pre_type} || 0;
+		my $tok = $old_v_new_results{losses}{token} || 0;
+		my $type_old = $statistics{type_count}{final}{old};
+		my $pre_old = $statistics{type_count}{orig}{old};
+		my $tok_old = $statistics{total_tokens}{old};
+
+		my $post_pct = int($post * 100_000 / $type_old + 0.5) / 1000;
+		my $pre_pct = int($pre * 100_000 / $pre_old + 0.5) / 1000;
+		my $tok_pct = int($tok * 100_000 / $tok_old + 0.5) / 1000;
+
+		print "Losses: $post ($post_pct% of post-analysis types)", $cr;
+		print $indent, "types with losses: $pre ($pre_pct% of pre-analysis types)", $cr if $pre;
+		print $indent, "tokens lost: $tok ($tok_pct% of tokens)", $cr if $tok;
+		print $cr;
+		print "Narrative: $pre pre-analysis types ($pre_pct% of pre-analysis types) lost $tok tokens ($tok_pct% of tokens) across $post groups ($post_pct% of post-analyis types).", $cr, $cr;
+		print 'Note: All percentages are relative to old token/type counts.', $cr;
+		}
 
 	print_section_head('New Collision Near Match Stats', 'new_collision_near_match_stats');
 	my @types = ('type', 'token');
@@ -796,7 +950,7 @@ print "&nbsp;&nbsp;&nbsp;<a href='#bad_splits_q'>Bad Splits?</a><br>" if $old_v_
 	print $cr;
 
 	print_table_key ('Key', 'New collision type is a near match for a type already in the group after...',
-		'Categories do not overlap.',
+		'Categories do not overlap. Types are post-analysis types',
 		'folded', "applying generic and language-specific character folding,$wswrap de-spacing, and de-hyphenation",
 		'regulars', 'removing language-specific regular prefixes and suffixes',
 		'folded_regulars', "applying generic and language-specific character$wswrap folding, de-spacing, de-hyphenation, and removing language-specific$wswrap regular prefixes and suffixes"
@@ -816,10 +970,12 @@ print "&nbsp;&nbsp;&nbsp;<a href='#bad_splits_q'>Bad Splits?</a><br>" if $old_v_
 			my $type = token_category($token);
 			if ($ocnt) {
 				$tot{$origfinal}{lost}++;
+				$tot{$origfinal}{lost_token} += $ocnt;
 				push @{$only{$origfinal}{old}{$type}}, $token;
 				}
 			else {
 				$tot{$origfinal}{found}++;
+				$tot{$origfinal}{found_token} += $ncnt;
 				push @{$only{$origfinal}{new}{$type}}, $token;
 				}
 			}
@@ -827,8 +983,8 @@ print "&nbsp;&nbsp;&nbsp;<a href='#bad_splits_q'>Bad Splits?</a><br>" if $old_v_
 		if ($tot{$origfinal}{lost} || $tot{$origfinal}{found}) {
 			$tot{$origfinal}{lost} ||= 0;
 			$tot{$origfinal}{found} ||= 0;
-			print " Lost $pre_post-analysis tokens (old only): $tot{$origfinal}{lost}", $cr;;
-			print "Found $pre_post-analysis tokens (new only): $tot{$origfinal}{found}", $cr;
+			print " Lost $pre_post-analysis types/tokens (old only): $tot{$origfinal}{lost} / $tot{$origfinal}{lost_token}", $cr;;
+			print "Found $pre_post-analysis types/tokens (new only): $tot{$origfinal}{found} / $tot{$origfinal}{found_token}", $cr;
 			print $cr;
 			}
 
@@ -840,25 +996,31 @@ print "&nbsp;&nbsp;&nbsp;<a href='#bad_splits_q'>Bad Splits?</a><br>" if $old_v_
 			}
 	}
 
-	print_section_head('Changed Collisions', 'changed_collisions');
+	print_section_head('Changed Groups', 'changed_collisions');
 
 	print_table_key ('', '', '',
-		'<<', 'indicates net loss of types merged',
-		'>>', 'indicates net gain of types merged',
+		'<<', 'indicates net loss of types/tokens',
+		'><', 'indicates mixed gains and losses of types/tokens',
+		'>>', 'indicates net gain of types/tokens',
 		'terseness', $config{terse}
 		);
+
 	print $cr;
 
-	print_changed_collisions('Losses', 'decreased', '<<');
-	print_changed_collisions('Gains', 'increased', '>>');
+	print_changed_collisions('Net Losses', 'decreased', '<<');
+	print_changed_collisions('Mixed', 'mixed', '><');
+	print_changed_collisions('Net Gains', 'increased', '>>');
 
 
 	if ($old_v_new_results{bad_collisions}) {
 		print_section_head('Bad Collisions?', 'bad_collisions_q');
-		print $indent, scalar(@{$old_v_new_results{bad_collisions}}), " collisions vs mininmum stem length: ", $config{min_stem_len}, $cr, $cr;
+		print $indent, scalar(@{$old_v_new_results{bad_collisions}}),
+			" collisions vs mininmum stem length: ", $config{min_stem_len}, $cr, $cr;
 
 		print_table_head('stemmed', 'added type -> group');
-		foreach my $b (sort { $a->[0] cmp $b->[0] || $a->[2] cmp $b->[2] } @{$old_v_new_results{bad_collisions}}) {
+		foreach my $b (sort { lc($a->[0]) cmp lc($b->[0]) || $a->[0] cmp $b->[0] ||
+				lc($a->[2]) cmp lc($b->[2]) || $a->[2] cmp $b->[2] }
+				@{$old_v_new_results{bad_collisions}}) {
 			my ($final, $cnt, $n) = @{$b};
 			print_table_row([$final, "[$cnt $n] -> " . $mapping{$final}{old}]);
 			}
@@ -871,7 +1033,9 @@ print "&nbsp;&nbsp;&nbsp;<a href='#bad_splits_q'>Bad Splits?</a><br>" if $old_v_
 		print $indent, scalar(@{$old_v_new_results{bad_splits}}), " splits", $cr, $cr;
 
 		print_table_head('stemmed', 'removed type <- group');
-		foreach my $b (sort { $a->[0] cmp $b->[0] || $a->[2] cmp $b->[2] } @{$old_v_new_results{bad_splits}}) {
+		foreach my $b (sort { lc($a->[0]) cmp lc($b->[0]) || $a->[0] cmp $b->[0] ||
+				lc($a->[2]) cmp lc($b->[2]) || $a->[2] cmp $b->[2] }
+				@{$old_v_new_results{bad_splits}}) {
 			my ($final, $cnt, $o) = @{$b};
 			print_table_row([$final, "[$cnt $o] <- " . $mapping{$final}{new}]);
 			}
@@ -898,26 +1062,29 @@ sub print_new_report {
 	print $cr;
 	print $bold_open, "Total new tokens: ", $bold_close, $statistics{total_tokens}{new}, $cr;
 
-	print $indent, $bold_open, 'pre-analysis types: ', $bold_close, $statistics{type_count}{orig}{new}, $cr;
-	print $indent, $bold_open, 'post-analysis types: ', $bold_close, $statistics{type_count}{final}{new}, $cr;
+	print $indent, $bold_open, 'pre-analysis types: ', $bold_close,
+		$statistics{type_count}{orig}{new}, $cr;
+	print $indent, $bold_open, 'post-analysis types: ', $bold_close,
+		$statistics{type_count}{final}{new}, $cr;
 
 	print $cr;
 	if (0 < keys %{$config{lang}}) {
-		print $bold_open, "Language processing: ", $bold_close, join(", ", sort keys %{$config{lang}}), $cr;
+		print $bold_open, "Language processing: ", $bold_close,
+			join(", ", sort keys %{$config{lang}}), $cr;
 		}
 	print $cr;
 
 	# HTML navigation links
 	if ($HTML) {
-		print <<HTML;
+		print <<"HTML";
 <a href='#stemmingResults'>Stemming Results</a><br>
-&nbsp;&nbsp;&nbsp;<a href="#prob1">Potential Problem Stems</a><br>
+$indent<a href="#prob1">Potential Problem Stems</a><br>
 HTML
-		print <<HTML if $config{explore};
+		print <<"HTML" if $config{explore};
 <a href='#commonPrefixes'>Common Prefix Alternations</a><br>
 <a href='#commonSuffixes'>Common Suffix Alternations</a><br>
 HTML
-		print <<HTML;
+		print <<"HTML";
 <a href='#typeCountHistogram'>Histogram of Case-Insensitive Type Group Counts</a><br>
 <a href='#tokenCountHistogram'>Histogram of Stemmed Tokens Generated per Input Token</a><br>
 <a href='#typeLengthHistogram'>Histogram of Final Type Lengths</a><br>
@@ -925,12 +1092,13 @@ HTML
 		} # if HTML
 
 	# stemming results
-	print_section_head("Stemming Results" . ($config{singletons}?" (singletons)":" (groups only)"), "stemmingResults");
+	print_section_head("Stemming Results" .
+		($config{singletons}?" (singletons)":" (groups only)"), "stemmingResults");
 
 	# stemming results key
 	print ".. indicates raw / lowercased string matches", $cr;
 	print ":: indicates affix-stripped matches", $cr if $config{lang};
-	print "-- indicates ", ($config{lang}?"affix-stripped and ":"")  , "folded matches", $cr;
+	print "-- indicates ", ($config{lang}?"affix-stripped and ":""), "folded matches", $cr;
 	print $cr;
 
 	# stemming results table
@@ -944,15 +1112,17 @@ HTML
 		my $display_type_cnt = $type_cnt;
 		if ($HTML) {
 			if ($common =~ /^ .. $/) {
-				$display_final = "<a name='prob" . $prob_ref_cnt . "'><a href='#prob" . ++$prob_ref_cnt . "'>" . $red_open . $final . $red_close . "</a>";
+				$display_final = "<a name='prob" . $prob_ref_cnt . "'><a href='#prob" .
+					++$prob_ref_cnt . "'>" . $red_open . $final . $red_close . "</a>";
 				$common = $red_open . "&nbsp;$common&nbsp;" . $red_close;
 				}
 			if ($type_cnt >= $min_histogram_link) {
 				if (!$type_ref_cnt{$type_cnt}) {
 					$type_ref_cnt{$type_cnt} = 1;
 					}
-				$display_type_cnt = "<a name='count$type_cnt." . $type_ref_cnt{$type_cnt} . "'><a href='#count$type_cnt." . ++$type_ref_cnt{$type_cnt} . "'>" . $red_open . $type_cnt . $red_close . "</a>";
-
+				$display_type_cnt = "<a name='count$type_cnt." . $type_ref_cnt{$type_cnt} .
+					"'><a href='#count$type_cnt." . ++$type_ref_cnt{$type_cnt} . "'>" .
+					$red_open . $type_cnt . $red_close . "</a>";
 				}
 			}
 		my $the_mapping = $mapping{$final}{new};
@@ -969,8 +1139,10 @@ HTML
 
 	# explore: show automatically generated affix candidates
 	if ($config{explore}) {
-		print_alternations("Common Prefix Alternations", "commonPrefixes", 'pre', $language_data{regular_prefixes_hash});
-		print_alternations("Common Suffix Alternations", "commonSuffixes", 'suf', $language_data{regular_suffixes_hash});
+		print_alternations("Common Prefix Alternations", "commonPrefixes", 'pre',
+			$language_data{regular_prefixes_hash});
+		print_alternations("Common Suffix Alternations", "commonSuffixes", 'suf',
+			$language_data{regular_suffixes_hash});
 		}
 
 	# some stats
@@ -985,7 +1157,8 @@ HTML
 		}
 	print_table_foot();
 
-	print_section_head("Histogram of Stemmed Tokens Generated per Input Token", "tokenCountHistogram");
+	print_section_head("Histogram of Stemmed Tokens Generated per Input Token",
+		"tokenCountHistogram");
 	print_table_head("count", "freq");
 	my $aref = $statistics{token_cnt}{'new'};
 	for my $i (0 .. scalar(@$aref) - 1) {
@@ -1109,7 +1282,8 @@ sub print_table_key {
 		print $header, $cr;
 		}
 	while (@keys_and_values) {
-		print $div_open, $indent, $bold_open,(shift @keys_and_values),":",$bold_close, " ", (shift @keys_and_values), $div_close;
+		print $div_open, $indent, $bold_open, (shift @keys_and_values), ":", $bold_close,
+			" ", (shift @keys_and_values), $div_close;
 		}
 	if ($footer) {
 		print $footer, $cr;
@@ -1136,14 +1310,25 @@ sub print_lost_found_token_stats {
 		foreach my $item (@{$only_ref->{$origfinal}{$oldnew}{$category}}) {
 			$token_tot += $statistics{token_exists}{$origfinal}{$item}{$oldnew};
 			}
-		print $indent, $italic_open, "$category: ", $italic_close,  scalar(@{$only_ref->{$origfinal}{$oldnew}{$category}}), " types, $token_tot tokens", $cr;
+		my $type_tot = scalar(@{$only_ref->{$origfinal}{$oldnew}{$category}});
+		print $indent, $italic_open, "$category:$italic_close $type_tot types, $token_tot tokens",
+			($type_tot > $max_lost_found_sample)?" (sample of $max_lost_found_sample)":'', $cr;
 		print $block_open;
-		print join($joiner, sort @{$only_ref->{$origfinal}{$oldnew}{$category}}), $cr;
 
-		my @hifreq = grep { $statistics{token_exists}{$origfinal}{$_}{$oldnew} >= 500 } @{$only_ref->{$origfinal}{$oldnew}{$category}};
+		my $picks = $max_lost_found_sample;
+		my $samples = scalar( @{$only_ref->{$origfinal}{$oldnew}{$category}});
+		print join($joiner, sort
+			grep { ($picks && rand() < $picks/$samples--)?$picks--:0 }
+			@{$only_ref->{$origfinal}{$oldnew}{$category}}), $cr;
+
+		my @hifreq = grep { $statistics{token_exists}{$origfinal}{$_}{$oldnew} >= 500 }
+			@{$only_ref->{$origfinal}{$oldnew}{$category}};
 		if (@hifreq) {
 			print $cr;
-			print $indent, $italic_open, "hi-freq tokens: ", $italic_close, join($joiner, map { "$_|".$statistics{token_exists}{$origfinal}{$_}{$oldnew}; } sort { $statistics{token_exists}{$origfinal}{$b}{$oldnew} <=> $statistics{token_exists}{$origfinal}{$a}{$oldnew}} @hifreq), $cr;
+			print $indent, $italic_open, "hi-freq tokens: ", $italic_close,
+				join($joiner, map { "$_ | ".$statistics{token_exists}{$origfinal}{$_}{$oldnew}; }
+				sort { $statistics{token_exists}{$origfinal}{$b}{$oldnew} <=>
+				$statistics{token_exists}{$origfinal}{$a}{$oldnew}} @hifreq), $cr;
 			}
 		print $block_close;
 		}
@@ -1164,7 +1349,7 @@ sub print_changed_collisions {
 	my $div_open = '<div class=hang>';
 	my $div_close = '</div>';
 
-	print $bold_open, "Net $gainloss:", $bold_close, $cr;
+	print $bold_open, "$gainloss:", $bold_close, $cr;
 	print_table_head();
 	foreach my $final (@{$old_v_new_results{$incrdecr}}) {
 		# Ugh, this just doesn't want to abstract properly; Hack, hack, hack.
@@ -1247,6 +1432,9 @@ sub token_category {
 	if ($token =~ s/\x{200E}|\x{200F}|\x{202A}|\x{202B}|\x{202C}|\x{202D}|\x{202E}|\x{2066}|\x{2067}|\x{2068}|\x{2069}|\x{061C}//g) {
 		$modifier .= '+bidi';
 		}
+	if ($token =~ s/\x{00AD}//g) {
+		$modifier .= '+shy';
+		}
 	if ($token =~ s/\p{Block: Combining_Diacritical_Marks}//g) {
 		$modifier .= '+comb';
 		}
@@ -1269,8 +1457,8 @@ sub token_category {
 	my $num_pat = '(\d+([.,]\d\d\d)*([.,]\d+)?)';
 	my $unit_pat = '([ap]\.?m|[AP]\.?M|°|°C|°F|a|b|B|C|cm|d|eV|F|fps|g|GB|GHz|h|Hz|k|K|kbit|keV|kg|kgm|kJ|km|Km|km2|L|lb|m|M|m2|Ma|MeV|mg|MHz|MHZ|ml|mm|mol|mph|º|ºC|ºF|Pa|ppm|rpm|s|T|Ts|W|x)';
 
-
-	if ($token =~ /^([A-Z]\.)+[A-Z]\.?$/) { $category = 'acronyms'; }
+	if ($token eq '') { $category = 'empty'; }
+	elsif ($token =~ /^([A-Z]\.)+[A-Z]\.?$/) { $category = 'acronyms'; }
 	elsif ($token =~ /^\p{Punctuation}+$/i) { $category = 'Punctuation'; }
 	elsif ($token =~ /^([A-Z]\.)+[A-Z]\.?$/i) { $category = 'acronym-like'; }
 	elsif ($token =~ /^([A-Z]\.){1,3}[A-Z]\p{Latin}+$/) { $category = 'name-like'; }
@@ -1328,6 +1516,7 @@ sub token_category {
 	elsif ($token =~ /^\p{Ideographic}+$/i) { $category = 'Ideographic'; }
 	elsif ($token =~ /^$num_pat$unit_pat$/) { $category = 'measurements'; }
 	elsif ($token =~ /^$num_pat[xh']$num_pat$/i) { $category = 'measurements'; }
+	elsif ($token =~ /^$unit_pat[·]$unit_pat$/i) { $category = 'measurements'; }
 	elsif ($token =~ /^$num_pat[x]$num_pat$unit_pat$/i) { $category = 'measurements'; }
 	elsif ($token =~ /^\d+[°º](\d+('\d+)?)?$/i) { $category = 'measurements'; }
 	elsif ($token =~ /^0x[0-9A-F]+$/i) { $category = 'hex'; }
@@ -1339,12 +1528,12 @@ sub token_category {
 # Shuffle an array in place
 #
 sub shuffle {
-    my $array = shift;
-    my $i = @$array;
-    while ( --$i ) {
-        my $j = int rand( $i+1 );
-        @$array[$i,$j] = @$array[$j,$i];
-    	}
+	my $array = shift;
+	my $i = @$array;
+	while ( --$i ) {
+		my $j = int rand( $i+1 );
+		@$array[$i,$j] = @$array[$j,$i];
+		}
 	return;
 	}
 

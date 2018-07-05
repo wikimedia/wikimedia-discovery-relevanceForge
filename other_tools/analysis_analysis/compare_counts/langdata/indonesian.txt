@@ -1,0 +1,10 @@
+# Malay / Indonesian
+
+regular_prefixes		ber	di	ter	meng	peng	per	meny	peny	diper	memper	mem	ke	keber	pem	men	pen	pe	me	be	keper	member
+
+regular_suffixes		nya	an	kan	annya	lah	kannya	ku	mu	inya	pun	kanlah	i	iku	inya	ikan	anmu	kah
+
+
+strip_prefixes	ber	di	ter	meng	peng	per	meny	peny	diper	memper	mem	ke	keber	pem	men	pen	pe	me	be	keper	member
+
+strip_suffixes	nya	an	kan	annya	lah	kannya	ku	mu	inya	pun	kanlah	i	iku	inya	ikan	anmu	kah
