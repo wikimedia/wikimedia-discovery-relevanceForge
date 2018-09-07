@@ -164,22 +164,6 @@ def add_diff_sub(aresult, bresult, item):
             add_diff_sub(aresult[item], bresult[item], idx)
 
 
-def bkup_html_result_item(item, label, indent='                '):
-    my_type = type(item).__name__
-    value = ''
-    if my_type in ('dict'):
-        for subitem in sorted(item.keys()):
-            value += html_result_item(item[subitem], subitem, indent + '    ')
-    elif my_type in ('list', 'tuple', 'set', 'frozenset'):
-        for idx, subitem in enumerate(item, start=1):
-            value += html_result_item(subitem, idx, indent + '    ')
-    else:
-        value = "[unknown type {}]".format(my_type)
-    if value == '':
-        return ''
-    return indent + "<div class='hang compact'><b>{}:</b> {} </div>\n".format(label, value)
-
-
 def diff_span(item):
     return "<span class='diff'>" + str(item) + "</span>"
 
