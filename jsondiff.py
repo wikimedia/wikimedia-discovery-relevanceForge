@@ -34,6 +34,7 @@ import json
 import os
 import sys
 from itertools import izip_longest
+import urllib
 
 
 def add_nums_to_results(results):
@@ -184,7 +185,7 @@ def diff_span(item):
     return "<span class='diff'>" + str(item) + "</span>"
 
 
-def html_results(results, map, filename, key, baseline=True):
+def html_results(results, map, filename, key, wiki_url='', explain_url='', baseline=True):
     retval = ''
     this_class = 'baseline'
     this_heading = 'BASELINE'
@@ -202,22 +203,22 @@ def html_results(results, map, filename, key, baseline=True):
     query = ''
     if 'query' in results:
         query = results['query']
+    explain = explain_url + "&search=" + urllib.quote_plus(query.encode('utf-8'))
     query = ascii(query)
 
     totalHits = ''
     if 'totalHits' in results:
         totalHits = results['totalHits']
-
     retval = '''\
 <div class={}>
 <b>{}</b><br>
 <span class=indent>{}</span>
     <div>
         <div class=query>
-        <b>query:</b> {}<br>
+        <b>query:</b> {} [<a href="{}">explain</a>]<br>
         <b>totalHits:</b> {}
         </div>
-    <b>results:</b>\n'''.format(this_class, this_heading, filename, query, totalHits)
+    <b>results:</b>\n'''.format(this_class, this_heading, filename, query, explain, totalHits)
 
     res_count = 1
     if 'rows' in results:
@@ -250,15 +251,17 @@ def html_results(results, map, filename, key, baseline=True):
                 comp1, comp2 = mapto, res_count
 
             title = ascii(result['title'])
-
+            link = wiki_url + title
             retval += '''\
 
         <div class=result id={0:}{1:}>
             <span class={2:} onclick="comp({3:},{4:},'{0:}{1:}')"><b>{1:}</b>{5:}</span>
-                <b>title:</b> {6:}<br>
+                <b>title:</b> <a href="{7:}">{6:}</a><br>
             <div class=indent>
-                <b>{7:}:</b> {8:}<br>'''.format(this_id, res_count, rankclass, comp1, comp2,
-                                                extra, title, key, ascii(result[key]))
+                '''.format(this_id, res_count, rankclass, comp1, comp2,
+                           extra, title, link)
+            if key != 'title':
+                retval += "<b>{0:}:</b> {1:}<br>".format(key, ascii(result[key]))
 
             if 'score' in result:
                 retval += '''\
@@ -470,6 +473,14 @@ def main():
                         help='output directory, default is ./diffs/')
     parser.add_argument("-t", "--bytitle", dest="bytitle", action='store_true', default=False,
                         help="use title rather than docId to match results")
+    parser.add_argument("-w", "--baseWiki", dest="bwiki", default='',
+                        help="URL for baseline wiki")
+    parser.add_argument("-W", "--deltaWiki", dest="dwiki", default='',
+                        help="URL for delta wiki")
+    parser.add_argument("-e", "--baseExplain", dest="bexplain", default='',
+                        help="explain URL for baseline wiki")
+    parser.add_argument("-E", "--deltaExplain", dest="dexplain", default='',
+                        help="explain URL for delta wiki")
     args = parser.parse_args()
 
     key = 'docId'
@@ -513,8 +524,10 @@ def main():
             add_diffs(aresults, bresults, key)
 
             diff_file.writelines(html_head(s))
-            diff_file.writelines(html_results(aresults, amap, file1, key, baseline=True))
-            diff_file.writelines(html_results(bresults, bmap, file2, key, baseline=False))
+            diff_file.writelines(html_results(aresults, amap, file1, key, wiki_url=args.bwiki,
+                                              explain_url=args.bexplain, baseline=True))
+            diff_file.writelines(html_results(bresults, bmap, file2, key, wiki_url=args.dwiki,
+                                              explain_url=args.dexplain, baseline=False))
             diff_file.writelines(html_foot())
 
             diff_file.close()

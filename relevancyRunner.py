@@ -59,11 +59,14 @@ def sanitize_json(file):
         os.remove(file_isnotjson)
 
 
-def runSearch(config, section):
+def runSearch(config, section, allow_reuse=True):
     qdir = getSafeWorkPath(config, section, 'queries')
     cmdline = config.get(section, 'searchCommand')
 
     results_file = qdir + '/results'
+    if os.path.isfile(results_file) and allow_reuse:
+        print("REUSING: %s" % results_file)
+        return results_file
     refreshDir(qdir)
     if config.has_option(section, 'config'):
         try:
@@ -103,8 +106,14 @@ def checkSettings(config, section, settings):
     pass
 
 
+def defaults(config, section, settings):
+    for s in settings:
+        if not config.has_option(section, s):
+            config.set(section, s, settings[s])
+
+
 def runCommand(cmd):
-    print "RUNNING "+cmd
+    print("RUNNING "+cmd)
     subprocess.check_call(cmd, shell=True)
 
 
@@ -117,10 +126,14 @@ if __name__ == '__main__':
     config = ConfigParser.ConfigParser()
     config.readfp(open(args.config))
     distributeGlobalSettings(config, 'settings', ['test1', 'test2'],
-                             ['queries', 'labHost', 'searchCommand', 'config'])
+                             ['queries', 'labHost', 'searchCommand', 'config',
+                              'wikiUrl', 'explainUrl', 'allowReuse'])
     checkSettings(config, 'settings', ['workDir', 'jsonDiffTool', 'metricTool'])
     checkSettings(config, 'test1', ['name', 'queries', 'labHost', 'searchCommand'])
     checkSettings(config, 'test2', ['name', 'queries', 'labHost', 'searchCommand'])
+    # TODO: make some useful defaults here?
+    defaults(config, 'test1', {'wikiUrl': '', 'explainUrl': '', 'allowReuse': True})
+    defaults(config, 'test2', {'wikiUrl': '', 'explainUrl': '', 'allowReuse': True})
 
     res1 = runSearch(config, 'test1')
     res2 = runSearch(config, 'test2')
@@ -130,6 +143,10 @@ if __name__ == '__main__':
     refreshDir(comparisonDir)
     shutil.copyfile(args.config, comparisonDir + "/config.ini")  # archive comparison config
 
-    runCommand("%s %s %s %s" % (config.get('settings', 'jsonDiffTool'),
-                                comparisonDir + "/diffs", res1, res2))
+    runCommand("%s %s -w %s -W %s -e '%s' -E '%s' %s %s" % (
+        config.get('settings', 'jsonDiffTool'),
+        comparisonDir + "/diffs",
+        config.get('test1', 'wikiUrl'), config.get('test2', 'wikiUrl'),
+        config.get('test1', 'explainUrl'), config.get('test2', 'explainUrl'),
+        res1, res2))
     runCommand("%s %s %s %s" % (config.get('settings', 'metricTool'), comparisonDir, res1, res2))
