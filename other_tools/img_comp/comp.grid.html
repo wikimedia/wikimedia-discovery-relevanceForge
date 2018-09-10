@@ -1,0 +1,194 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<script src="jquery-3.3.1.min.js"></script>
+		<script src="comp.grid.js"></script>
+<style>
+body: {
+		font-style: sans-serif;
+}
+.compbox {
+	width: 50%;
+	text-align:center;
+	vertical-align: top;
+}
+
+.leftbox {
+		border-right: 1px solid black
+}
+
+.compboximg {
+		max-width:100%;
+		max-height:200px;
+}
+
+tr.comparisonline {
+		height: 200px;
+}
+
+tr.comparisonline td {
+		border-bottom: 1px solid black;
+}
+
+.centered {
+		padding-left:2em;
+}
+
+#loading_img {
+		height:1em;
+		width:1em;
+		display:none;
+}
+#header {
+		display:none;
+}
+
+.hiddentooltip {
+		display:none;
+}
+.searchmatch {
+		color: blue;
+		font-weight: bold;
+}
+.tooltip {
+		display:block;
+		background-color:white;
+		border-radius:5px;
+		box-shadow:1px 1px 3px gray;
+		position:absolute;
+		padding:5px;
+		top:1.3em;
+		left:0px;   
+		text-align: left;
+		max-width:300px; /* I don't want the width to be too large... */
+}
+
+</style>
+	</head>
+	<body>
+		<template id="comp_box">
+				<a href="" class="titlelink">
+						<img class="compboximg"></img>
+				</a>
+				<div class="hiddentooltip">
+						<span class="tooltipfile"></span>
+						<br/>
+						<span class="tooltipsnippet"></span>
+				</div>
+		</template>
+		<label>Query:</label>
+		<input id="querybox" list="queries" type="text"/>
+		<label title="Image quality weight">Q Weight:</label>
+		<input id="qweight" type="text" value="1" size="4"/>
+		<!--
+		<label title="Image quality prop">Q Prop:</label>
+		<input id="qprop" type="text" value="0.25" size="4"/>
+		-->
+		<img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Android_style_loader.gif" id="loading_img"></img>
+		<table class="centered">
+			<thead id="header">
+					<tr><th>Production</th><th>image quality</th></tr>
+			</thead>
+			<tbody id="body">
+			    <tr class="comparison">
+			    	<td class="compbox leftbox">
+			    	</td>
+			    	<td class="compbox rightbox">
+			    	</td>
+			    </tr>
+			</tbody>
+		</table>
+		<datalist id="queries">
+		<option>louisiana church</option>
+		<option>plaza mayor madrid</option>
+		<option>village place</option>
+		<option>rabat morocco</option>
+		<option>north carolina flag</option>
+		<option>paris map</option>
+		<option>young snail</option>
+		<option>ancient dog </option>
+		<option>japanese war</option>
+		<option>ocean front home</option>
+		<option>ethiopian monastery</option>
+		<option>map united states</option>
+		<option>Pocket in lungs</option>
+		<option>cathedral westminster</option>
+		<option>lunar eclipse 2018</option>
+		<option>st. louis light rail</option>
+		<option>Abandoned farm United States</option>
+		<option>monet water lilies</option>
+		<option>prehistoric man</option>
+		<option>chinese fireworks</option>
+		<option>athens fire</option>
+		<option>flooded vehicles</option>
+		<option>The louvre</option>
+		<option>Flags on fire</option>
+		<option>blood moon</option>
+		<option>holy isle</option>
+		<option>roots stems</option>
+		<option>vittorio emanuele iii</option>
+		<option>old person</option>
+		<option>political map</option>
+		<option>sad woman</option>
+		<option>master brake cylinder</option>
+		<option>challenger explosion</option>
+		<option>battery cell</option>
+		<option>diana ross</option>
+		<option>single cell organisms</option>
+		<option>greek pottery</option>
+		<option>FRANCES OF ROME</option>
+		<option>ted kennedy</option>
+		<option>tired man</option>
+		<option>františkovy lázně</option>
+		<option>Neustadt an der Weinstrasse</option>
+		<option>rabbit art</option>
+		<option>fiat logo</option>
+		<option>plastic symbols</option>
+		<option>Carte amérique</option>
+		<option>Wildlife of India</option>
+		<option>oxford castle</option>
+		<option>iron age britain</option>
+		<option>tower window</option>
+		<option>italy historical map</option>
+		<option>ancient flute</option>
+		<option>rain on window</option>
+		<option>stair case</option>
+		<option>egypt cat</option>
+		<option>terres australes et antarctiques françaises</option>
+		<option>hand pump beer</option>
+		<option>bed bug</option>
+		<option>silver oxide</option>
+		<option>position of sun</option>
+		<option>wrapped present</option>
+		<option>Cat looking out window </option>
+		<option>vine plantation</option>
+		<option>Fried egg</option>
+		<option>painting alexander the great</option>
+		<option>oak tree</option>
+		<option>art of persia</option>
+		<option>food restaurant</option>
+		<option>cat in the hat</option>
+		<option>glass bottle</option>
+		<option>The White House in Washington</option>
+		<option>european wolf</option>
+		<option>iso safety signs</option>
+		<option>california welcome sign</option>
+		<option>Solar farm</option>
+		<option>radius arm bone</option>
+		<option>lotus flower</option>
+		<option>balloons in the sky</option>
+		<option>sun flower</option>
+		<option>painting woman reading</option>
+		<option>sea turtle nest</option>
+		<option>churning butter</option>
+		<option>Curry chicken</option>
+		<option>pirate flag</option>
+		<option>old woman</option>
+		<option>stormy beach</option>
+		<option>galaxy cluster</option>
+		<option>us 500 dollar bill</option>
+		<option>dangerous animal</option>
+		<option>someone reading</option>
+		</datalist>
+	</body>
+</html>
