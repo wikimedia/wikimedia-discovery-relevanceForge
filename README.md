@@ -25,7 +25,6 @@ The primary purpose of the Relevance Forge is to allow us<sup>†</sup> to exper
 1. Input
 1. Output
   1. Report Metrics
-1. Engine Scoring Optimizer
 1. Other Tools
   1. Analysis Analysis
   1. Augment Dump
@@ -46,9 +45,7 @@ The primary purpose of the Relevance Forge is to allow us<sup>†</sup> to exper
 * Python: There's nothing too fancy here, and it works with Python 2.7, though a few packages are required:
  * The packages `jsonpath-rw, numpy` and `matplotlib` are required by the main Rel Forge.
  * The package `termcolor` is required by the Cirrus Query Debugger.
- * The package `scipy` is required by the Engine Score Optimizer
- * The package `matplotlib` is required by the Engine Score Optimizer
- * The package `PyYAML` is required by the Engine Score Optimizer
+ * The package `matplotlib` is required by the relcomp report generator
  * If you don't have one of these packages, you can get it with `pip install <package-name>` (`sudo` may be required to install packages).
 * SSH access to the host you intend to connect to.
 
@@ -136,13 +133,13 @@ The charts are presented in the report scaled fairly small, though they are pres
 
 **Diffs and `printnum`:** For metrics that report Diffs, the Diffs section of the report gives examples of queries that show the differences in question. Each metrics takes a `printnum` parameter that determines how many examples to show. By default, the parameter is set on the command line (default to 20) and shared across all metrics, though that can be overriden for any particular metric. If all the instances of a diff are to be shown (e.g., because `printnum` is 20 but there are only 5 examples), then they are shown in the order they appear in the corpora. If the only a sample is to be shown, then a random sample of size `printnum` is randomly selected and shown in a random order.
 
-## Engine Scoring Optimizer
+## Engine Scoring
 
-The Engine Scoring Optimizer ( engineScore.py ) generates a single number representing the score of the engine for the query set. It can combine this calculation with scipy brute force optimization to explore a multi-dimensional space of numeric config values to attempt to find the best values. This works similar to the main relevancy runner, which is reused here for running the queries.
+The Engine Scoring ( engineScore.py ) generates a single number representing the score of the engine for the query set.
 
 The Engine Scoring process takes an `.ini` file similar to the main relevancy runner:
 
-    engineScore.py -c engineScore.ini
+    engineScore.py -c etc/engineScore.ini
 
 
 ## Other Tools

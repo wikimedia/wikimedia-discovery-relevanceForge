@@ -26,7 +26,6 @@ import hashlib
 import tempfile
 import subprocess
 import math
-import pprint
 import relevancyRunner
 import yaml
 import codecs
@@ -513,123 +512,6 @@ class EngineScoreSet(object):
             score.output(verbose)
 
 
-def score(scorer, config):
-    # Run all the queries
-    print('Running queries')
-    results_dir = relevancyRunner.runSearch(config, 'test1')
-    results = load_results(results_dir)
-
-    print('Calculating engine score')
-    return scorer.engine_score(results)
-
-
-def make_search_config(config, x):
-    if x.shape == ():
-        x.shape = (1,)
-    for value, pos in zip(x, itertools.count()):
-        config.set('optimize', 'x%d' % (pos,), value)
-
-    return config.get('optimize', 'config')
-
-
-def minimize(scorer, config):
-    from scipy import optimize
-
-    engine_scores = {}
-
-    def f(x):
-        search_config = make_search_config(config, x)
-        if search_config in engine_scores:
-            return engine_scores[search_config].score
-
-        print("Trying: " + search_config)
-        config.set('test1', 'config', search_config)
-        engine_score = score(scorer, config)
-        print('Engine Score: %f' % (engine_score.score))
-        # Our optimizer is a minimizer, so flip the score
-        engine_score.score *= -1
-        engine_scores[search_config] = engine_score
-        return score.engine_score
-
-    # Make sure we don't reuse query results between runs
-    config.set('test1', 'allow_reuse', 0)
-    # Exhaustively search the bounds grid
-    bounds = json.loads(config.get('optimize', 'bounds'))
-
-    Ns = json.loads(config.get('optimize', 'Ns'))
-    if type(Ns) is list:
-        # different samples sizes (Ns) across different dimensions; set up slices
-        newbounds = []
-        for N, range in zip(Ns, bounds):
-            if N < 2:
-                N = 2
-            step = float(range[1] - range[0])/(N-1)
-            # add epsilon (step/100) to upper range; otherwise slice doesn't include the last point
-            newbounds.append([range[0], float(range[1]) + step/100, step])
-        Ns = 0
-        bounds = newbounds
-    else:
-        if Ns < 2:
-            Ns = 2
-    x, fval, grid, jout = optimize.brute(f, bounds, finish=None, disp=True,
-                                         full_output=True, Ns=Ns)
-
-    # f() returned negative engine scores, because scipy only does minimization
-    jout *= -1
-
-    pprint.pprint(grid)
-    pprint.pprint(jout)
-    optimized_config = make_search_config(config, x)
-    print("optimum config: " + optimized_config)
-
-    results_dir = relevancyRunner.getSafeWorkPath(config, 'test1', 'optimize')
-    relevancyRunner.refreshDir(results_dir)
-    with open(results_dir + '/config.json', 'w') as f:
-        f.write(optimized_config)
-    plot_optimize_result(len(x.shape) + 1, grid, jout, results_dir + '/optimize.png', config)
-
-    engine_score = engine_scores[optimized_config]
-    # Flip the score back to it's true value
-    engine_score.score *= -1
-    return engine_score
-
-
-def plot_optimize_result(dim, grid, jout, filename, config):
-    import matplotlib.pyplot as plt
-    if dim == 1:
-        plt.plot(grid, jout, 'ro')
-        plt.ylabel('engine score')
-        plt.show()
-    elif dim == 2:
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-
-        vmin = vmax = None
-        if config.has_option('optimize', 'zmin'):
-            vmin = config.getfloat('optimize', 'zmin')
-        if config.has_option('optimize', 'zmax'):
-            vmax = config.getfloat('optimize', 'zmax')
-
-        CS = plt.contourf(grid[0], grid[1], jout, vmin=vmin, vmax=vmax)
-        cbar = plt.colorbar(CS)
-        cbar.ax.set_ylabel('engine score')
-
-        ax.set_xticks(grid[0][:, 0])
-        ax.set_yticks(grid[1][0])
-        plt.grid(linewidth=0.5)
-    else:
-        print("Can't plot %d dimensional graph" % (dim))
-        return
-
-    if config.has_option('optimize', 'xlabel'):
-        plt.xlabel(config.get_option('optimize', 'xlabel'))
-    if config.has_option('optimize', 'ylabel'):
-        plt.ylabel(config.get_option('optimize', 'ylabel'))
-    plt.savefig(filename)
-    if config.has_option('optimize', 'plot') and config.getboolean('optimize', 'plot'):
-        plt.show()
-
-
 def genSettings(config):
     def get(key=None):
         if key is None:
@@ -673,7 +555,6 @@ if __name__ == '__main__':
                              "needs to be integer or list of integers")
 
     settings = genSettings(config)
-
     scorer = init_scorer(settings)
 
     # Write out a list of queries for the relevancyRunner
@@ -682,11 +563,13 @@ if __name__ == '__main__':
         with os.fdopen(queries_temp[0], 'w') as f:
             f.write("\n".join(scorer.queries).encode('utf-8'))
         config.set('test1', 'queries', queries_temp[1])
+        # Run all the queries
+        print('Running queries')
+        results_dir = relevancyRunner.runSearch(config, 'test1')
+        results = load_results(results_dir)
 
-        if config.has_section('optimize'):
-            engine_score = minimize(scorer, config)
-        else:
-            engine_score = score(scorer, config)
+        print('Calculating engine score')
+        engine_score = scorer.engine_score(results)
     finally:
         os.remove(queries_temp[1])
 
