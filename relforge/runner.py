@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# relevancyRunner.py - Run relevance lab queries
+# runner.py - Run relevance lab queries
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,9 +14,6 @@
 # http://www.gnu.org/copyleft/gpl.html
 
 import os
-import sys
-import argparse
-import ConfigParser
 import pipes
 import shutil
 import subprocess
@@ -39,7 +35,7 @@ def refreshDir(dirname):
 
 def getSafeWorkPath(config, section, subdir):
     qname = getSafeName(config.get(section, 'name'))
-    return '%s/%s/%s' % (config.get('settings', 'workdir'), subdir, qname)
+    return os.path.join(config.get('settings', 'workdir'), subdir, qname)
 
 
 def sanitize_json(file):
@@ -91,14 +87,6 @@ def runSearch(config, section, allow_reuse=True):
     return results_file
 
 
-def distributeGlobalSettings(config, globals, sections, settings):
-    # if settings are missing from sections, copy from globals
-    for sec in sections:
-        for set in settings:
-            if not config.has_option(sec, set) and config.has_option(globals, set):
-                config.set(sec, set, config.get(globals, set))
-
-
 def checkSettings(config, section, settings):
     for s in settings:
         if not config.has_option(section, s):
@@ -106,47 +94,6 @@ def checkSettings(config, section, settings):
     pass
 
 
-def defaults(config, section, settings):
-    for s in settings:
-        if not config.has_option(section, s):
-            config.set(section, s, settings[s])
-
-
 def runCommand(cmd):
     print("RUNNING "+cmd)
     subprocess.check_call(cmd, shell=True)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Run relevance lab queries', prog=sys.argv[0])
-    parser.add_argument('-c', '--config', dest='config', help='Configuration file name',
-                        required=True)
-    args = parser.parse_args()
-
-    config = ConfigParser.ConfigParser()
-    config.readfp(open(args.config))
-    distributeGlobalSettings(config, 'settings', ['test1', 'test2'],
-                             ['queries', 'labHost', 'searchCommand', 'config',
-                              'wikiUrl', 'explainUrl', 'allowReuse'])
-    checkSettings(config, 'settings', ['workDir', 'jsonDiffTool', 'metricTool'])
-    checkSettings(config, 'test1', ['name', 'queries', 'labHost', 'searchCommand'])
-    checkSettings(config, 'test2', ['name', 'queries', 'labHost', 'searchCommand'])
-    # TODO: make some useful defaults here?
-    defaults(config, 'test1', {'wikiUrl': '', 'explainUrl': '', 'allowReuse': True})
-    defaults(config, 'test2', {'wikiUrl': '', 'explainUrl': '', 'allowReuse': True})
-
-    res1 = runSearch(config, 'test1')
-    res2 = runSearch(config, 'test2')
-    comparisonDir = "%s/comparisons/%s_%s" % (config.get('settings', 'workDir'),
-                                              getSafeName(config.get('test1', 'name')),
-                                              getSafeName(config.get('test2', 'name')))
-    refreshDir(comparisonDir)
-    shutil.copyfile(args.config, comparisonDir + "/config.ini")  # archive comparison config
-
-    runCommand("%s %s -w %s -W %s -e '%s' -E '%s' %s %s" % (
-        config.get('settings', 'jsonDiffTool'),
-        comparisonDir + "/diffs",
-        config.get('test1', 'wikiUrl'), config.get('test2', 'wikiUrl'),
-        config.get('test1', 'explainUrl'), config.get('test2', 'explainUrl'),
-        res1, res2))
-    runCommand("%s %s %s %s" % (config.get('settings', 'metricTool'), comparisonDir, res1, res2))

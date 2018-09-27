@@ -2,3 +2,4 @@ relevance/
 .tox/
 *.sw?
 *.pyc
+/relforge.egg-info

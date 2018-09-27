@@ -42,18 +42,16 @@ The primary purpose of the Relevance Forge is to allow us<sup>†</sup> to exper
 
 ## Prerequisites
 
-* Python: There's nothing too fancy here, and it works with Python 2.7, though a few packages are required:
- * The packages `jsonpath-rw, numpy` and `matplotlib` are required by the main Rel Forge.
- * The package `termcolor` is required by the Cirrus Query Debugger.
- * The package `matplotlib` is required by the relcomp report generator
- * If you don't have one of these packages, you can get it with `pip install <package-name>` (`sudo` may be required to install packages).
+* Python: There's nothing too fancy here, and it works with Python 2.7, though a few packages are required. Install via pip for appropriate dependencies to be installed.
 * SSH access to the host you intend to connect to.
 
 ## Invocation
 
 The main Rel Forge process is `relevancyRunner.py`, which takes a `.ini` config file (see below):
 
-	 relevancyRunner.py -c relevance.ini
+	 relevancyRunner.py -c etc/relevance.ini
+
+If you installed the package in a virtualenv you will need to activate the virtualenvbefore running the commands above.
 
 ### Processes
 

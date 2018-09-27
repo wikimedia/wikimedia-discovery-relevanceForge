@@ -26,7 +26,7 @@ import hashlib
 import tempfile
 import subprocess
 import math
-import relevancyRunner
+import relforge.runner
 import yaml
 import codecs
 
@@ -86,9 +86,9 @@ class CachedQuery:
         self._query = sql_config['query'].format(**sql_config['variables'])
 
     def _choose_server(servers, host):
-        for server in config['servers']:
+        for server in servers:
             if server['host'] == host:
-                return servers[0]
+                return server
 
         raise RuntimeError("Couldn't locate host %s" % (host))
 
@@ -521,7 +521,7 @@ def genSettings(config):
     return get
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Calculate an engine score', prog=sys.argv[0])
     parser.add_argument('-c', '--config', dest='config', help='Configuration file name',
                         required=True)
@@ -531,15 +531,16 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     config = ConfigParser.ConfigParser()
+    global verbose
     verbose = args.verbose
     with open(args.config) as f:
         config.readfp(f)
 
-    relevancyRunner.checkSettings(config, 'settings', ['query', 'workDir'])
-    relevancyRunner.checkSettings(config, 'test1', [
+    relforge.runner.checkSettings(config, 'settings', ['query', 'workDir'])
+    relforge.runner.checkSettings(config, 'test1', [
                                   'name', 'labHost', 'searchCommand'])
     if config.has_section('optimize'):
-        relevancyRunner.checkSettings(config, 'optimize', [
+        relforge.runner.checkSettings(config, 'optimize', [
                                       'bounds', 'Ns', 'config'])
 
         Ns = json.loads(config.get('optimize', 'Ns'))
@@ -557,7 +558,7 @@ if __name__ == '__main__':
     settings = genSettings(config)
     scorer = init_scorer(settings)
 
-    # Write out a list of queries for the relevancyRunner
+    # Write out a list of queries for the runner
     queries_temp = tempfile.mkstemp('_engine_score_queries')
     try:
         with os.fdopen(queries_temp[0], 'w') as f:
@@ -565,7 +566,7 @@ if __name__ == '__main__':
         config.set('test1', 'queries', queries_temp[1])
         # Run all the queries
         print('Running queries')
-        results_dir = relevancyRunner.runSearch(config, 'test1')
+        results_dir = relforge.runner.runSearch(config, 'test1')
         results = load_results(results_dir)
 
         print('Calculating engine score')
@@ -574,3 +575,7 @@ if __name__ == '__main__':
         os.remove(queries_temp[1])
 
     engine_score.output()
+
+
+if __name__ == '__main__':
+    main()
