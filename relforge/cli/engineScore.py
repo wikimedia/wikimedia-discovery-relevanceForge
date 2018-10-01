@@ -539,22 +539,6 @@ def main():
     relforge.runner.checkSettings(config, 'settings', ['query', 'workDir'])
     relforge.runner.checkSettings(config, 'test1', [
                                   'name', 'labHost', 'searchCommand'])
-    if config.has_section('optimize'):
-        relforge.runner.checkSettings(config, 'optimize', [
-                                      'bounds', 'Ns', 'config'])
-
-        Ns = json.loads(config.get('optimize', 'Ns'))
-        if type(Ns) is int:
-            pass
-        elif type(Ns) is list:
-            bounds = json.loads(config.get('optimize', 'bounds'))
-            if len(Ns) != len(bounds):
-                raise ValueError("Section [optimize] configuration Ns as list " +
-                                 "needs to be the same length as bounds")
-        else:
-            raise ValueError("Section [optimize] configuration Ns " +
-                             "needs to be integer or list of integers")
-
     settings = genSettings(config)
     scorer = init_scorer(settings)
 
