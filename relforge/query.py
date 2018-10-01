@@ -56,6 +56,79 @@ class CliCommand(object):
         return ' '.join(command)
 
 
+class Hive(object):
+    def __init__(self, config):
+        pass
+
+    def commandline(self):
+        return CliCommand([
+            'beeline',
+            '--silent=true',
+            '--outputformat=tsv2',
+            '--fastConnect=true',
+            '--maxWidth=' + str(int(1e8)),
+            '--maxColumnWidth=' + str(int(1e8)),
+        ])
+
+    def parse_tsv2_line(self, line):
+        """Parse a single line of tsv2 output from beeline
+
+        This format is tab delimited. If a column contains
+        a tab the column is quoted with null bytes.
+        """
+        prefix = None
+        for piece in line.split('\t'):
+            if prefix is None and len(piece) > 0 and piece[0] == '\0':
+                prefix = piece[1:] + '\t'
+            elif prefix is None:
+                yield None if piece == 'NULL' else piece
+            else:
+                prefix += piece
+                if prefix[-1] == '\0':
+                    yield prefix[0:-1]
+                    prefix = None
+                else:
+                    prefix += '\t'
+        if prefix is not None:
+            raise Exception('Malformed input without \\0 terminator: {}'.format(repr(line)))
+
+    def parse(self, cmd_output):
+        # Beeline isn't made for this, so we get some mediocre output
+        # to parse through. If we could pass the command instead of
+        # piping it in it would be slightly better, but have length
+        # problems.
+        # Guess what the prompt looks like from the first line
+        prompt = cmd_output.pop().split('>', 1)[0] + '> '
+        LOG.debug('Detected prompt as: %s', prompt)
+        in_results = False
+        for line in cmd_output:
+            has_prompt = line.startswith(prompt)
+            if has_prompt:
+                if in_results:
+                    LOG.debug('Found junk, stop looking: %s', line)
+                    return
+                else:
+                    # Junk at beginning
+                    # Probably not the header we are looking for?
+                    LOG.debug('skipping line: %s', line)
+                    continue
+            elif in_results:
+                cols = list(self.parse_tsv2_line(line))
+                if len(cols) != 2:
+                    raise Exception(u'More than two columns: {}'.format(repr(line)))
+                if any(x is None for x in cols):
+                    LOG.debug('Throwing out line with null values: %s', repr(line))
+                else:
+                    LOG.debug('Yielding query row: %s', cols)
+                    yield cols
+            else:
+                header = list(self.parse_tsv2_line(line))
+                LOG.debug('Found results section with header: %s', header)
+                if len(header) != 2:
+                    raise Exception('More than two columns: {}'.format(repr(header)))
+                in_results = True
+
+
 class MySql(object):
     def __init__(self, config):
         self.dbserver = config['mysql'].get('dbserver')
@@ -97,6 +170,7 @@ class MySql(object):
 class CachedQuery:
     PROVIDERS = {
         'mysql': MySql,
+        'hive': Hive,
     }
 
     def __init__(self, settings):
