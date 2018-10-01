@@ -15,6 +15,7 @@
 # http://www.gnu.org/copyleft/gpl.html
 
 import argparse
+from collections import defaultdict
 import ConfigParser
 import functools
 import itertools
@@ -47,11 +48,12 @@ def init_scorer(settings):
         scoring_configs = [scoring_configs]
 
     scorers = []
-    for config in scoring_configs:
+    iters = itertools.tee(query_data, len(scoring_configs))
+    for config, query_data_iter in zip(scoring_configs, iters):
         algo = config['algorithm']
         print('Initializing engine scorer: %s' % (algo))
         scoring_class = scoring_algos[algo]
-        scorer = scoring_class(query_data, config['options'])
+        scorer = scoring_class(query_data_iter, config['options'])
         scorer.report()
         scorers.append(scorer)
 
@@ -103,27 +105,15 @@ class MultiScorer(object):
 
 # Discounted Cumulative Gain
 class DCG(object):
-    def __init__(self, sql_result, options):
+    def __init__(self, rows, options):
         self.k = options.get('k', 20)
         if type(self.k) == list:
             self.k = self.k[0]
         else:
             self.k = int(self.k)
-        self._relevance = {}
-
-        # burn the header
-        sql_result.pop(0)
-
-        # Load the query results
-        for line in sql_result:
-            if len(line) == 0:
-                continue
-            query, title, score = line.strip().split("\t")
-            if score == 'NULL':
-                score = 0
-            if query not in self._relevance:
-                self._relevance[query] = {}
-            self._relevance[query][title] = float(score)
+        self._relevance = defaultdict(dict)
+        for query, title, score in rows:
+            self._relevance[query][title] = score
 
     def name(self):
         return "DCG@%d" % (self.k)
@@ -156,8 +146,8 @@ class DCG(object):
 # order for results to this query, per the provided relevance query
 # results
 class IDCG(DCG):
-    def __init__(self, sql_result, options):
-        super(IDCG, self).__init__(sql_result, options)
+    def __init__(self, rows, options):
+        super(IDCG, self).__init__(rows, options)
 
     def name(self):
         return "IDCG@%d" % (self.k)
@@ -182,10 +172,10 @@ class IDCG(DCG):
 
 # Normalized Discounted Cumulative Gain
 class nDCG(object):
-    def __init__(self, sql_result, options):
+    def __init__(self, rows, options):
         # list() makes a copy, so each gets their own unique list
-        self.dcg = DCG(list(sql_result), options)
-        self.idcg = IDCG(list(sql_result), options)
+        self.dcg = DCG(list(rows), options)
+        self.idcg = IDCG(list(rows), options)
         self.queries = self.dcg._relevance.keys()
         self.k = options.get('k', 20)
         if type(self.k) != list:
@@ -251,8 +241,8 @@ class nDCG(object):
 # Note this isn't really a sub-thing of DCG, it just happens to be computed similarly
 # enough we can reused all its code except engine_score()
 class ERR(DCG):
-    def __init__(self, sql_result, options):
-        super(ERR, self). __init__(sql_result, options)
+    def __init__(self, rows, options):
+        super(ERR, self). __init__(rows, options)
         # Assuming a relevance scale of {0, 1, 2, 3}
         # max is 2^3 = 8
         self.max_rel = pow(2, options.get('max_relevance_scale'))
@@ -300,9 +290,9 @@ class ERR(DCG):
 
 # Formula from talk given by Paul Nelson at ElasticON 2016
 class PaulScore:
-    def __init__(self, sql_result, options):
+    def __init__(self, rows, options):
 
-        self._sessions = self._extract_sessions(sql_result)
+        self._sessions = self._extract_sessions(rows)
         self.queries = set([q for s in self._sessions.values() for q in s['queries']])
         self.factors = options['factor']
         if type(self.factors) != list:
@@ -319,15 +309,12 @@ class PaulScore:
         print('Loaded %d sessions with %d clicks and %d unique queries' %
               (len(self._sessions), num_clicks, len(self.queries)))
 
-    def _extract_sessions(self, sql_result):
-        # drop the header
-        sql_result.pop(0)
-
+    def _extract_sessions(self, rows):
         def not_null(x):
             return x != 'NULL'
 
         sessions = {}
-        rows = sorted(line.split("\t", 2) for line in sql_result if len(line) > 0)
+        rows = sorted(rows)
         for sessionId, group in itertools.groupby(rows, operator.itemgetter(0)):
             _, clicks, queries = zip(*group)
             sessions[sessionId] = {

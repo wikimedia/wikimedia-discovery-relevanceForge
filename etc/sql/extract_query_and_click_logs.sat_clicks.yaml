@@ -3,9 +3,12 @@ scoring:
     options:
         factor: 0.7
 
+provider: mysql
 servers:
-    - host: stat1002.eqiad.wmnet
-      cmd: mysql --defaults-extra-file=/etc/mysql/conf.d/analytics-research-client.cnf --host dbstore1002.eqiad.wmnet
+    - host: stat1005.eqiad.wmnet
+      mysql:
+        defaults-extra-file: /etc/mysql/conf.d/analytics-research-client.cnf
+        dbserver: dbstore1002.eqiad.wmnet
 
 variables:
     schema_revision: 15700292
