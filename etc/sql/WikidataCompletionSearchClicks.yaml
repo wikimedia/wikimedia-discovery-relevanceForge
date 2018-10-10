@@ -2,7 +2,8 @@ scoring:
   - algorithm: MRR
     options: []
   - algorithm: MPC
-    options: []
+    options:
+        test_train_split: 0.80
 
 provider: hive
 servers:

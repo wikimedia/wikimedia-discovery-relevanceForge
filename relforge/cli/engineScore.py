@@ -24,6 +24,7 @@ import logging
 import math
 import os
 import operator
+import random
 import sys
 import tempfile
 
@@ -134,12 +135,15 @@ class MRR_AC(object):
               (num_clicks, num_prefixes))
 
     @staticmethod
-    def score_query(results, query, page_id):
+    def score_query(results, query, page_id, allow_missing=False):
         for i in range(len(query)):
             prefix = query[:i + 1]
             try:
                 result_list = results[prefix]
             except KeyError:
+                if allow_missing:
+                    yield 0.
+                    continue
                 raise Exception('Missing results for prefix {}'.format(prefix))
             try:
                 # result_list holds elasticsearch docId's which are always a
@@ -186,28 +190,52 @@ class MPC(object):
     This overfits massively unless you have a large set of clicks, (how many?)
     """
     def __init__(self, rows, options):
-        self._queries = defaultdict(list)
-        for row in rows:
-            query, page_id = row
-            self._queries[query].append(str(page_id))
-        self.results = calc_mpc(self._queries)
+        self.test_set = defaultdict(list)
+        self._train_set = None
+        r = random.Random(0)
+        train_split = 1.0
+        if 'test_train_split' in options and options['test_train_split'] != 0.0:
+            # The specified % of clicks will be assigned to the train set, leaving
+            # the remainder as the test set.
+            train_split = float(options['test_train_split'])
+            self._train_set = defaultdict(list)
+        if not 0.0 <= train_split <= 1.0:
+            raise Exception('train_split ({}) must be between 0 and 1'.format(train_split))
+
+        for query, page_id in rows:
+            if r.random() >= train_split:
+                self.test_set[query].append(str(page_id))
+            else:
+                self.train_set[query].append(str(page_id))
+        self.model = calc_mpc(self.train_set)
         # We don't require any external search requests
         self.queries = []
+
+    @property
+    def train_set(self):
+        if self._train_set is None:
+            return self.test_set
+        else:
+            return self._train_set
 
     def name(self):
         return "MPC MRR"
 
     def report(self):
-        pass
+        print("MPC MRR loaded test set with {} pages and train set with {} pages".format(
+            len(self.test_set), len(self.train_set)))
 
     def engine_score(self, results):
         score = 0
         N = 0
-        for query, page_ids in self._queries.items():
+        for query, page_ids in self.test_set.items():
             for page_id in page_ids:
                 # Not 100% what is right but this is mean per query
-                # instead of per prefix.
-                query_score = list(MRR_AC.score_query(self.results, query, page_id))
+                # instead of per prefix. We have to allow missing for
+                # the test/train split where some prefixes only exist
+                # on one side.
+                query_score = list(MRR_AC.score_query(
+                    self.model, query, page_id, allow_missing=True))
                 score += sum(query_score) / len(query_score)
                 N += 1
         return EngineScore(self.name(), score / N)
