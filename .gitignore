@@ -3,3 +3,4 @@ relevance/
 *.sw?
 *.pyc
 /relforge.egg-info
+/dist/

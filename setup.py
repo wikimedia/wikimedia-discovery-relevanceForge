@@ -9,6 +9,7 @@ requirements = [
     'scipy',
     'requests',
     'termcolor',
+    'tensorflow',
 ]
 
 test_requirements = [
