@@ -1,4 +1,5 @@
 scoring:
+  # TODO: Scoring is perhaps too specific?
   - algorithm: MRR
     options: []
   - algorithm: MPC
@@ -12,25 +13,24 @@ servers:
 
 variables:
     year: 2018
-    month: 9
-    day_start: 20
-    day_end: 26
-    limit: 5000
-    context: item
-    language: de
+    month: 10
+
+columns: ['dt', 'context', 'language', 'searchTerm', 'clickPage']
+types:
+    dt: datetime64
+    context: category
+    language: category
+    searchTerm: str
+    clickPage: int64
 
 query: >
     select
-        event.searchTerm, event.clickPage
+        dt, event.context, event.language, event.searchTerm, event.clickPage
     from
         event.wikidatacompletionsearchclicks
     where
         year = {year}
         and month = {month}
-        and day between {day_start} and {day_end}
-        and event.context = '{context}'
-        and event.language = '{language}'
         and event.searchTerm <> ''
         and event.clickPage is not null
-    limit
-        {limit};
+    ;

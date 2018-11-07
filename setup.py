@@ -3,8 +3,10 @@ from setuptools import find_packages, setup
 
 requirements = [
     'elasticsearch>=5.0.0,<6.0.0',
+    'hyperopt',
     'jsonpath-rw',
     'matplotlib',
+    'numba',
     'numpy',
     'pandas',
     'pyyaml',
@@ -12,6 +14,7 @@ requirements = [
     'requests',
     'termcolor',
     'tensorflow',
+    'tqdm',
 ]
 
 test_requirements = [
@@ -41,7 +44,7 @@ setup(
     install_requires=requirements,
     test_requires=test_requirements,
     extras_require={
-        'test': test_requirements,
+        'test': requirements + test_requirements,
     },
     classifiers=[
         'Development Status :: 3 - Alpha',

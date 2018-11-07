@@ -1,0 +1,276 @@
+# Name for this run
+DATASET_NAME = WikidataCompletionClicks-201810
+
+# Configuration for sourcing the input data
+DATASET_SQL = $(RELFORGE_ETC_DIR)/sql/WikidataCompletionSearchClicks.yaml
+
+# The number of click events to operate against. The full dataset is still
+# loaded from analytics, this only changes the % of that dataset
+# that is utilized per context/lang pair. Default 0 uses full dataset.
+RESAMPLE=0
+# Number of times to restart optimization
+RESTARTS=1
+# Number of rounds to perform optimization
+EPOCHS=100
+# Number of values to evaluate when measuring sensitivity
+SENSITIVITY_WIDTH=20
+# Batch size to use in tensorflow. Directly effects memory usage.
+TF_BATCH_SIZE=4096
+
+# Default paths
+RELFORGE_ETC_DIR = ./etc
+DATASET_DIR = ../tf-ltr-data/$(DATASET_NAME)
+PYTHON_PATH = ../relforge-venv/bin/python
+
+# Variations to build models for such as item_en or item_de
+DATASET_VARIATIONS = $(shell cat $(DATASET_RAW).meta 2>/dev/null)
+
+# No more configuration past here
+
+PREPARE=$(PYTHON_PATH) -m relforge.cli.tf_autocomplete
+
+# Various paths
+DATASET_RAW = ${DATASET_DIR}/source.pkl.gz
+QUERY_DIR = $(DATASET_DIR)/queries
+CIRRUS_QUERY_DIR = $(DATASET_DIR)/cirrus_queries/
+EQUATION_DIR = $(DATASET_DIR)/equations
+EXPLAIN_DIR = $(DATASET_DIR)/explain
+TFRECORD_DIR = $(DATASET_DIR)/tfrecord
+MODEL_DIR = $(DATASET_DIR)/model
+SENSITIVITY_DIR = $(DATASET_DIR)/sensitivity
+
+# Point to files that will never exist, so they always run?
+# There is probably a better way to do this
+DEBUG_DIR = /dev/null
+
+define VARIANT_DST_template =
+QUERY_$(1)_DST = $$(wildcard $$(QUERY_DIR)/*.$(1).pkl.gz)
+QUERY_DST += $$(QUERY_$(1)_DST)
+
+CIRRUS_QUERY_$(1)_DST = $$(CIRRUS_QUERY_DIR)/cirrus_queries.$(1).pkl.gz
+CIRRUS_QUERY_DST += $$(CIRRUS_QUERY_$(1)_DST)
+
+# elasticsearch explanations, many per context/lang
+EXPLAIN_$(1)_GLOB = $$(EXPLAIN_DIR)/*.$(1).pkl.gz
+EXPLAIN_$(1)_DST = $$(QUERY_DST:$$(QUERY_DIR)/%.$(1).pkl.gz=$$(EXPLAIN_DIR)/%.$(1).pkl.gz)
+EXPLAIN_DST += $$(EXPLAIN_$(1)_DST)
+
+# fully-merged explain, one per context/lang
+EQUATION_$(1)_DST = $$(EQUATION_DIR)/equation.$(1).pkl.gz
+EQUATION_DST += $$(EQUATION_$(1)_DST)
+
+# extracted feature vectors, one per context/lang
+TFRECORD_$(1)_DST = $$(TFRECORD_DIR)/$(1).tfrecord
+TFRECORD_DST += $$(TFRECORD_$(1)_DST)
+
+# verify merged equation + feature vector matches original lucene scores
+DEBUG_TFRECORD_DST += debug-tfrecord-$(1)
+
+# trained model report
+MODEL_$(1)_DST = $$(MODEL_DIR)/model.$(1).pkl.gz
+MODEL_DST += $$(MODEL_$(1)_DST)
+
+# Re-evaluate a trained model 
+EVAL_MODEL_DST += eval-$(1)
+
+# Analyze the sensitivity of chosen parameters
+SENSITIVITY_$(1)_DST = $$(SENSITIVITY_DIR)/sensitivity.$(1).pkl.gz
+SENSITIVITY_DST += $$(SENSITIVITY_$(1)_DST)
+endef
+
+$(foreach variant,$(DATASET_VARIATIONS), \
+	$(eval $(call VARIANT_DST_template,$(variant))))
+
+# Sigil file that means the source data has been split and the include at the
+# end of this file has been run. Without depending on this it's possible for
+# rules to not have any inputs.
+QUERY_SPLITS_COMPLETE = $(QUERY_DIR)/.complete
+
+# First target in makefile, used when no arguments given
+.PHONY: all
+all: model
+
+# Basic cleanups
+.PHONY: clean clean-source clean-queries clean-explain clean-equation clean-tfrecord clean-sensitivity
+clean: clean-source
+	rm -rf $(DATASET_DIR)
+
+clean-source: clean-queries
+	rm $(DATASET_RAW)
+
+clean-queries: clean-explain
+	rm -rf $(QUERY_DIR)
+
+clean-explain: clean-equation
+	rm -rf $(EXPLAIN_DIR)
+
+clean-equation: clean-tfrecord
+	rm -rf $(EQUATION_DST)
+
+clean-tfrecord: clean-model
+	rm -rf $(TFRECORD_DIR)
+
+clean-model: clean-sensitivity
+	rm -rf $(MODEL_DIR)
+
+clean-sensitivity:
+	rm -rf $(SENSITIVITY_DIR)
+
+
+# Import the dataset. Uses order only dependency to prevent
+# git from causing a full rebuild.
+$(DATASET_RAW): | $(DATASET_SQL)
+	mkdir -p $(dir $(DATASET_RAW))
+	$(PREPARE) fetch_source \
+		--sql $(DATASET_SQL) \
+		--outfile $(DATASET_RAW)
+
+# Transform initial source into multiple splits. The `include` at the bottom
+# of this makefile causes the makefile to re-parse after this rule, which
+# populates QUERY_DST and DATASET_VARIANTS and allows the rest of the
+# Makefile to work.
+$(QUERY_SPLITS_COMPLETE): $(DATASET_RAW)
+	mkdir -p $(QUERY_DIR)
+	$(PREPARE) expand_and_split_queries \
+		--source-dataset $< \
+		--outfile $(QUERY_DIR) \
+		--resample $(RESAMPLE)
+	touch $@
+
+define VARIANT_RULE_template =
+
+# Fetch Cirrus queries for each (context, language) pair
+$$(CIRRUS_QUERY_$(1)_DST):
+	@mkdir -p "$$(CIRRUS_QUERY_DIR)"
+	$$(PREPARE) fetch_wbsearchentities_query \
+		--context "$$(word 1,$$(subst _, ,$(1)))" \
+		--language "$$(word 2,$$(subst _, ,$(1)))" \
+		--outfile $$@
+
+# Transform query splits into explains
+$$(EXPLAIN_DIR)/%.$(1).pkl.gz: $$(QUERY_DIR)/%.$(1).pkl.gz $$(CIRRUS_QUERY_$(1)_DST) $$(QUERY_SPLITS_COMPLETE)
+	@mkdir -p "$$(EXPLAIN_DIR)"
+	$$(PREPARE) fetch_explain \
+		--dataframe "$$<" \
+		--outfile "$$@" \
+		--es-query "$$(CIRRUS_QUERY_$(1)_DST)"
+
+# Transform explains into tfrecords. This generates an output per context/lang pair
+
+# Parse enough explains to extract our equation
+$$(EQUATION_$(1)_DST): $$(EXPLAIN_$(1)_DST) $$(CIRRUS_QUERY_$(1)_DST) $$(QUERY_SPLITS_COMPLETE)
+	@mkdir -p "$$(EQUATION_DIR)"
+	$$(PREPARE)  make_equation \
+		--lucene-explain "$$(EXPLAIN_$(1)_GLOB)" \
+		--outfile "$$@" \
+		--es-query "$$(CIRRUS_QUERY_$(1)_DST)"
+
+$$(TFRECORD_$(1)_DST): $$(EXPLAIN_$(1)_DST) $$(EQUATION_$(1)_DST) $$(QUERY_SPLITS_COMPLETE)
+	@mkdir -p "$$(TFRECORD_DIR)"
+	$$(PREPARE) make_tfrecord \
+		--context "$$(word 1,$$(subst _, ,$(1)))" \
+		--language "$$(word 2,$$(subst _, ,$(1)))" \
+		--es-query "$$(CIRRUS_QUERY_$(1)_DST)" \
+		--lucene-explain "$$(EXPLAIN_$(1)_GLOB)" \
+		--outfile "$$@" \
+		--equation "$$(EQUATION_$(1)_DST)"
+
+.PHONY: debug-tfrecord-$(1)
+debug-tfrecord-$(1): $$(TFRECORD_$(1)_DST) $$(EQUATION_$(1)_DST)
+	$$(PREPARE) debug_tfrecord \
+		--tfrecord "$$<" \
+		--batch-size "$$(TF_BATCH_SIZE)" \
+		--context "$$(word 1,$$(subst _, ,$(1)))" \
+		--language "$$(word 2,$$(subst _, ,$(1)))" \
+		--outfile /dev/null \
+		--equation "$$(EQUATION_$(1)_DST)"
+
+$$(MODEL_$(1)_DST): $$(EQUATION_$(1)_DST) $$(TFRECORD_$(1)_DST) $$(QUERY_SPLITS_COMPLETE)
+	@mkdir -p "$$(MODEL_DIR)"
+	$$(PREPARE) hyperopt \
+		--context "$$(word 1,$$(subst _, ,$(1)))" \
+		--language "$$(word 2,$$(subst _, ,$(1)))" \
+		--tfrecord "$$(TFRECORD_$(1)_DST)" \
+		--batch-size "$$(TF_BATCH_SIZE)" \
+		--outfile "$$(MODEL_$(1)_DST)" \
+		--equation "$$(EQUATION_$(1)_DST)" \
+		--source-dataset "$$(DATASET_RAW)" \
+		--resample "$$(RESAMPLE)" \
+		--restarts "$$(RESTARTS)" \
+		--epochs "$$(EPOCHS)"
+
+.PHONY: eval-$(1)
+eval-$(1): $$(MODEL_$(1)_DST)
+	$$(PREPARE) eval_model \
+		--outfile /dev/null \
+		--context "$$(word 1,$$(subst _, ,$(1)))" \
+		--language "$$(word 2,$$(subst _, ,$(1)))" \
+		--tfrecord "$$(TFRECORD_$(1)_DST)" \
+		--batch-size "$$(TF_BATCH_SIZE)" \
+		--train-report "$$(MODEL_$(1)_DST)" \
+		--equation "$$(EQUATION_$(1)_DST)" \
+		--source-dataset "$$(DATASET_RAW)" \
+		--resample "$$(RESAMPLE)"
+
+$$(SENSITIVITY_$(1)_DST): $$(MODEL_$(1)_DST)
+	@mkdir -p $$(SENSITIVITY_DIR)
+	$$(PREPARE) analyze_sensitivity \
+		--outfile "$$(SENSITIVITY_$(1)_DST)" \
+		--context "$$(word 1,$$(subst _, ,$(1)))" \
+		--language "$$(word 2,$$(subst _, ,$(1)))" \
+		--tfrecord "$$(TFRECORD_$(1)_DST)" \
+		--batch-size "$$(TF_BATCH_SIZE)" \
+		--train-report "$$(MODEL_$(1)_DST)" \
+		--equation "$$(EQUATION_$(1)_DST)" \
+		--source-dataset "$$(DATASET_RAW)" \
+		--resample "$$(RESAMPLE)" \
+		--sensitivity-width "$$(SENSITIVITY_WIDTH)"
+
+.PHONY: cirrus-query-$(1) explain-$(1) equation-$(1) tfrecord-$(1) model-$(1) sensitivity-$(1)
+cirrus-query-$(1): $$(CIRRUS_QUERY_$(1)_DST)
+explain-$(1): $$(EXPLAIN_$(1)_DST)
+equation-$(1): $$(EQUATION_$(1)_DST)
+tfrecord-$(1): $$(TFRECORD_$(1)_DST)
+model-$(1): $$(MODEL_$(1)_DST)
+sensitivity-$(1): $$(SENSITIVITY_$(1)_DST)
+
+.PHONY: query-cirrus-query-$(1) query-explain-$(1) query-equation-$(1) query-tfrecord-$(1) query-debug-tfrecord-$(1) query-model-$(1)
+clean-cirrus-query-$(1): clean-explain-$(1) clean-equation-$(1)
+	rm -f $$(CIRRUS_QUERY_$(1)_DST)
+clean-explain-$(1): clean-tfrecord-$(1)
+	rm -f $$(EXPLAIN_$(1)_DST)
+clean-equation-$(1): clean-tfrecord-$(1)
+	rm -f $$(EQUATION_$(1)_DST)
+clean-tfrecord-$(1): clean-model-$(1)
+	rm -f $$(TFRECORD_$(1)_DST)
+clean-model-$(1): clean-sensitivity-$(1)
+	rm -f $$(MODEL_$(1)_DST)
+clean-sensitivity-$(1):
+	rm -f $$(SENSITIVITY_$(1)_DST)
+
+endef
+
+$(foreach variant,$(DATASET_VARIATIONS), $(eval $(call VARIANT_RULE_template,$(variant))))
+
+# Various convenience targets. These comelast so any adjustments to their
+# arguments are applied already.
+.PHONY: source split explain equation tfrecord debug-tfrecord cirrus_queries prepare model eval
+source: $(DATASET_RAW)
+split: $(QUERY_DST)
+cirrus_queries: $(CIRRUS_QUERY_DST)
+explain: $(EXPLAIN_DST)
+equation: $(EQUATION_DST)
+tfrecord: $(TFRECORD_DST)
+debug-tfrecord: $(DEBUG_TFRECORD_DST)
+model: $(MODEL_DST)
+eval: $(EVAL_MODEL_DST)
+
+# Debug helper. print any variable, such as:
+#   make -f Makefile.tf_autocomplete print-MODEL_DST
+print-%: ; @$(error $* is $($*) ($(value $*)) (from $(origin $*)))
+
+# Crazy hack re-parses the makefile after running split_queries
+# Also does stupid things like re-split after clean...
+# And the unfortunate side effect that running the makefile with --just-print
+# will still run the initial data collection and splitting.
+-include $(QUERY_SPLITS_COMPLETE)
