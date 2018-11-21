@@ -12,7 +12,8 @@ from relforge.explain_parser.utils import print_explain
 
 
 class BoolQueryExplainParser(BaseExplainParser):
-    def __init__(self, should, must, has_filter):
+    def __init__(self, should, must, has_filter, name_prefix):
+        super(BoolQueryExplainParser, self).__init__(name_prefix)
         self.should = should
         self.must = must
         self.has_filter = has_filter
@@ -25,10 +26,10 @@ class BoolQueryExplainParser(BaseExplainParser):
 
     @staticmethod
     @register_parser("bool")
-    def from_query(options):
-        should = [explain_parser_from_query(q) for q in options.get('should', [])]
-        must = [explain_parser_from_query(q) for q in options.get('must', [])]
-        return BoolQueryExplainParser(should, must, 'filter' in options)
+    def from_query(options, name_prefix):
+        should = [explain_parser_from_query(q, name_prefix) for q in options.get('should', [])]
+        must = [explain_parser_from_query(q, name_prefix) for q in options.get('must', [])]
+        return BoolQueryExplainParser(should, must, 'filter' in options, name_prefix)
 
     def parse(self, lucene_explain):
         if lucene_explain['description'] != 'sum of:':
@@ -101,7 +102,10 @@ class BoolQueryExplainParser(BaseExplainParser):
                 parse_list(remaining_parsers, lucene_details, catch_errors=False)
             raise IncorrectExplainException('{} children remain unclaimed'.format(len(lucene_details)))
         expected_children = len(self.should) + len(self.must)
-        sum_explain = SumExplain(lucene_explain, children=parsed, expected_children=expected_children)
+        sum_explain = SumExplain(lucene_explain,
+                                 children=parsed,
+                                 expected_children=expected_children,
+                                 name_prefix=self.name_prefix)
         sum_explain.parser_hash = hash(self)
         return sum_explain
 

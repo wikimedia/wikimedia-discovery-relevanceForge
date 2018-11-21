@@ -32,12 +32,13 @@ def register_function_score_parser(name):
 
 
 class FunctionScoreFunctionExplainParser(BaseExplainParser):
-    def __init__(self, parsers, name=None):
+    def __init__(self, parsers, name_prefix, name=None):
+        super(FunctionScoreFunctionExplainParser, self).__init__(name_prefix=name_prefix)
         self.parsers = parsers
         self.name = name
 
     @staticmethod
-    def from_query(options, name=None):
+    def from_query(options, name_prefix, name=None):
         if 'filter' not in options:
             options['filter'] = {'match_all': {}}
         parsers = {}
@@ -47,8 +48,8 @@ class FunctionScoreFunctionExplainParser(BaseExplainParser):
             except KeyError:
                 raise Exception('Unknown function score parameter: {}'.format(key))
             else:
-                parsers[key] = parser(value)
-        return FunctionScoreFunctionExplainParser(parsers, name=name)
+                parsers[key] = parser(value, name_prefix)
+        return FunctionScoreFunctionExplainParser(parsers, name_prefix=name_prefix, name=name)
 
     def __repr__(self):
         return '<{}: {}>'.format(
@@ -82,10 +83,11 @@ class FunctionScoreFunctionExplainParser(BaseExplainParser):
         if 'script_score' not in self.parsers:
             weight_explain.name = join_name(filter_explain.name, weight_explain.name)
 
-        score_explain = ProductExplain(lucene_explain, children=parsed, expected_children=len(parsers))
+        score_explain = ProductExplain(lucene_explain, children=parsed, expected_children=len(parsers),
+                                       name_prefix=self.name_prefix)
         explain = ProductExplain(
             base_lucene_explain, name=self.name, expected_children=2,
-            children=[filter_explain, score_explain])
+            children=[filter_explain, score_explain], name_prefix=self.name_prefix)
         explain.parser_hash = hash(self)
         return explain
 
@@ -104,7 +106,8 @@ RE_SATU = re.compile(re_satu)
 
 
 class FunctionScoreSatuExplainParser(BaseExplainParser):
-    def __init__(self, lang, inline, field, a, k):
+    def __init__(self, lang, inline, field, a, k, name_prefix):
+        super(FunctionScoreSatuExplainParser, self).__init__(name_prefix)
         self.lang = lang
         self.inline = inline
         self.field = field
@@ -115,13 +118,14 @@ class FunctionScoreSatuExplainParser(BaseExplainParser):
     def parse(self, lucene_explain):
         if lucene_explain['description'] != self.desc:
             raise IncorrectExplainException()
-        explain = FunctionScoreSatuExplain(lucene_explain, self.field, self.a, self.k)
+        explain = FunctionScoreSatuExplain(lucene_explain, self.field, self.a, self.k, self.name_prefix)
         explain.parser_hash = hash(self)
         return explain
 
 
 class FunctionScoreScriptScoreExplainParser(BaseExplainParser):
-    def __init__(self, lang, inline):
+    def __init__(self, lang, inline, name_prefix):
+        super(FunctionScoreScriptScoreExplainParser, self).__init__(name_prefix)
         self.lang = lang
         self.inline = inline
         self.desc = 'script score function, computed with script:"Script{{type=inline, lang=\'{}\', idOrCode=\'{}\', options={{}}, params={{}}}}" and parameters: {{}}'.format(lang, inline)  # noqa: E501
@@ -131,7 +135,7 @@ class FunctionScoreScriptScoreExplainParser(BaseExplainParser):
 
     @staticmethod
     @register_function_score_parser('script_score')
-    def from_query(options):
+    def from_query(options, name_prefix):
         assert len(options) == 1
         # There are more options, but for now support one specific use case
         script = options['script']
@@ -146,14 +150,14 @@ class FunctionScoreScriptScoreExplainParser(BaseExplainParser):
             assert a == float(satu.group(6))
             return FunctionScoreSatuExplainParser(
                 script['lang'], script['inline'],
-                field, a, k)
+                field, a, k, name_prefix)
         else:
-            return FunctionScoreScriptScoreExplainParser(script['lang'], script['inline'])
+            return FunctionScoreScriptScoreExplainParser(script['lang'], script['inline'], name_prefix)
 
     def parse(self, lucene_explain):
         if lucene_explain['description'] != self.desc:
             raise IncorrectExplainException()
-        explain = PassThruExplain(lucene_explain, 'script')
+        explain = PassThruExplain(lucene_explain, 'script', name_prefix=self.name_prefix)
         explain.parser_hash = hash(self)
         return explain
 
@@ -162,7 +166,8 @@ class FunctionScoreScriptScoreExplainParser(BaseExplainParser):
 
 
 class FunctionScoreWeightExplainParser(BaseExplainParser):
-    def __init__(self, weight):
+    def __init__(self, weight, name_prefix):
+        super(FunctionScoreWeightExplainParser, self).__init__(name_prefix)
         self.weight = weight
 
     def __repr__(self):
@@ -170,21 +175,22 @@ class FunctionScoreWeightExplainParser(BaseExplainParser):
 
     @staticmethod
     @register_function_score_parser('weight')
-    def from_query(options):
-        return FunctionScoreWeightExplainParser(options)
+    def from_query(weight, name_prefix):
+        return FunctionScoreWeightExplainParser(weight, name_prefix=name_prefix)
 
     def parse(self, lucene_explain):
         if lucene_explain['description'] != 'weight':
             raise IncorrectExplainException('Description must be `weight`')
         if not isclose(lucene_explain['value'], self.weight):
             raise IncorrectExplainException('Expected weight of {}'.format(self.weight))
-        explain = TunableVariableExplain(lucene_explain, name='weight')
+        explain = TunableVariableExplain(lucene_explain, name_prefix=self.name_prefix, name='weight')
         explain.parser_hash = hash(self)
         return explain
 
 
 class FunctionScoreFilterExplainParser(BaseExplainParser):
-    def __init__(self, filter_parser):
+    def __init__(self, filter_parser, name_prefix):
+        super(FunctionScoreFilterExplainParser, self).__init__(name_prefix=name_prefix)
         self.filter_parser = filter_parser
         self.desc_prefix = "match filter: {}".format(filter_parser.constant_score_desc())
 
@@ -193,22 +199,24 @@ class FunctionScoreFilterExplainParser(BaseExplainParser):
 
     @staticmethod
     @register_function_score_parser('filter')
-    def from_query(options):
-        filter_parser = explain_parser_from_query(options)
-        return FunctionScoreFilterExplainParser(filter_parser)
+    def from_query(options, name_prefix):
+        filter_parser = explain_parser_from_query(options, name_prefix)
+        return FunctionScoreFilterExplainParser(filter_parser, name_prefix)
 
     def parse(self, lucene_explain):
         if not lucene_explain['description'].startswith(self.desc_prefix):
             raise IncorrectExplainException("No match for description prefix")
         # Pass through will give the filter a value of 1 on hits that match the filter,
         # and default to 0 when not provided later
-        explain = PassThruExplain(lucene_explain, name=self.filter_parser.constant_score_desc())
+        explain = PassThruExplain(lucene_explain, name_prefix=self.name_prefix,
+                                  name=self.filter_parser.constant_score_desc())
         explain.parser_hash = hash(self)
         return explain
 
 
 class FunctionScoreExplainParser(BaseExplainParser):
-    def __init__(self, boost_mode, score_mode, max_boost, query, functions):
+    def __init__(self, boost_mode, score_mode, max_boost, query, functions, name_prefix):
+        super(FunctionScoreExplainParser, self).__init__(name_prefix)
         self.boost_mode = boost_mode
         self.score_mode = score_mode
         self.max_boost = max_boost
@@ -217,9 +225,10 @@ class FunctionScoreExplainParser(BaseExplainParser):
 
     @staticmethod
     @register_parser('function_score')
-    def from_query(options):
+    def from_query(options, name_prefix):
+        prefix = join_name(name_prefix, 'function_score')
         options = dict(options)
-        query = explain_parser_from_query(options.pop('query', {'match_all': {}}))
+        query = explain_parser_from_query(options.pop('query', {'match_all': {}}), prefix)
         # Controls how query and function_score combine
         boost_mode = options.pop('boost_mode', 'multiply')
         if boost_mode not in ('sum', 'multiply'):
@@ -232,10 +241,11 @@ class FunctionScoreExplainParser(BaseExplainParser):
         max_boost = options.pop('max_boost', FLT_MAX)
         if max_boost != FLT_MAX:
             raise NotImplementedError('Only default values of max_boost are supported')
-        functions = [FunctionScoreFunctionExplainParser.from_query(f, name=str(i))
+        functions = [FunctionScoreFunctionExplainParser.from_query(f, name_prefix=join_name(prefix, str(i)),
+                                                                   name=str(i))
                      for i, f in enumerate(options.pop('functions'))]
         assert len(options) == 0
-        return FunctionScoreExplainParser(boost_mode, score_mode, max_boost, query, functions)
+        return FunctionScoreExplainParser(boost_mode, score_mode, max_boost, query, functions, prefix)
 
     def parse(self, lucene_explain):
         if self.boost_mode == 'multiply':
@@ -294,21 +304,21 @@ class FunctionScoreExplainParser(BaseExplainParser):
                 raise Exception()
             no_match_value = 0
         base_functions_explain = score_mode_type(
-            functions_lexplain, expected_children=len(self.functions), children=parsed)
+            functions_lexplain, expected_children=len(self.functions), children=parsed, name_prefix=self.name_prefix)
         base_functions_explain.parser_hash = hash(self)
 
         # No match represents as boost of 1.0, so we need a place to inject it.
         no_match_explain = PassThruExplain(
             {'value': no_match_value, 'description': 'No function matched'},
-            name='no_function_match')
+            name='no_function_match', name_prefix=self.name_prefix)
         functions_explain = SumExplain(
             {'value': functions_value, 'description': ''},
             expected_children=2,
-            children=[base_functions_explain, no_match_explain])
+            children=[base_functions_explain, no_match_explain], name_prefix=self.name_prefix)
 
         query_and_functions_explain = boost_mode_type(
             lucene_explain, name='function_score',
-            expected_children=2, children=[query_explain, functions_explain])
+            expected_children=2, children=[query_explain, functions_explain], name_prefix=self.name_prefix)
         query_and_functions_explain.parser_hash = hash(self)
         return query_and_functions_explain
 
@@ -333,11 +343,12 @@ class FunctionScoreExplainParser(BaseExplainParser):
 
 
 class FunctionScoreSatuExplain(BaseExplain):
-    def __init__(self, lucene_explain, field, a, k):
+    def __init__(self, lucene_explain, field, a, k, name_prefix):
         super(FunctionScoreSatuExplain, self).__init__(
             lucene_explain,
             name=join_name('satu', field),
-            expected_children=0)
+            expected_children=0,
+            name_prefix=name_prefix)
         self.field = field
         self.a = a
         self.k = k
@@ -351,15 +362,15 @@ class FunctionScoreSatuExplain(BaseExplain):
         v = value
         return pow(-((v-1)*pow(k, -a))/v, -1/a)
 
-    def to_tf(self, vecs, prefix):
-        prefix = join_name(prefix, self.name)
+    def to_tf(self, vecs):
+        prefix = join_name(self.name_prefix, self.name)
         a = tf.get_variable(join_name(prefix, 'a'), initializer=self.a)
         k = tf.get_variable(join_name(prefix, 'k'), initializer=self.k)
         x = vecs[prefix]
         pow_x_a = tf.pow(x, a)
         return pow_x_a / (tf.pow(k, a) + pow_x_a)
 
-    def feature_vec(self, prefix):
-        name = join_name(prefix, self.name)
+    def feature_vec(self):
+        name = join_name(self.name_prefix, self.name)
         value = self.reverse_satu(self.value)
         return {name: [value]}

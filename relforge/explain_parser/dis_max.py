@@ -14,7 +14,8 @@ from relforge.explain_parser.utils import join_name
 
 
 class DisMaxQueryExplainParser(BaseExplainParser):
-    def __init__(self, query_parsers, tie_breaker):
+    def __init__(self, query_parsers, tie_breaker, name_prefix):
+        super(DisMaxQueryExplainParser, self).__init__(name_prefix=name_prefix)
         self.query_parsers = query_parsers
         self.idx_lookup = {hash(parser): i for i, parser in enumerate(query_parsers)}
         self.tie_breaker = tie_breaker
@@ -31,13 +32,15 @@ class DisMaxQueryExplainParser(BaseExplainParser):
 
     @staticmethod
     @register_parser("dis_max")
-    def from_query(options):
+    def from_query(options, name_prefix):
         options = dict(options)
-        queries = [explain_parser_from_query(q) for q in options.pop('queries')]
+        prefix = join_name(name_prefix, 'dismax')
+        queries = [explain_parser_from_query(q, join_name(prefix, str(idx)))
+                   for idx, q in enumerate(options.pop('queries'))]
         tie_breaker = options.pop('tie_breaker', 0.0)
         if len(queries) == 1:
             return queries[0]
-        return DisMaxQueryExplainParser(queries, tie_breaker)
+        return DisMaxQueryExplainParser(queries, tie_breaker, name_prefix=name_prefix)
 
     def parse(self, lucene_explain):
         if lucene_explain['description'] != self.desc:
@@ -47,13 +50,9 @@ class DisMaxQueryExplainParser(BaseExplainParser):
         if remaining_details:
             parse_list(remaining_parsers, remaining_details, catch_errors=False)
             raise IncorrectExplainException('All details must be consumed')
-        # Number the children to make variables more easily traceable
-        for child in parsed:
-            idx = self.idx_lookup[child.parser_hash]
-            child.name = join_name(str(idx), child.name)
 
         dis_max = DisMaxExplain(
-            lucene_explain=lucene_explain, name='dismax', children=parsed,
+            lucene_explain=lucene_explain, name_prefix=self.name_prefix, name='dismax', children=parsed,
             expected_children=len(self.query_parsers),
             tie_breaker=self.tie_breaker)
         dis_max.parser_hash = hash(self)
@@ -73,9 +72,9 @@ class DisMaxExplain(BaseExplain):
         super(DisMaxExplain, self).__init__(*args, **kwargs)
         self.tie_breaker = float(tie_breaker)
 
-    def to_tf(self, vecs, prefix):
-        prefix = join_name(prefix, self.name)
-        child_tensors = [child.to_tf(vecs, prefix) for child in self.children]
+    def to_tf(self, vecs):
+        prefix = join_name(self.name_prefix, self.name)
+        child_tensors = [child.to_tf(vecs) for child in self.children]
         child_tensors = [tensor for tensor in child_tensors if tensor is not None]
         if not child_tensors:
             return tf.constant(0.0, name=prefix)

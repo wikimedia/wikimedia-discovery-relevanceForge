@@ -25,7 +25,7 @@ TESTS = defaultdict(list)
 def register_test(name, options, parser_factory, es_query, lucene_explain):
     def make_explain(verbose=False):
         es_query_copy = deepcopy(es_query)
-        parser = parser_factory(es_query_copy)
+        parser = parser_factory(es_query_copy, 'pytest')
         assert es_query_copy == es_query, "input query must not be modified"
 
         lucene_explain_copy = deepcopy(lucene_explain)
@@ -497,10 +497,10 @@ register_test(
     {
         'feature_values': {
             'pytest/labels.en.near_match/idf': [14.335771],
-            'pytest/labels.en.near_match/tfNorm/termFreq': [1.0],
+            'pytest/labels.en.near_match/termFreq': [1.0],
         },
         'trainable': [
-            'pytest/labels.en.near_match/tfNorm/k1:0',
+            'pytest/labels.en.near_match/k1:0',
             'pytest/labels.en.near_match/boost:0',
         ],
     },
@@ -580,12 +580,12 @@ register_test(
     {
         'feature_values': {
             'pytest/text/idf': [9.5103245],
-            'pytest/text/tfNorm/termFreq': [11.0],
-            'pytest/text/tfNorm/fieldLength': [83.591835],
+            'pytest/text/termFreq': [11.0],
+            'pytest/text/fieldLength': [83.591835],
         },
         'trainable': [
-            'pytest/text/tfNorm/k1:0',
-            'pytest/text/tfNorm/b:0',
+            'pytest/text/k1:0',
+            'pytest/text/b:0',
             'pytest/text/boost:0',
         ],
     },
@@ -674,12 +674,12 @@ register_test(
     {
         'feature_values': {
             'pytest/text/idf': [9.5103245, 3.78397],
-            'pytest/text/tfNorm/fieldLength': [83.591835, 1024.0],
-            'pytest/text/tfNorm/termFreq': [11.0, 27.0],
+            'pytest/text/fieldLength': [83.591835, 1024.0],
+            'pytest/text/termFreq': [11.0, 27.0],
         },
         'trainable': [
-            'pytest/text/tfNorm/k1:0',
-            'pytest/text/tfNorm/b:0',
+            'pytest/text/k1:0',
+            'pytest/text/b:0',
             'pytest/text/boost:0',
         ],
     },
@@ -829,12 +829,12 @@ register_test(
     {
         'feature_values': {
             'pytest/suggest/idf': [12.033235, 6.4144816],
-            'pytest/suggest/tfNorm/fieldLength': [7.111111, 7.111111],
-            'pytest/suggest/tfNorm/termFreq': [1.0, 2.0],
+            'pytest/suggest/fieldLength': [7.111111, 7.111111],
+            'pytest/suggest/termFreq': [1.0, 2.0],
         },
         'trainable': [
-            'pytest/suggest/tfNorm/b:0',
-            'pytest/suggest/tfNorm/k1:0',
+            'pytest/suggest/b:0',
+            'pytest/suggest/k1:0',
             'pytest/suggest/boost:0',
         ],
     },
@@ -1285,19 +1285,19 @@ register_test(
     {
         "feature_values": {
             'pytest/title.plain/idf': [8.400816, 8.099424],
-            'pytest/title.plain/tfNorm/fieldLength': [4.0, 4.0],
-            'pytest/title.plain/tfNorm/termFreq': [1.0, 1.0],
+            'pytest/title.plain/fieldLength': [4.0, 4.0],
+            'pytest/title.plain/termFreq': [1.0, 1.0],
             'pytest/title/idf': [7.9428716, 8.057909],
-            'pytest/title/tfNorm/fieldLength': [2.56, 2.56],
-            'pytest/title/tfNorm/termFreq': [1.0, 1.0]
+            'pytest/title/fieldLength': [2.56, 2.56],
+            'pytest/title/termFreq': [1.0, 1.0]
         },
         "trainable": [
             'pytest/title/boost:0',
-            'pytest/title/tfNorm/b:0',
-            'pytest/title/tfNorm/k1:0',
+            'pytest/title/b:0',
+            'pytest/title/k1:0',
             'pytest/title.plain/boost:0',
-            'pytest/title.plain/tfNorm/b:0',
-            'pytest/title.plain/tfNorm/k1:0',
+            'pytest/title.plain/b:0',
+            'pytest/title.plain/k1:0',
         ],
     },
     MultiMatchQueryExplainParser.from_query,
@@ -1331,7 +1331,7 @@ register_test(
         'trainable': [
             'pytest/dismax/tie_breaker:0',
             'pytest/dismax/0/constant_score/labels.en.prefix/boost:0',
-            'pytest/dismax/1/labels.en.near_match/tfNorm/k1:0',
+            'pytest/dismax/1/labels.en.near_match/k1:0',
             'pytest/dismax/1/labels.en.near_match/boost:0',
         ],
     },
@@ -1368,12 +1368,12 @@ register_test(
         'feature_values': {
             'pytest/dismax/0/constant_score/labels.en.prefix': [1.0],
             'pytest/dismax/1/labels.en.near_match/idf': [14.335771],
-            'pytest/dismax/1/labels.en.near_match/tfNorm/termFreq': [1.0],
+            'pytest/dismax/1/labels.en.near_match/termFreq': [1.0],
         },
         'trainable': [
             'pytest/dismax/tie_breaker:0',
             'pytest/dismax/0/constant_score/labels.en.prefix/boost:0',
-            'pytest/dismax/1/labels.en.near_match/tfNorm/k1:0',
+            'pytest/dismax/1/labels.en.near_match/k1:0',
             'pytest/dismax/1/labels.en.near_match/boost:0',
         ],
     },
@@ -1425,13 +1425,13 @@ register_test(
             'pytest/constant_score/labels.en.prefix': [1.0],
             'pytest/dismax/0/constant_score/labels.en.prefix': [1.0],
             'pytest/dismax/1/labels.en.near_match/idf': [14.335771],
-            'pytest/dismax/1/labels.en.near_match/tfNorm/termFreq': [1.0],
+            'pytest/dismax/1/labels.en.near_match/termFreq': [1.0],
         },
         'trainable': [
             'pytest/constant_score/labels.en.prefix/boost:0',
             'pytest/dismax/tie_breaker:0',
             'pytest/dismax/0/constant_score/labels.en.prefix/boost:0',
-            'pytest/dismax/1/labels.en.near_match/tfNorm/k1:0',
+            'pytest/dismax/1/labels.en.near_match/k1:0',
             'pytest/dismax/1/labels.en.near_match/boost:0',
         ],
     },
@@ -1517,6 +1517,28 @@ query_RootExplainParser = {
     ]
 }
 
+query_RootExplainParser_multiple_rescore = {
+    'query': {'match': query_MatchQueryExplainParser},
+    'rescore': [
+        {
+            'query': {
+                'rescore_query': {
+                    'function_score': query_FunctionScoreExplainParser,
+                }
+            }
+        },
+        {
+            'query': {
+                'rescore_query_weight': 2.2,
+                'query_weight': 2.1,
+                'rescore_query': {
+                    'function_score': query_FunctionScoreExplainParser,
+                }
+            }
+        }
+    ]
+}
+
 lucene_explain_RootExplainParser = {
     'value': lucene_explain_MatchQueryExplainParser['value'] +
              lucene_explain_FunctionScoreExplainParser['value'],  # noqa: E131
@@ -1549,30 +1571,99 @@ lucene_explain_RootExplainParser = {
     ]
 }
 
+lucene_explain_RootExplainParser_multiple_rescore = {
+    'value': (query_RootExplainParser_multiple_rescore['rescore'][1]['query']['query_weight'] *
+             (lucene_explain_MatchQueryExplainParser['value'] + lucene_explain_FunctionScoreExplainParser['value'])) +  # noqa: E501
+             (query_RootExplainParser_multiple_rescore['rescore'][1]['query']['rescore_query_weight'] * lucene_explain_FunctionScoreExplainParser['value']),  # noqa: E131, E501
+    'description': 'sum of:',
+    'details': [
+        {
+            'value': lucene_explain_RootExplainParser['value'] * query_RootExplainParser_multiple_rescore['rescore'][1]['query']['query_weight'],  # noqa: E501
+            'description': 'product of:',
+            'details': [
+                lucene_explain_RootExplainParser,
+                {
+                    'value': query_RootExplainParser_multiple_rescore['rescore'][1]['query']['query_weight'],
+                    'description': 'primaryWeight',
+                    'details': [],
+                },
+            ],
+        },
+        {
+            'value': lucene_explain_FunctionScoreExplainParser['value'] * query_RootExplainParser_multiple_rescore['rescore'][1]['query']['rescore_query_weight'],  # noqa: E501
+            'description': 'product of:',
+            'details': [
+                lucene_explain_FunctionScoreExplainParser,
+                {
+                    'value': query_RootExplainParser_multiple_rescore['rescore'][1]['query']['rescore_query_weight'],
+                    'description': 'secondaryWeight',
+                    'details': [],
+                }
+            ]
+        }
+    ]
+}
+
+
 register_test(
     'RootExplainParser',
     {
         'feature_values': {
             'pytest/query/labels.en.near_match/idf': [14.335771],
-            'pytest/query/labels.en.near_match/tfNorm/termFreq': [1.0],
-            'pytest/rescore/function_score/match_all': [1.0],
-            'pytest/rescore/function_score/no_function_match': [0.0],
-            'pytest/rescore/function_score/0/satu/incoming_links': [854],
-            'pytest/rescore/function_score/0/statement_keywords-P31-Q42': [1.0],
+            'pytest/query/labels.en.near_match/termFreq': [1.0],
+            'pytest/rescore/0/function_score/match_all': [1.0],
+            'pytest/rescore/0/function_score/no_function_match': [0.0],
+            'pytest/rescore/0/function_score/0/statement_keywords-P31-Q42': [1.0],
+            'pytest/rescore/0/function_score/0/satu/incoming_links': [854],
         },
         'trainable': [
-            'pytest/query/query_weight:0',
-            'pytest/query/labels.en.near_match/tfNorm/k1:0',
+            'pytest/query/labels.en.near_match/k1:0',
             'pytest/query/labels.en.near_match/boost:0',
-            'pytest/rescore/rescore_query_weight:0',
-            'pytest/rescore/function_score/0/satu/incoming_links/k:0',
-            'pytest/rescore/function_score/0/satu/incoming_links/a:0',
-            'pytest/rescore/function_score/0/weight:0',
+            'pytest/rescore/0/rescore_query_weight:0',
+            'pytest/rescore/0/query_weight:0',
+            'pytest/rescore/0/function_score/0/satu/incoming_links/k:0',
+            'pytest/rescore/0/function_score/0/satu/incoming_links/a:0',
+            'pytest/rescore/0/function_score/0/weight:0',
         ],
     },
     RootExplainParser.from_query,
     query_RootExplainParser,
     lucene_explain_RootExplainParser,
+)
+
+register_test(
+    'RootExplainParser multiple rescore',
+    {
+        'feature_values': {
+            'pytest/query/labels.en.near_match/idf': [14.335771],
+            'pytest/query/labels.en.near_match/termFreq': [1.0],
+            'pytest/rescore/0/function_score/match_all': [1.0],
+            'pytest/rescore/0/function_score/no_function_match': [0.0],
+            'pytest/rescore/0/function_score/0/statement_keywords-P31-Q42': [1.0],
+            'pytest/rescore/0/function_score/0/satu/incoming_links': [854],
+            'pytest/rescore/1/function_score/match_all': [1.0],
+            'pytest/rescore/1/function_score/no_function_match': [0.0],
+            'pytest/rescore/1/function_score/0/statement_keywords-P31-Q42': [1.0],
+            'pytest/rescore/1/function_score/0/satu/incoming_links': [854],
+        },
+        'trainable': [
+            'pytest/query/labels.en.near_match/k1:0',
+            'pytest/query/labels.en.near_match/boost:0',
+            'pytest/rescore/0/rescore_query_weight:0',
+            'pytest/rescore/0/query_weight:0',
+            'pytest/rescore/0/function_score/0/satu/incoming_links/k:0',
+            'pytest/rescore/0/function_score/0/satu/incoming_links/a:0',
+            'pytest/rescore/0/function_score/0/weight:0',
+            'pytest/rescore/1/rescore_query_weight:0',
+            'pytest/rescore/1/query_weight:0',
+            'pytest/rescore/1/function_score/0/satu/incoming_links/k:0',
+            'pytest/rescore/1/function_score/0/satu/incoming_links/a:0',
+            'pytest/rescore/1/function_score/0/weight:0',
+        ],
+    },
+    RootExplainParser.from_query,
+    query_RootExplainParser_multiple_rescore,
+    lucene_explain_RootExplainParser_multiple_rescore,
 )
 
 # **********
@@ -1664,8 +1755,8 @@ def test_is_complete(name, make_explain, is_complete):
 def run_explain_in_tf(explain):
     tf.reset_default_graph()
     vecs = {k: tf.convert_to_tensor([v])
-            for k, v in explain.feature_vec('pytest').items()}
-    equation = explain.to_tf(vecs, 'pytest')
+            for k, v in explain.feature_vec().items()}
+    equation = explain.to_tf(vecs)
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         return sess.run(equation)
@@ -1698,7 +1789,7 @@ def test_tensors_are_equivalent(name, make_explain):
 @pytest.mark.parametrize('name,make_explain,expected_feature_values', TESTS['feature_values'])
 def test_feature_vec_has_keys_and_values(name, make_explain, expected_feature_values):
     explain = make_explain()
-    vec = explain.feature_vec('pytest')
+    vec = explain.feature_vec()
     approx_feature_values = {k: [pytest.approx(v) for v in outer] for k, outer in expected_feature_values.items()}
     assert vec == approx_feature_values
 
@@ -1708,8 +1799,8 @@ def test_trainable_tensors(name, make_explain, expected_tunables):
     tf.reset_default_graph()
     explain = make_explain()
     vec = {k: tf.convert_to_tensor([v])
-           for k, v in explain.feature_vec('pytest').items()}
-    score_op = explain.to_tf(vec, 'pytest')
+           for k, v in explain.feature_vec().items()}
+    score_op = explain.to_tf(vec)
     assert score_op is not None
     actual = {var.name: var for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)}
     assert set(actual.keys()) == set(expected_tunables)
@@ -1735,7 +1826,7 @@ def test_FunctionScoreExplainParser_merge_same_weight_filters():
             {'weight': weight, 'filter':  {'term': {'statement_keywords': "P1=Q2"}}},
             {'weight': weight, 'filter': {'term': {'statement_keywords': "P3=Q4"}}},
         ]
-    })
+    }, '')
 
     lucene_explain_1 = {
         "value": 1,

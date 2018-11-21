@@ -27,7 +27,7 @@ PARSERS = {}
 RE_NAME_FIXER = re.compile(r'[^A-Za-z0-9_.\-/]')
 
 
-def basic_parser(lucene_explain):
+def basic_parser(lucene_explain, name_prefix):
     desc = lucene_explain['description']
     name = None
     children = []
@@ -61,15 +61,17 @@ def basic_parser(lucene_explain):
         clazz = TfNormExplain
         name = 'tfNorm'
         expected_children = len(lucene_explain['details'])
-        children = [basic_parser(d) for d in lucene_explain['details']]
+        children = [basic_parser(d, name_prefix) for d in lucene_explain['details']]
     else:
         raise NotImplementedError('Unrecognized description: {}'.format(desc))
 
-    return clazz(lucene_explain, name=name, children=children, expected_children=expected_children)
+    return clazz(lucene_explain, name=name, children=children,
+                 expected_children=expected_children, name_prefix=name_prefix)
 
 
 class MatchQueryExplainParser(BaseExplainParser):
-    def __init__(self, field, boost):
+    def __init__(self, field, boost, name_prefix):
+        super(MatchQueryExplainParser, self).__init__(name_prefix)
         self.field = field
         self.boost = boost
         self.desc_prefix = ['weight({}:'.format(field), 'weight(Synonym({}:'.format(field)]
@@ -84,7 +86,7 @@ class MatchQueryExplainParser(BaseExplainParser):
     @staticmethod
     @register_parser('term')
     @register_parser('match')
-    def from_query(options):
+    def from_query(options, name_prefix):
         if len(options) != 1:
             raise NotImplementedError("only basic form ({field: searchterm}) of term/match query is supported")
         field = next(iter(options.keys()))
@@ -96,9 +98,10 @@ class MatchQueryExplainParser(BaseExplainParser):
         # here if this is a constant query or not
         if '{{query_string}}' not in value.lower():
             field = '{}:{}'.format(field, value)
-        return MatchQueryExplainParser(field, options.get('boost', 1.0))
+        return MatchQueryExplainParser(field, options.get('boost', 1.0), name_prefix)
 
     def _init_similarity_children(self, lucene_details):
+        prefix = join_name(self.name_prefix, self.field)
         assert len(lucene_details) == 1
         lucene_explain = lucene_details[0]
         assert lucene_explain['description'].startswith('score(doc=')
@@ -114,10 +117,10 @@ class MatchQueryExplainParser(BaseExplainParser):
                 'details': [],
             }])
         assert len(lucene_explain['details']) == 3
-        children = [basic_parser(d) for d in lucene_explain['details']]
+        children = [basic_parser(d, prefix) for d in lucene_explain['details']]
         product = ProductExplain(
             lucene_explain, children=children,
-            expected_children=len(children))
+            expected_children=len(children), name_prefix=prefix)
         return [product]
 
     def _init_sum_children(self, lucene_details):
@@ -128,7 +131,8 @@ class MatchQueryExplainParser(BaseExplainParser):
         children = []
         for detail in lucene_details:
             detail_children = self._init_similarity_children(detail['details'])
-            explain = PerFieldSimilarityExplain(detail, children=detail_children, expected_children=2)
+            explain = PerFieldSimilarityExplain(detail, children=detail_children, expected_children=2,
+                                                name_prefix=join_name(self.name_prefix, self.field))
             children.append(explain)
         return children
 
@@ -165,7 +169,8 @@ class MatchQueryExplainParser(BaseExplainParser):
                     raise IncorrectExplainException("Child does not match field")
 
         children = self._init_sum_children(lucene_explain['details'])
-        parsed = PerFieldSumExplain(lucene_explain, children=children, expected_children=len(children))
+        parsed = PerFieldSumExplain(lucene_explain, children=children, expected_children=len(children),
+                                    name_prefix=join_name(self.name_prefix, self.field))
         for child in parsed.children:
             assert isinstance(child, PerFieldSimilarityExplain)
             assert child.field_name == self.field, '{} == {}'.format(child.field_name, self.field)
@@ -185,14 +190,15 @@ class MatchQueryExplainParser(BaseExplainParser):
 
 
 class MultiMatchQueryExplainParser(BaseExplainParser):
-    def __init__(self, fields, boost, match_type):
+    def __init__(self, fields, boost, match_type, name_prefix):
+        super(MultiMatchQueryExplainParser, self).__init__(name_prefix=name_prefix)
         self.fields = fields
         self.query_parsers = []
         for field in fields:
             boost = 1.0
             if '^' in field:
                 field, boost = field.split('^', 1)
-            self.query_parsers.append(MatchQueryExplainParser(field, boost))
+            self.query_parsers.append(MatchQueryExplainParser(field, boost, self.name_prefix))
         self.boost = boost
         self.match_type = match_type
         # With a single field match_type doesn't matter
@@ -206,7 +212,7 @@ class MultiMatchQueryExplainParser(BaseExplainParser):
 
     @staticmethod
     @register_parser("multi_match")
-    def from_query(options):
+    def from_query(options, name_prefix):
         assert len(options['fields']) > 0
         boost = options.get('boost', 1.0)
         if len(options['fields']) == 1:
@@ -216,10 +222,10 @@ class MultiMatchQueryExplainParser(BaseExplainParser):
                 field, field_boost = field.split('^', 1)
                 field_boost = float(field_boost)
                 boost *= field_boost
-            return MatchQueryExplainParser(field, boost)
+            return MatchQueryExplainParser(field, boost, name_prefix)
         else:
             return MultiMatchQueryExplainParser(
-                options['fields'], boost, options.get('type', 'best_fields'))
+                options['fields'], boost, options.get('type', 'best_fields'), name_prefix)
 
     def parse(self, lucene_explain):
         # If the query had a single term this will roughly be:
@@ -253,7 +259,8 @@ class MultiMatchQueryExplainParser(BaseExplainParser):
             raise IncorrectExplainException("All children must be consumed")
         if parsed is None:
             raise IncorrectExplainException('Failed to parse similarities')
-        sum_explain = SumExplain(lucene_explain, children=parsed, expected_children=len(self.query_parsers))
+        sum_explain = SumExplain(lucene_explain, children=parsed, expected_children=len(self.query_parsers),
+                                 name_prefix=self.name_prefix)
         sum_explain.parser_hash = hash(self)
         return sum_explain
 
@@ -283,18 +290,17 @@ class PerFieldSumExplain(SumExplain):
         assert len(set(c.field_name for c in self.children)) == 1
         self.field_name = self.children[0].field_name
 
-    def child_tensor(self, vecs, prefix):
+    def child_tensor(self, vecs):
         # We only have a single field (todo: how to we know?) so we only
         # need a single equation. feture_vec will merge multiple children
         # into the same vectors. Essentially vectors in vecs will be
         # (batch_size, n) rather than (batch_size, 1) like in most explains.
-        return self.children[0].to_tf(vecs, prefix)
+        return self.children[0].to_tf(vecs)
 
-    def feature_vec(self, prefix):
-        prefix = join_name(prefix, self.name)
+    def feature_vec(self):
         data = defaultdict(list)
         for child in self.children:
-            for k, v in child.feature_vec(prefix).items():
+            for k, v in child.feature_vec().items():
                 data[k].extend(v)
 
         # Every child must return the same variables every time
@@ -317,13 +323,11 @@ class PerFieldSimilarityExplain(BaseExplain):
         assert isinstance(self.children[0], ProductExplain)
         self.expected_children = 1
 
-    def to_tf(self, vecs, prefix):
-        prefix = join_name(join_name(prefix, self.name), self.field_name)
-        return self.children[0].to_tf(vecs, prefix)
+    def to_tf(self, vecs):
+        return self.children[0].to_tf(vecs)
 
-    def feature_vec(self, prefix):
-        prefix = join_name(join_name(prefix, self.name), self.field_name)
-        return self.children[0].feature_vec(prefix)
+    def feature_vec(self):
+        return self.children[0].feature_vec()
 
 
 class TfNormExplain(BaseExplain):
@@ -350,20 +354,19 @@ class TfNormExplain(BaseExplain):
                 print(self.children)
                 raise Exception()
 
-    def to_tf(self, vecs, prefix):
-        prefix = join_name(prefix, self.name)
+    def to_tf(self, vecs):
         children = {c.name: c for c in self.children}
-        termFreq = children['termFreq'].to_tf(vecs, prefix)
-        k1 = children['k1'].to_tf(vecs, prefix)
+        termFreq = children['termFreq'].to_tf(vecs)
+        k1 = children['k1'].to_tf(vecs)
         if self.bm25:
-            b = children['b'].to_tf(vecs, prefix)
-            fieldLength = children['fieldLength'].to_tf(vecs, prefix)
+            b = children['b'].to_tf(vecs)
+            fieldLength = children['fieldLength'].to_tf(vecs)
             # Hits that don't match will still be calculated here with their
             # vectors padded with zeros. We have to add epsilon to prevent
             # dividing by zero.
             epsilon = tf.constant(1e-6)
-            avgFieldLength = children['avgFieldLength'].to_tf(vecs, prefix) + epsilon
+            avgFieldLength = children['avgFieldLength'].to_tf(vecs) + epsilon
             denom = termFreq + k1 * (1 - b + b * fieldLength / avgFieldLength)
         else:
             denom = termFreq + k1
-        return tf.identity((termFreq * (k1 + 1)) / denom, name=prefix)
+        return tf.identity((termFreq * (k1 + 1)) / denom, name=join_name(self.name_prefix, self.name))
