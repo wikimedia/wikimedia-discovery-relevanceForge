@@ -96,6 +96,7 @@ class MatchQueryExplainParser(BaseExplainParser):
         # This fieldname is a slight lie, but we need it to differentiate two
         # function score filters with the same weight. We naively try to guess
         # here if this is a constant query or not
+        # TODO: clarify
         if '{{query_string}}' not in value.lower():
             field = '{}:{}'.format(field, value)
         return MatchQueryExplainParser(field, options.get('boost', 1.0), name_prefix)

@@ -6,6 +6,7 @@ import pickle
 import numpy as np
 import pytest
 import tensorflow as tf
+import token_count_router_suite
 
 from relforge.explain_parser.core import BaseExplain, RootExplainParser
 from relforge.explain_parser.bool import BoolQueryExplainParser
@@ -1902,3 +1903,6 @@ def test_FunctionScoreExplainParser_merge_same_weight_filters():
     # Merging the two distinct items must be complete
     merged = parser.merge(explain_1, explain_2)
     assert merged.is_complete
+
+
+token_count_router_suite.register_tests(register_test)
