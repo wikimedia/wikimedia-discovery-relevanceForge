@@ -77,6 +77,7 @@ import relforge.explain_parser.dis_max
 import relforge.explain_parser.function_score
 import relforge.explain_parser.match_all
 import relforge.explain_parser.match  # noqa: F401
+import relforge.explain_parser.token_count_router  # noqa: F401
 
 
 __all__ = [
