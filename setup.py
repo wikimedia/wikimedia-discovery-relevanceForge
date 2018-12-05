@@ -5,6 +5,7 @@ requirements = [
     'jsonpath-rw',
     'matplotlib',
     'numpy',
+    'pandas',
     'pyyaml',
     'scipy',
     'requests',
@@ -14,6 +15,7 @@ requirements = [
 
 test_requirements = [
     'pytest',
+    'pytest_mock',
 ]
 
 setup(

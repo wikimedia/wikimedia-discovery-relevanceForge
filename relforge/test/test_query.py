@@ -1,10 +1,12 @@
+import pandas as pd
 import pytest
-from relforge.query import CachedQuery, CliCommand, CliSequence, MySql
+import relforge.query
+from relforge.query import CachedQuery, CliCommand, CliSequence, MySql, Query
 import tempfile
 import yaml
 
 
-def make_query(**kwargs):
+def make_query(query_class=Query, **kwargs):
     with tempfile.NamedTemporaryFile() as f:
         # TODO: It's annoying to have to be so indirect...
         settings = dict({
@@ -13,10 +15,13 @@ def make_query(**kwargs):
             'host': 'pytesthost',
         }, **kwargs.pop('test_settings', {}))
         defaults = {
-            'provider': 'mysql',
+            'provider': 'dummy',
             'servers': [{
                 'host': 'pytesthost',
                 'mysql': {},
+                'dummy': {
+                    'results': []
+                }
             }],
             'scoring': {
                 'algorithm': 'pytestalgo',
@@ -27,11 +32,16 @@ def make_query(**kwargs):
         }
         f.write(yaml.dump(dict(defaults, **kwargs)))
         f.flush()
-        return CachedQuery(lambda x=None: settings if x is None else settings[x])
+        return query_class(lambda x=None: settings if x is None else settings[x])
 
 
-def test_minimal_init():
-    assert make_query() is not None
+def make_cached_query(**kwargs):
+    return make_query(CachedQuery, **kwargs)
+
+
+@pytest.mark.parametrize('provider', Query.PROVIDERS.keys())
+def test_minimal_init(provider):
+    assert make_cached_query(provider=provider) is not None
 
 
 def test_query_templating():
@@ -91,3 +101,23 @@ def test_mysql_provider_parse():
     cmd_output = ["query\ttitle\tscore", "1\t2\t3"]
     result = list(provider.parse(cmd_output))
     assert [('1', '2', 3.0)] == result
+
+
+def test_to_df(mocker):
+    mocker.patch.object(
+        relforge.query, 'execute_remote',
+        return_value=('some useless text', ''))
+    df = make_query(
+        columns=['z', 'y', 'x'],
+        servers=[{
+            'host': 'pytesthost',
+            'dummy': {
+                'results': [
+                    ('a', 'b', 2),
+                    ('c', 'a', 1),
+                ]
+            }
+        }]).to_df()
+    assert isinstance(df, pd.DataFrame)
+    assert df.columns.tolist() == ['z', 'y', 'x']
+    assert len(df) == 2

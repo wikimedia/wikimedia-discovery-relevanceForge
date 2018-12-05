@@ -15,10 +15,17 @@
 # http://www.gnu.org/copyleft/gpl.html
 
 import codecs
-import ConfigParser
+try:
+    # py 3.x
+    import configparser
+except ImportError:
+    # py 2.x
+    import ConfigParser as configparser
 import hashlib
 import logging
 import os
+import pandas as pd
+import pickle
 import pipes
 import subprocess
 import yaml
@@ -52,7 +59,10 @@ class CliCommand(object):
         command = []
         for arg in self.args:
             converter = self.converters.get(type(arg), self.default_converter)
-            command.append(pipes.quote(converter(arg)))
+            clean = converter(arg)
+            if clean not in {'<', '>'}:
+                clean = pipes.quote(clean)
+            command.append(clean)
         return ' '.join(command)
 
 
@@ -114,8 +124,6 @@ class Hive(object):
                     continue
             elif in_results:
                 cols = list(self.parse_tsv2_line(line))
-                if len(cols) != 2:
-                    raise Exception(u'More than two columns: {}'.format(repr(line)))
                 if any(x is None for x in cols):
                     LOG.debug('Throwing out line with null values: %s', repr(line))
                 else:
@@ -124,9 +132,21 @@ class Hive(object):
             else:
                 header = list(self.parse_tsv2_line(line))
                 LOG.debug('Found results section with header: %s', header)
-                if len(header) != 2:
-                    raise Exception('More than two columns: {}'.format(repr(header)))
                 in_results = True
+
+
+class DummyProvider(object):
+    def __init__(self, config):
+        try:
+            self.results = config['dummy'].get('results')
+        except KeyError:
+            self.results = []
+
+    def commandline(self):
+        return CliCommand(['true'])
+
+    def parse(self, cmd_output):
+        return self.results
 
 
 class MySql(object):
@@ -167,25 +187,35 @@ class MySql(object):
             yield query, title, float(score)
 
 
-class CachedQuery:
+def execute_remote(remote_host, cli_command, input):
+    command = cli_command.to_shell_string()
+    p = subprocess.Popen(['ssh', '-o', 'Compression=yes', remote_host, command],
+                         stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+
+    return p.communicate(input=input)
+
+
+class Query(object):
     PROVIDERS = {
         'mysql': MySql,
         'hive': Hive,
+        'dummy': DummyProvider,
     }
 
     def __init__(self, settings):
-        self._cache_dir = settings('workDir') + '/cache'
-
         with codecs.open(settings('query'), "r", "utf-8") as f:
             sql_config = yaml.load(f.read())
 
         try:
             preferred_host = settings('host')
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             server = sql_config['servers'][0]
         else:
             server = self._choose_server(sql_config['servers'], preferred_host)
 
+        self.columns = sql_config.get('columns', None)
+        self.types = sql_config.get('types', {})
         self._remote_host = server['host']
         self.provider = self.PROVIDERS[sql_config['provider']](server)
         self.scoring_config = sql_config['scoring']
@@ -199,42 +229,50 @@ class CachedQuery:
                 return server
         raise RuntimeError("Couldn't locate host %s" % (host))
 
-    def _run_query(self):
-        command = self.provider.commandline().to_shell_string()
-        p = subprocess.Popen(['ssh', '-o', 'Compression=yes', self._remote_host, command],
-                             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+    def to_df(self):
+        df = pd.DataFrame(self.fetch(), columns=self.columns)
+        for column, pd_type in self.types.items():
+            df[column] = df[column].astype(pd_type)
+        return df
 
-        stdout, stderr = p.communicate(input=self._query)
+    def fetch(self):
+        cli_command = self.provider.commandline()
+        stdout, stderr = execute_remote(
+                self._remote_host, cli_command, self._query.encode('utf8'))
         if len(stdout) == 0:
             raise RuntimeError("Couldn't run SQL query:\n%s" % (stderr))
         if len(stderr):
             LOG.debug('query stderr: %s', stderr)
 
         try:
-            return stdout.decode('utf-8')
+            output = stdout.decode('utf-8').split("\n")
         except UnicodeDecodeError:
             # Some unknown problem ... let's just work through it line by line
             # and throw out bad data :(
-            clean = []
+            output = []
             for line in stdout.split("\n"):
                 try:
-                    clean.append(line.decode('utf-8'))
+                    output.append(line.decode('utf-8'))
                 except UnicodeDecodeError:
                     LOG.debug("Non-utf8 data: %s", line)
-            return u"\n".join(clean)
+        return self.provider.parse(output)
+
+
+class CachedQuery(Query):
+    def __init__(self, settings):
+        super(CachedQuery, self).__init__(settings)
+        self._cache_dir = os.path.join(settings('workDir'), '/cache')
+        query_hash = hashlib.md5(self._query).hexdigest()
+        self._cache_path = os.path.join(self._cache_dir, query_hash + '.pkl')
 
     def fetch(self):
-        query_hash = hashlib.md5(self._query).hexdigest()
-        cache_path = "%s/click_log.%s" % (self._cache_dir, query_hash)
         try:
-            with codecs.open(cache_path, 'r', 'utf-8') as f:
-                return self.provider.parse(f.read().split("\n"))
+            with codecs.open(self._cache_path, 'r', 'utf-8') as f:
+                return pickle.load(f)
         except IOError:
             LOG.debug("No cached query result available.")
-            pass
 
-        result = self._run_query()
+        result = super(CachedQuery, self).fetch()
 
         if not os.path.isdir(self._cache_dir):
             try:
@@ -243,6 +281,6 @@ class CachedQuery:
                 LOG.debug("cache directory created since checking")
                 pass
 
-        with codecs.open(cache_path, 'w', 'utf-8') as f:
-            f.write(result)
-        return self.provider.parse(result.split("\n"))
+        with codecs.open(self._cache_path, 'w', 'utf-8') as f:
+            pickle.dump(result, f, pickle.HIGHEST_PROTOCOL)
+        return result
