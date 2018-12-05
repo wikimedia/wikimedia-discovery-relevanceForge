@@ -2,6 +2,7 @@ import os
 from setuptools import find_packages, setup
 
 requirements = [
+    'elasticsearch>=5.0.0,<6.0.0',
     'jsonpath-rw',
     'matplotlib',
     'numpy',
