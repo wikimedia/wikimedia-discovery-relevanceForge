@@ -2,7 +2,7 @@
 
 Lucene explains contain the full scoring equation that was used at runtime,
 including similarity parameters and plenty of metrics that were looked up to
-answer the query.  Tuning a scoring function by re-running the queries is
+answer the query. Tuning a scoring function by re-running the queries is
 possible but very slow. With the values extracted from the explains and a
 tensorflow graph of the equation built up simple scoring functions can be run
 at speeds in excess of 1M hits/sec on a modest laptop.
@@ -11,7 +11,7 @@ The quick evaluation of millions of hits opens up new possibilities in tuning
 the scoring queries.
 
 IMPORTANT: This is very alpha stage, and likely only works for the query
-parameters  and explains explicitly spelled out in the test suite. Some
+parameters and explains explicitly spelled out in the test suite. Some
 elasticsearch queries, like `query_string`, will likely never be supported
 here.
 
@@ -29,8 +29,8 @@ here.
 
 The primary entry point here is RootExplainParser.from_query. This accepts the
 root of an elasticserach query, including `query` and `rescore` keys, and
-generates a parser.  Individual query parsers are registered with the
-`register_parser` decorator. Generic elasticsearch queries  are parsed using
+generates a parser. Individual query parsers are registered with the
+`register_parser` decorator. Generic elasticsearch queries are parsed using
 the registered parsers by calling `explain_parser_from_query`
 
 == explain parser -> explain

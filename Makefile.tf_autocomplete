@@ -70,7 +70,7 @@ DEBUG_TFRECORD_DST += debug-tfrecord-$(1)
 MODEL_$(1)_DST = $$(MODEL_DIR)/model.$(1).pkl.gz
 MODEL_DST += $$(MODEL_$(1)_DST)
 
-# Re-evaluate a trained model 
+# Re-evaluate a trained model
 EVAL_MODEL_DST += eval-$(1)
 
 # Analyze the sensitivity of chosen parameters
@@ -234,7 +234,7 @@ tfrecord-$(1): $$(TFRECORD_$(1)_DST)
 model-$(1): $$(MODEL_$(1)_DST)
 sensitivity-$(1): $$(SENSITIVITY_$(1)_DST)
 
-.PHONY: query-cirrus-query-$(1) query-explain-$(1) query-equation-$(1) query-tfrecord-$(1) query-debug-tfrecord-$(1) query-model-$(1)
+.PHONY: clean-cirrus-query-$(1) clean-explain-$(1) clean-equation-$(1) clean-tfrecord-$(1) clean-model-$(1) clean-sensitivity-$(1) clean-$(1)
 clean-cirrus-query-$(1): clean-explain-$(1) clean-equation-$(1)
 	rm -f $$(CIRRUS_QUERY_$(1)_DST)
 clean-explain-$(1): clean-tfrecord-$(1)
@@ -247,7 +247,7 @@ clean-model-$(1): clean-sensitivity-$(1)
 	rm -f $$(MODEL_$(1)_DST)
 clean-sensitivity-$(1):
 	rm -f $$(SENSITIVITY_$(1)_DST)
-
+clean-$(1): clean-cirrus-query-$(1)
 endef
 
 $(foreach variant,$(DATASET_VARIATIONS), $(eval $(call VARIANT_RULE_template,$(variant))))
@@ -264,6 +264,7 @@ tfrecord: $(TFRECORD_DST)
 debug-tfrecord: $(DEBUG_TFRECORD_DST)
 model: $(MODEL_DST)
 eval: $(EVAL_MODEL_DST)
+sensitivity: $(SENSITIVITY_DST)
 
 # Debug helper. print any variable, such as:
 #   make -f Makefile.tf_autocomplete print-MODEL_DST

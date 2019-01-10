@@ -35,9 +35,9 @@ def join_name(a, b):
     # TODO: Applying name_fixer here is a quick hack
     if a is None and b is None:
         raise Exception('No names provided')
-    if a is None:
+    if a is None or a == '':
         return b
-    if b is None:
+    if b is None or b == '':
         return a
     return a + '/' + b
 
