@@ -1733,6 +1733,153 @@ register_test(
     lucene_explain_RootExplainParser_w_type,
 )
 
+# **********
+
+# Merging starting at root explain parser
+
+query_RootExplainParser_merge = {
+    'query': {
+        'dis_max': query_DisMaxQueryExplainParser
+    },
+}
+
+lucene_explain_RootExplainParser_merge_0 = {
+    'value': lucene_explain_ConstantScoreExplainParser['value'],
+    'description': 'sum of:',
+    'details': [
+        {
+            'value': lucene_explain_ConstantScoreExplainParser['value'],
+            'description': 'max of:',
+            'details': [
+                lucene_explain_ConstantScoreExplainParser,
+            ]
+        },
+        lucene_explain_type_filter
+    ]
+}
+
+lucene_explain_RootExplainParser_merge_1 = {
+    'value': lucene_explain_MatchQueryExplainParser['value'],
+    'description': 'sum of:',
+    'details': [
+        {
+            'value': lucene_explain_MatchQueryExplainParser['value'],
+            'description': 'max of:',
+            'details': [
+                lucene_explain_MatchQueryExplainParser,
+            ]
+        },
+        lucene_explain_type_filter
+    ]
+}
+
+register_test(
+    'RootExplainParser merge',
+    {
+        'is_complete': False,
+        'merge': [
+            lucene_explain_RootExplainParser_merge_1,
+        ],
+    },
+    RootExplainParser.from_query,
+    query_RootExplainParser_merge,
+    lucene_explain_RootExplainParser_merge_0
+)
+
+# **********
+
+# Same, but with rescore as well
+
+
+query_RootExplainParser_merge_w_rescore = {
+    'query': {
+        'dis_max': query_DisMaxQueryExplainParser
+    },
+    'rescore': [
+        {
+            "query": {
+                "rescore_query": {
+                    "match_all": {}
+                }
+            }
+        }
+    ]
+}
+
+lucene_explain_RootExplainParser_merge_w_rescore_0 = {
+    'value': 2.1,
+    'description': 'sum of:',
+    'details': [
+        {
+            'value': 1.1,
+            'description': 'product of:',
+            'details': [
+                lucene_explain_RootExplainParser_merge_0,
+                {
+                    "value": 1,
+                    "description": "primaryWeight",
+                    "details": [],
+                },
+            ],
+        },
+        {
+            'value': 1,
+            'description': 'product of:',
+            'details': [
+                MATCH_ALL_EXPLAIN,
+                {
+                    'value': 1,
+                    'description': 'secondaryWeight',
+                    'details': []
+                }
+            ]
+        }
+    ]
+}
+
+lucene_explain_RootExplainParser_merge_w_rescore_1 = {
+    'value': 2.1,
+    'description': 'sum of:',
+    'details': [
+        {
+            'value': 1.1,
+            'description': 'product of:',
+            'details': [
+                lucene_explain_RootExplainParser_merge_1,
+                {
+                    "value": 1,
+                    "description": "primaryWeight",
+                    "details": [],
+                },
+            ],
+        },
+        {
+            'value': 1,
+            'description': 'product of:',
+            'details': [
+                MATCH_ALL_EXPLAIN,
+                {
+                    'value': 1,
+                    'description': 'secondaryWeight',
+                    'details': []
+                }
+            ]
+        }
+    ]
+}
+
+register_test(
+    'RootExplainParser_merge_w_rescore',
+    {
+        'is_complete': False,
+        'merge': [
+            lucene_explain_RootExplainParser_merge_w_rescore_1,
+        ],
+    },
+    RootExplainParser.from_query,
+    query_RootExplainParser_merge_w_rescore,
+    lucene_explain_RootExplainParser_merge_w_rescore_0
+)
 
 # **********
 

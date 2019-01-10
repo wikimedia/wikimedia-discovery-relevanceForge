@@ -32,7 +32,7 @@ class TokenCountRouterExplainParser(BaseExplainParser):
         return exp
 
     def merge(self, a, b):
-        merge_children(a, b, self.queries)
+        return merge_children(a, b, self.queries)
 
 
 class MatchNoneExplainParser(BaseExplainParser):

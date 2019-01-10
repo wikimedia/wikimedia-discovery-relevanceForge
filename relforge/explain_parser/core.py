@@ -239,7 +239,15 @@ class RootExplainParser(BaseExplainParser):
 
     def merge(self, a, b):
         """Merge two explains returned by self.parse"""
-        return self.root.merge(a, b)
+        assert isinstance(a, RootExplain)
+        assert len(a.children) == 1
+        assert isinstance(b, RootExplain)
+        assert len(b.children) == 1
+        if b.is_complete:
+            return b
+        if not a.is_complete:
+            a.children = [self.root.merge(a.children[0], b.children[0])]
+        return a
 
 
 class TypeExplainParser(BaseExplainParser):
@@ -270,11 +278,20 @@ class TypeExplainParser(BaseExplainParser):
         return self.inner.merge(a, b)
 
 
+def dict_zip_shared(a, b):
+    """zip shared keys in a and b"""
+    for k in set(a.keys()).intersection(b.keys()):
+        yield k, a[k], b[k]
+
+
 class RescoreExplainParser(BaseExplainParser):
     def __init__(self, rescore_queries, main_query_parser, name_prefix):
         super(RescoreExplainParser, self).__init__(name_prefix=name_prefix)
         self.rescore_queries = rescore_queries
         self.main_query_parser = main_query_parser
+        self.parsers = {hash(main_query_parser): main_query_parser}
+        for q in rescore_queries:
+            self.parsers[hash(q)] = q
 
     @classmethod
     def from_query(cls, root, main_query_parser, name_prefix):
@@ -324,6 +341,9 @@ class RescoreExplainParser(BaseExplainParser):
             BaseExplain
         """
         previous_explain = self.main_query_parser.parse(RescoreExplainParser.extract_query(lucene_explain))
+        explain_map = {
+            hash(self.main_query_parser): previous_explain
+        }
         # reverse the list from the deepest to the shallowest (first to last as declared in the es query)
         rescores_iterator = reversed(list(RescoreExplainParser.rescore_iterator(lucene_explain)))
         rescore_lexplain = next(rescores_iterator, None)
@@ -336,8 +356,9 @@ class RescoreExplainParser(BaseExplainParser):
                 rescore_lexplain = next(rescores_iterator, None)
             else:
                 previous_explain = RescoreExplain.missing(rescore_lexplain['value'], previous_explain, self.name_prefix)
+            explain_map[hash(rescore_parser)] = previous_explain
             previous_explain.parser_hash = hash(self)
-
+        previous_explain._rescore_explain_map = explain_map
         return previous_explain
 
     def merge(self, a, b):
@@ -345,24 +366,18 @@ class RescoreExplainParser(BaseExplainParser):
             return a
         if b.is_complete:
             return b
-        nextA = a
-        nextB = b
-        for unused in reversed(self.rescore_queries):
-            assert isinstance(nextA, RescoreExplain)
-            assert isinstance(nextB, RescoreExplain)
-            assert nextA.parser_hash == nextB.parser_hash
-            if nextA.rescore_explain is None and nextB.rescore_explain is not None:
-                nextA.operation_explain = nextB.operation_explain
-                nextA.name = nextB.name
-                nextA.description = nextB.description
-                saveInnerA = nextA.inner_query_explain
-                nextA.children = nextB.children
-                nextA.inner_query_explain = nextB.inner_query_explain
-                nextA = nextA.inner_query_explain
-                nextB = saveInnerA
-            else:
-                nextA = nextA.inner_query_explain
-                nextB = nextB.inner_query_explain
+        # Find the nested explains for primary query and each rescore
+        a_explains = a._rescore_explain_map
+        b_explains = b._rescore_explain_map
+
+        # Match up explains from each side and merge
+        assert a_explains.keys() == b_explains.keys()
+        for parser_hash, a_exp, b_exp in dict_zip_shared(a_explains, b_explains):
+            parser = self.parsers[parser_hash]
+            merged = parser.merge(a_exp, b_exp)
+            # We don't have a setter for wherever a_exp lives so we need
+            # to copy over the state instead.
+            a_exp.__dict__ = merged.__dict__
         return a
 
 
@@ -466,6 +481,36 @@ class RescoreQueryExplainParser:
             return False
 
         return True
+
+    def merge(self, a, b):
+        # This only merges the rescore side, assuming the primary
+        # query is handled on it's own.
+        assert isinstance(a, RescoreExplain)
+        assert isinstance(b, RescoreExplain)
+        if a.is_complete:
+            return a
+        if b.is_complete:
+            return b
+        if a.is_missing and b.is_missing:
+            return a
+        if a.is_missing or b.is_missing:
+            # This shouldn't happen? Otherwise we could keep
+            # the not-missing one. Wait until we find an example
+            # of this happening in actual explains.
+            raise Exception("Missing rescore on one side of merge")
+
+        # Rescore Explain:
+        #   0: SumExplain: sum of
+        #     ProductExplain:
+        #       <primary query>
+        #       weight
+        #     1: ProductExplain:
+        #       0: <rescore query>
+        #       weight
+        a_exp = a.children[0].children[1].children[0]
+        b_exp = b.children[0].children[1].children[0]
+        a.children[0].children[1].children[0] = self.rescore_query.merge(a_exp, b_exp)
+        return a
 
 
 class BaseExplain(object):
@@ -684,13 +729,18 @@ class RescoreExplain(BaseExplain):
         self.inner_query_explain = inner_query_explain
         self.rescore_explain = rescore_explain
 
+    @property
     def is_complete(self):
-        return self.operation_explain is not None and self.operation_explain.is_complete()
+        return self.operation_explain is not None and self.operation_explain.is_complete
 
     def to_tf(self, vecs):
         if self.operation_explain is None:
             raise IncorrectExplainException("Cannot build the equation: not all rescore queries have been seen")
         return self.operation_explain.to_tf(vecs)
+
+    @property
+    def is_missing(self):
+        return self.description == 'MISSING'
 
     @classmethod
     def missing(cls, value, inner_query, name_prefix):
