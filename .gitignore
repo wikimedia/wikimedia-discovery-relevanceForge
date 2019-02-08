@@ -1,6 +1,6 @@
-relevance/
 .tox/
+dist/
+*.egg-info/
+
 *.sw?
 *.pyc
-/relforge.egg-info
-/dist/
