@@ -1,0 +1,23 @@
+# Greek character folding
+
+# Tonos
+fold	ά	α
+fold	έ	ε
+fold	ή	η
+fold	ί	ι
+fold	ό	ο
+fold	ύ	υ
+fold	ώ	ω
+fold	Ά	Α
+fold	Έ	Ε
+fold	Ή	Η
+fold	Ί	Ι
+fold	Ό	Ο
+fold	Ύ	Υ
+fold	Ώ	Ω
+
+# Dialytika
+fold	ϊ	ι
+fold	ϋ	υ
+fold	Ϊ	Ι
+fold	Ϋ	Υ

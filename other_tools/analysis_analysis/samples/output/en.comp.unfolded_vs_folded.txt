@@ -1,32 +1,33 @@
 Processing samples/output/en.counts.unfolded.txt as 'old'.
 Processing samples/output/en.counts.folded.txt as 'new'.
-
-Total old tokens: 116241
-Total new tokens: 116241
 Language processing: default
+
+Total old tokens: 116,241
+Total new tokens: 116,241
+    Token delta: 0 (0%)
 
 
 Pre/Post Type & Token Stats
 ---------------------------
 
 Old File Info
-     pre-analysis types: 23813
-    post-analysis types: 17367
+     pre-analysis types: 23,813
+    post-analysis types: 17,367
 
 type	token	change_type
-8680	62824	unchanged
-17862	96867	lc_unchanged
-1019	8465	number
+8,680	62,824	unchanged
+17,862	96,867	lc_unchanged
+1,019	8,465	number
 
 
 New File Info
-     pre-analysis types: 23813
-    post-analysis types: 17292
+     pre-analysis types: 23,813
+    post-analysis types: 17,292
 
 type	token	change_type
-8547	62673	unchanged
-17371	96193	lc_unchanged
-1019	8465	number
+8,547	62,673	unchanged
+17,371	96,193	lc_unchanged
+1,019	8,465	number
 
 Key
     unchanged: pre-analysis token is the same as post-analysis token
@@ -43,7 +44,7 @@ New collisions: 70 (0.403% of post-analysis types)
     added tokens: 123 (0.106% of tokens)
     total types in collisions: 179 (0.752% of pre-analysis types)
 
-Narrative: 73 pre-analysis types (0.307% of pre-analysis types) / 123 tokens (0.106% of tokens) were added to 70 groups (0.403% of post-analyis types), affecting a total of 179 pre-analysis types (0.752% of pre-analysis types) in those groups.
+Narrative: 73 pre-analysis types (0.307% of pre-analysis types) / 123 tokens (0.106% of tokens) were added to 70 groups (0.403% of post-analysis types), affecting a total of 179 pre-analysis types (0.752% of pre-analysis types) in those groups.
 
 Note: All percentages are relative to old token/type counts.
 

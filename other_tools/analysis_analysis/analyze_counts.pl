@@ -31,7 +31,6 @@ my $host = $opt_h || 'localhost';
 my $port = $opt_p || '9200';
 my $index = $opt_i || 'wiki_content';
 my $analyzer = $opt_a || 'text';
-
 my $tag = $opt_t || 'baseline';
 my $dir = $opt_d;
 
@@ -194,7 +193,7 @@ else {
 		my $esc_line = $line;
 		$esc_line = urlize($esc_line);
 
-		my $json = `curl -s $host:$port/$index/_analyze?pretty -d '{"analyzer": "$analyzer", "text" : "$esc_line" }'`;
+		my $json = `curl -H 'Content-Type: application/json' -s $host:$port/$index/_analyze?pretty -d '{"analyzer": "$analyzer", "text" : "$esc_line" }'`;
 		$json = decode_utf8($json);
 
 		if ($json =~ /"error" :\s*{\s*"root_cause" :/s) {

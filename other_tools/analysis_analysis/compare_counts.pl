@@ -64,8 +64,10 @@ $config{terse} ||= 0;
 
 my $min_histogram_link = 10;
 my $token_length_examples = 10;
+my $token_count_examples = 10;
 my $min_alternation_freq = 4;
 my $max_lost_found_sample = 500;
+my $hi_freq_cutoff = 500;
 
 # get to work
 lang_specific_setup();
@@ -380,15 +382,16 @@ else { # new file only
 	foreach my $final (sort keys %mapping) {
 		my @terms = uniq(map {affix_fold($_)} $mapping{$final}{new} =~ /\[\d+? (.*?)\]/g);
 		my $token_count = 0;
+		my $final_len = length($final);
 
 		foreach my $count (map {affix_fold($_)} $mapping{$final}{new} =~ /\[(\d+?) .*?\]/g) {
 			$token_count += $count;
+			$statistics{token_length}{$final_len} += $count;
 			}
 
 		$statistics{count_histogram}{scalar(@terms)}++;
 
-		my $final_len = length($final);
-		push @{$statistics{token_length}{$final_len}}, $final;
+		push @{$statistics{type_length}{$final_len}}, $final;
 
 		my $common = '';
 
@@ -605,6 +608,7 @@ sub process_token_count_file {
 	my ($filename, $cat) = @_;
 	my $ready = 0;
 	my $final;
+	my $orig;
 
 	open(my $FILE, "<:encoding(UTF-8)", $filename);
 	while (<$FILE>) {
@@ -624,7 +628,11 @@ sub process_token_count_file {
 			if (/^\t/) {
 				# final tokens
 				my ($empty, $cnt, $tokens) = split(/\t/);
-				$statistics{token_cnt}{$cat}[scalar(split(/\|/, $tokens))]++;
+				my $token_cnt = scalar(split(/\|/, $tokens));
+				push @{$statistics{token_cnt}{$cat}[$token_cnt]}, $orig unless $oldfile;
+				}
+			else {
+				$orig = $_;
 				}
 			}
 		else {
@@ -789,29 +797,36 @@ sub print_old_v_new_report {
 	# config info header
 	print $bold_open, "Processing $oldfile as \'old\'.", $bold_close, $cr;
 	print $bold_open, "Processing $newfile as \'new\'.", $bold_close, $cr;
-	print $cr;
-	print $bold_open, "Total old tokens: ", $bold_close, $statistics{total_tokens}{old}, $cr;
-	print $bold_open, "Total new tokens: ", $bold_close, $statistics{total_tokens}{new}, $cr;
 	if (0 < keys %{$config{lang}}) {
 		print $bold_open, "Language processing: ", $bold_close,
 			join(", ", sort keys %{$config{lang}}), $cr;
 		}
+	print $cr;
+	print $bold_open, "Total old tokens: ", $bold_close, comma($statistics{total_tokens}{old}), $cr;
+	print $bold_open, "Total new tokens: ", $bold_close, comma($statistics{total_tokens}{new}), $cr;
+	my $tok_delta = $statistics{total_tokens}{new} - $statistics{total_tokens}{old};
+	print $indent, $bold_open, "Token delta: ", $bold_close, comma($tok_delta), " (",
+		percentify($tok_delta/$statistics{total_tokens}{old}), ")", $cr;
 
 	# HTML navigation links
 	if ($HTML) {
 		my $new_split_stats = $old_v_new_results{splits}{post_type} ?
 			"$indent<a href='#new_split_stats'>New Split Stats</a><br>" : "";
-		my $token_count_gains = $old_v_new_results{gains}{post_type} ?
-			"$indent<a href='#token_count_gains'>Token Count Gains</a><br>" : "";
-		my $token_count_losses = $old_v_new_results{losses}{post_type} ?
-			"$indent<a href='#token_count_losses'>Token Count Losses</a><br>" : "";
+		my $token_count_increases = $old_v_new_results{gains}{post_type} ?
+			"$indent<a href='#token_count_increases'>Token Count Increases</a><br>" : "";
+		my $token_count_decreases = $old_v_new_results{losses}{post_type} ?
+			"$indent<a href='#token_count_decreases'>Token Count Decreases</a><br>" : "";
+		my $empty_token_inputs = ($mapping{''}) ?
+			"<a href='#empty_token_inputs'>Empty Token Inputs</a><br>" : "";
 		print <<"HTML";
 <br>
+<a name='TOC'><h3>Table of Contents</h3>
 <a href='#PPTTS'>Pre/Post Type & Token Stats</a><br>
+$empty_token_inputs
 <a href='#new_collision_stats'>New Collision Stats</a><br>
 $new_split_stats
-$token_count_gains
-$token_count_losses
+$token_count_increases
+$token_count_decreases
 $indent<a href='#new_collision_near_match_stats'>New Collision Near Match Stats</a><br>
 <a href='#lost_and_found'>Lost and Found Tokens</a><br>
 <a href='#changed_collisions'>Changed Groups</a><br>
@@ -831,13 +846,13 @@ HTML
 
 	foreach my $tag ('old', 'new') {
 		print $bold_open, "\n\u$tag File Info", $bold_close, $cr;
-		print $indent, ' pre-analysis types: ', $statistics{type_count}{orig}{$tag}, $cr;
-		print $indent, 'post-analysis types: ', $statistics{type_count}{final}{$tag}, $cr;
+		print $indent, ' pre-analysis types: ', comma($statistics{type_count}{orig}{$tag}), $cr;
+		print $indent, 'post-analysis types: ', comma($statistics{type_count}{final}{$tag}), $cr;
 		print $cr;
 		my @types = ('type', 'token');
 		print_table_head(@types, 'change_type');
 		foreach my $change ('unchanged', 'lc_unchanged', 'number') {
-			print_table_row([(map { $statistics{token_count}{$tag}{$change}{$_}; } @types), $change]);
+			print_table_row([(map { comma($statistics{token_count}{$tag}{$change}{$_}); } @types), $change]);
 			}
 		print_table_foot();
 		print $cr;
@@ -850,6 +865,16 @@ HTML
 		'number', 'pre-analysis token is all numerical digits'
 		);
 
+	if ($mapping{''}) {
+		print_section_head('Empty Token Inputs', 'empty_token_inputs');
+
+		foreach my $tag ('old', 'new') {
+			if ($mapping{''}{$tag}) {
+				print $indent, $bold_open, "\u$tag empty token inputs: ", $bold_close, $mapping{''}{$tag}, $cr;
+				}
+			}
+		}
+
 	{ # block to limit scope of temporary variables
 		print_section_head('New Collision Stats', 'new_collision_stats');
 		my $post = $old_v_new_results{collision}{post_type} || 0;
@@ -860,17 +885,17 @@ HTML
 		my $pre_old = $statistics{type_count}{orig}{old};
 		my $tok_old = $statistics{total_tokens}{old};
 
-		my $post_pct = int($post * 100_000 / $type_old + 0.5) / 1000;
-		my $pre_new_pct = int($pre_new * 100_000 / $pre_old + 0.5) / 1000;
-		my $pre_tot_pct = int($pre_tot * 100_000 / $pre_old + 0.5) / 1000;
-		my $tok_pct = int($tok * 100_000 / $tok_old + 0.5) / 1000;
+		my $post_pct = percentify($post/$type_old);
+		my $pre_new_pct = percentify($pre_new/$pre_old);
+		my $pre_tot_pct = percentify($pre_tot/$pre_old);
+		my $tok_pct = percentify($tok/$tok_old);
 
-		print "New collisions: $post ($post_pct% of post-analysis types)", $cr;
-		print $indent, "added types: $pre_new ($pre_new_pct% of pre-analysis types)", $cr if $pre_new;
-		print $indent, "added tokens: $tok ($tok_pct% of tokens)", $cr if $tok;
-		print $indent, "total types in collisions: $pre_tot ($pre_tot_pct% of pre-analysis types)", $cr if $pre_tot;
+		print "New collisions: $post ($post_pct of post-analysis types)", $cr;
+		print $indent, "added types: $pre_new ($pre_new_pct of pre-analysis types)", $cr if $pre_new;
+		print $indent, "added tokens: $tok ($tok_pct of tokens)", $cr if $tok;
+		print $indent, "total types in collisions: $pre_tot ($pre_tot_pct of pre-analysis types)", $cr if $pre_tot;
 		print $cr;
-		print "Narrative: $pre_new pre-analysis types ($pre_new_pct% of pre-analysis types) / $tok tokens ($tok_pct% of tokens) were added to $post groups ($post_pct% of post-analyis types), affecting a total of $pre_tot pre-analysis types ($pre_tot_pct% of pre-analysis types) in those groups.", $cr, $cr if $post;
+		print "Narrative: $pre_new pre-analysis types ($pre_new_pct of pre-analysis types) / $tok tokens ($tok_pct of tokens) were added to $post groups ($post_pct of post-analysis types), affecting a total of $pre_tot pre-analysis types ($pre_tot_pct of pre-analysis types) in those groups.", $cr, $cr if $post;
 		print 'Note: All percentages are relative to old token/type counts.', $cr;
 		}
 
@@ -884,22 +909,22 @@ HTML
 		my $pre_old = $statistics{type_count}{orig}{old};
 		my $tok_old = $statistics{total_tokens}{old};
 
-		my $post_pct = int($post * 100_000 / $type_old + 0.5) / 1000;
-		my $pre_new_pct = int($pre_new * 100_000 / $pre_old + 0.5) / 1000;
-		my $pre_tot_pct = int($pre_tot * 100_000 / $pre_old + 0.5) / 1000;
-		my $tok_pct = int($tok * 100_000 / $tok_old + 0.5) / 1000;
+		my $post_pct = percentify($post/$type_old);
+		my $pre_new_pct = percentify($pre_new/$pre_old);
+		my $pre_tot_pct = percentify($pre_tot/$pre_old);
+		my $tok_pct = percentify($tok/$tok_old);
 
-		print "New splits: $post ($post_pct% of post-analysis types)", $cr;
-		print $indent, "lost types: $pre_new ($pre_new_pct% of pre-analysis types)", $cr if $pre_new;
-		print $indent, "lost tokens: $tok ($tok_pct% of tokens)", $cr if $tok;
-		print $indent, "total types in splits: $pre_tot ($pre_tot_pct% of pre-analysis types)", $cr if $pre_tot;
+		print "New splits: $post ($post_pct of post-analysis types)", $cr;
+		print $indent, "lost types: $pre_new ($pre_new_pct of pre-analysis types)", $cr if $pre_new;
+		print $indent, "lost tokens: $tok ($tok_pct of tokens)", $cr if $tok;
+		print $indent, "total types in splits: $pre_tot ($pre_tot_pct of pre-analysis types)", $cr if $pre_tot;
 		print $cr;
-		print "Narrative: $pre_new pre-analysis types ($pre_new_pct% of pre-analysis types) / $tok tokens ($tok_pct% of tokens) were lost from $post groups ($post_pct% of post-analyis types), affecting a total of $pre_tot pre-analysis types ($pre_tot_pct% of pre-analysis types) in those groups.", $cr, $cr;
+		print "Narrative: $pre_new pre-analysis types ($pre_new_pct of pre-analysis types) / $tok tokens ($tok_pct of tokens) were lost from $post groups ($post_pct of post-analysis types), affecting a total of $pre_tot pre-analysis types ($pre_tot_pct of pre-analysis types) in those groups.", $cr, $cr;
 		print 'Note: All percentages are relative to old token/type counts.', $cr;
 		}
 
 	if ($old_v_new_results{gains}{post_type}) {
-		print_section_head('Token Count Gains', 'token_count_gains');
+		print_section_head('Token Count Increases', 'token_count_increases');
 		my $post = $old_v_new_results{gains}{post_type} || 0;
 		my $pre = $old_v_new_results{gains}{pre_type} || 0;
 		my $tok = $old_v_new_results{gains}{token} || 0;
@@ -907,20 +932,20 @@ HTML
 		my $pre_old = $statistics{type_count}{orig}{old};
 		my $tok_old = $statistics{total_tokens}{old};
 
-		my $post_pct = int($post * 100_000 / $type_old + 0.5) / 1000;
-		my $pre_pct = int($pre * 100_000 / $pre_old + 0.5) / 1000;
-		my $tok_pct = int($tok * 100_000 / $tok_old + 0.5) / 1000;
+		my $post_pct = percentify($post/$type_old);
+		my $pre_pct = percentify($pre/$pre_old);
+		my $tok_pct = percentify($tok/$tok_old);
 
-		print "Gains: $post ($post_pct% of post-analysis types)", $cr;
-		print $indent, "types with gains: $pre ($pre_pct% of pre-analysis types)", $cr if $pre;
-		print $indent, "tokens gained: $tok ($tok_pct% of tokens)", $cr if $tok;
+		print "Gains: $post ($post_pct of post-analysis types)", $cr;
+		print $indent, "types with gains: $pre ($pre_pct of pre-analysis types)", $cr if $pre;
+		print $indent, "tokens gained: $tok ($tok_pct of tokens)", $cr if $tok;
 		print $cr;
-		print "Narrative: $pre pre-analysis types ($pre_pct% of pre-analysis types) gained $tok tokens ($tok_pct% of tokens) across $post groups ($post_pct% of post-analyis types).", $cr, $cr;
+		print "Narrative: $pre pre-analysis types ($pre_pct of pre-analysis types) gained $tok tokens ($tok_pct of tokens) across $post groups ($post_pct of post-analysis types).", $cr, $cr;
 		print 'Note: All percentages are relative to old token/type counts.', $cr;
 		}
 
 	if ($old_v_new_results{losses}{post_type}) {
-		print_section_head('Token Count Losses', 'token_count_losses');
+		print_section_head('Token Count Decreases', 'token_count_decreases');
 		my $post = $old_v_new_results{losses}{post_type} || 0;
 		my $pre = $old_v_new_results{losses}{pre_type} || 0;
 		my $tok = $old_v_new_results{losses}{token} || 0;
@@ -928,15 +953,15 @@ HTML
 		my $pre_old = $statistics{type_count}{orig}{old};
 		my $tok_old = $statistics{total_tokens}{old};
 
-		my $post_pct = int($post * 100_000 / $type_old + 0.5) / 1000;
-		my $pre_pct = int($pre * 100_000 / $pre_old + 0.5) / 1000;
-		my $tok_pct = int($tok * 100_000 / $tok_old + 0.5) / 1000;
+		my $post_pct = percentify($post/$type_old);
+		my $pre_pct = percentify($pre/$pre_old);
+		my $tok_pct = percentify($tok/$tok_old);
 
-		print "Losses: $post ($post_pct% of post-analysis types)", $cr;
-		print $indent, "types with losses: $pre ($pre_pct% of pre-analysis types)", $cr if $pre;
-		print $indent, "tokens lost: $tok ($tok_pct% of tokens)", $cr if $tok;
+		print "Losses: $post ($post_pct of post-analysis types)", $cr;
+		print $indent, "types with losses: $pre ($pre_pct of pre-analysis types)", $cr if $pre;
+		print $indent, "tokens lost: $tok ($tok_pct of tokens)", $cr if $tok;
 		print $cr;
-		print "Narrative: $pre pre-analysis types ($pre_pct% of pre-analysis types) lost $tok tokens ($tok_pct% of tokens) across $post groups ($post_pct% of post-analyis types).", $cr, $cr;
+		print "Narrative: $pre pre-analysis types ($pre_pct of pre-analysis types) lost $tok tokens ($tok_pct of tokens) across $post groups ($post_pct of post-analysis types).", $cr, $cr;
 		print 'Note: All percentages are relative to old token/type counts.', $cr;
 		}
 
@@ -983,17 +1008,35 @@ HTML
 		if ($tot{$origfinal}{lost} || $tot{$origfinal}{found}) {
 			$tot{$origfinal}{lost} ||= 0;
 			$tot{$origfinal}{found} ||= 0;
+			$tot{$origfinal}{lost_token} ||= 0;
+			$tot{$origfinal}{found_token} ||= 0;
 			print " Lost $pre_post-analysis types/tokens (old only): $tot{$origfinal}{lost} / $tot{$origfinal}{lost_token}", $cr;;
 			print "Found $pre_post-analysis types/tokens (new only): $tot{$origfinal}{found} / $tot{$origfinal}{found_token}", $cr;
 			print $cr;
 			}
 
+		my $need_div = $tot{$origfinal}{lost} && $tot{$origfinal}{found} && $config{HTML};
+
 		if ($tot{$origfinal}{lost}) {
+			if ($need_div) {
+				print "<div style='width:45%; border:1px solid grey; float:left; padding:0.5em; word-wrap: break-word; vertical-align: top;'>\n";
+				}
 			print_lost_found_token_stats('Lost', $origfinal, 'old', \%only);
+			if ($need_div) {
+				print "</div>\n";
+				}
 			}
+
 		if ($tot{$origfinal}{found}) {
+			if ($need_div) {
+				print "<div style='width:45%; border:1px solid grey; float:right; padding:0.5em; word-wrap: break-word; vertical-align: top;'>\n";
+				}
 			print_lost_found_token_stats('Found', $origfinal, 'new', \%only);
+			if ($need_div) {
+				print "</div><br clear=all>\n";
+				}
 			}
+
 	}
 
 	print_section_head('Changed Groups', 'changed_collisions');
@@ -1060,12 +1103,12 @@ sub print_new_report {
 	# config info header
 	print $bold_open, "Processing $newfile as \'new\'.", $bold_close, $cr;
 	print $cr;
-	print $bold_open, "Total new tokens: ", $bold_close, $statistics{total_tokens}{new}, $cr;
+	print $bold_open, "Total new tokens: ", $bold_close, comma($statistics{total_tokens}{new}), $cr;
 
 	print $indent, $bold_open, 'pre-analysis types: ', $bold_close,
-		$statistics{type_count}{orig}{new}, $cr;
+		comma($statistics{type_count}{orig}{new}), $cr;
 	print $indent, $bold_open, 'post-analysis types: ', $bold_close,
-		$statistics{type_count}{final}{new}, $cr;
+		comma($statistics{type_count}{final}{new}), $cr;
 
 	print $cr;
 	if (0 < keys %{$config{lang}}) {
@@ -1077,6 +1120,7 @@ sub print_new_report {
 	# HTML navigation links
 	if ($HTML) {
 		print <<"HTML";
+<a name='TOC'><h3>Table of Contents</h3>
 <a href='#stemmingResults'>Stemming Results</a><br>
 $indent<a href="#prob1">Potential Problem Stems</a><br>
 HTML
@@ -1159,16 +1203,28 @@ HTML
 
 	print_section_head("Histogram of Stemmed Tokens Generated per Input Token",
 		"tokenCountHistogram");
-	print_table_head("count", "freq");
+	print_table_head("count", "freq", "example input tokens");
 	my $aref = $statistics{token_cnt}{'new'};
-	for my $i (0 .. scalar(@$aref) - 1) {
-		print_table_row([$i, $aref->[$i]]) if $aref->[$i];
+	for my $i (0 .. scalar(@$aref)) {
+		my $freq = $aref->[$i] ? scalar(@{$aref->[$i]}) : 0;
+		if ($freq) {
+			my @examples = ();
+			if ($freq > $token_count_examples) {
+				shuffle (\@{$aref->[$i]});
+				@examples = @{$aref->[$i]}[0..$token_count_examples-1];
+				}
+			else {
+				@examples = @{$aref->[$i]};
+				}
+			my $joiner = $HTML?" &nbsp; &bull; &nbsp; ":"\t";
+			print_table_row([$i, $freq, join($joiner, sort @examples)]);
+			}
 		}
 	print_table_foot();
 
 	print_section_head("Histogram of Final Type Lengths", "typeLengthHistogram");
-	print_table_head("length", "freq", "examples");
-	my $href = $statistics{token_length};
+	print_table_head("length", "type freq", "token count", "examples");
+	my $href = $statistics{type_length};
 	foreach my $len (sort {$a <=> $b} keys %$href) {
 		my $freq = scalar(@{$href->{$len}});
 		if ($freq) {
@@ -1181,7 +1237,7 @@ HTML
 				@examples = @{$href->{$len}};
 				}
 			my $joiner = $HTML?" &nbsp; &bull; &nbsp; ":"\t";
-			print_table_row([$len, $freq, join($joiner, sort @examples)]);
+			print_table_row([$len, $freq, $statistics{token_length}{$len}, join($joiner, sort @examples)]);
 			}
 		}
 	print_table_foot();
@@ -1195,7 +1251,7 @@ HTML
 sub print_section_head {
 	my ($header, $aname) = @_;
 	if ($config{HTML}) {
-		print "\n<a name='$aname'><h3>$header</h3>\n";
+		print "\n<a name='$aname'><h3>$header <a href=#TOC style='font-size:60%'>[TOC]</a></h3>\n";
 		}
 	else {
 		print "\n\n$header\n", "-" x length($header), "\n";
@@ -1321,7 +1377,7 @@ sub print_lost_found_token_stats {
 			grep { ($picks && rand() < $picks/$samples--)?$picks--:0 }
 			@{$only_ref->{$origfinal}{$oldnew}{$category}}), $cr;
 
-		my @hifreq = grep { $statistics{token_exists}{$origfinal}{$_}{$oldnew} >= 500 }
+		my @hifreq = grep { $statistics{token_exists}{$origfinal}{$_}{$oldnew} >= $hi_freq_cutoff }
 			@{$only_ref->{$origfinal}{$oldnew}{$category}};
 		if (@hifreq) {
 			print $cr;
@@ -1354,7 +1410,7 @@ sub print_changed_collisions {
 	foreach my $final (@{$old_v_new_results{$incrdecr}}) {
 		# Ugh, this just doesn't want to abstract properly; Hack, hack, hack.
 		if ($config{HTML}) {
-			print_table_row(["$final $arr",
+			print_table_row(["<nobr>$final $arr</nobr>",
 				$div_open . "o: $mapping{$final}{old}" . $div_close .
 				$div_open . "n: $mapping{$final}{new}" . $div_close]);
 			}
@@ -1543,4 +1599,23 @@ sub shuffle {
 sub uniq {
 	my %seen = ();
 	return grep { ! $seen{$_}++ } @_;
+	}
+
+###############
+# Add commas to long numbers
+#
+sub comma {
+    my ($num) = @_;
+    $num = reverse $num;
+    $num =~ s/(\d\d\d)(?=\d)(?!\d*\.)/$1,/g;
+    return scalar reverse $num;
+	}
+
+###############
+# Convert a number to a percent
+#
+sub percentify {
+	my ($num) = @_;
+	return sprintf("%.3f%%", 100 * $num) if $num;
+	return "0%";
 	}

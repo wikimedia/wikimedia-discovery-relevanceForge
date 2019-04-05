@@ -1,0 +1,4 @@
+# Turkish character folding
+
+fold	I	ı
+fold	İ	i
