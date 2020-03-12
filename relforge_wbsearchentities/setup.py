@@ -10,7 +10,7 @@ requirements = [
     'pandas',
     'pyyaml',
     'requests',
-    'tensorflow',
+    'tensorflow<2.0.0',
     'tqdm',
 ]
 

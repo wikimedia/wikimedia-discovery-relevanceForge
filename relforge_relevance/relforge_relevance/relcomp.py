@@ -33,8 +33,10 @@ import sys
 import textwrap
 
 from abc import ABCMeta, abstractmethod
-from itertools import izip_longest
+from itertools import zip_longest
 from random import shuffle
+
+from relforge_relevance.utils import asciify
 
 target_path = ""
 image_dir = "images/"
@@ -149,7 +151,7 @@ class Metric(object):
                     self.name, q_pct, diffstr
                     )
             ret_string += "<br>\n"
-            return ret_string.encode('ascii', 'xmlcharrefreplace')
+            return asciify(ret_string)
 
         elif self.printnum > 0:  # diff
             ret_string = "<b>{}</b>\n".format(self.name)
@@ -181,7 +183,7 @@ class Metric(object):
                     if printed >= self.printnum:
                         break
             ret_string += "</span>\n<br>\n"
-            return ret_string.encode('ascii', 'xmlcharrefreplace')
+            return asciify(ret_string)
 
         return ""
 
@@ -260,8 +262,8 @@ class TopNDiff(Metric):
             x["rows"] = list()
         if "rows" not in y:
             y["rows"] = list()
-        x_ids = map((lambda r: r["docId"]), x["rows"][0:self.topN])
-        y_ids = map((lambda r: r["docId"]), y["rows"][0:self.topN])
+        x_ids = [r["docId"] for r in x["rows"][0:self.topN]]
+        y_ids = [r["docId"] for r in y["rows"][0:self.topN]]
 
         if self.sorted:
             if len(x_ids) != len(y_ids):
@@ -372,7 +374,7 @@ def print_report(diff_count, file1, file2, myMetrics, errors):
         for e in keylist:
             report_file.write("&nbsp;&nbsp; <font color=red>ERROR</font> " +
                               "<a href='diffs/diff{}.html'>{}</a><br>\n".
-                              format(e, errors[e].encode('ascii', 'xmlcharrefreplace')))
+                              format(e, asciify(errors[e])))
             printed += 1
             if printed >= 50:
                 break
@@ -534,7 +536,7 @@ def main():
         ]
 
     with open(file1) as a, open(file2) as b:
-        for tuple in izip_longest(a, b, fillvalue="{}"):
+        for tuple in zip_longest(a, b, fillvalue="{}"):
             (aline, bline) = tuple
             aline = aline.strip(" \t\n")
             bline = bline.strip(" \t\n")

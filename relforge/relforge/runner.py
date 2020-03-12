@@ -22,6 +22,13 @@ import json
 import base64
 
 
+def defaults(config, section, settings):
+    """Apply default settings to a configparser section"""
+    for s in settings:
+        if not config.has_option(section, s):
+            config.set(section, s, settings[s])
+
+
 def getSafeName(name):
     return re.sub(r'[^a-zA-Z0-9]', '-', name)
 
@@ -75,7 +82,7 @@ def runSearch(config, section, allow_reuse=True):
                 search_options = f.read()
         with open(qdir + '/config.json', 'w') as f:
             f.write(search_options)  # archive search config
-        search_options = "B64://" + base64.b64encode(search_options)
+        search_options = "B64://" + base64.b64encode(search_options.encode('utf8')).decode('ascii')
         cmdline += " --options " + search_options
     runCommand("cat %s | ssh %s %s > %s" % (config.get(section, 'queries'),
                                             config.get(section, 'labHost'),

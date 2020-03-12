@@ -16,7 +16,8 @@
 
 import sys
 import argparse
-import ConfigParser
+from configparser import ConfigParser
+
 import relforge.runner
 import shutil
 
@@ -35,7 +36,7 @@ def main():
                         required=True)
     args = parser.parse_args()
 
-    config = ConfigParser.ConfigParser()
+    config = ConfigParser()
     config.readfp(open(args.config))
     distributeGlobalSettings(config, 'settings', ['test1', 'test2'],
                              ['queries', 'labHost', 'searchCommand', 'config',
@@ -43,9 +44,10 @@ def main():
     relforge.runner.checkSettings(config, 'settings', ['workDir', 'jsonDiffTool', 'metricTool'])
     relforge.runner.checkSettings(config, 'test1', ['name', 'queries', 'labHost', 'searchCommand'])
     relforge.runner.checkSettings(config, 'test2', ['name', 'queries', 'labHost', 'searchCommand'])
+    # The string 'true' is intentional, configparser option values must be strings.
     # TODO: make some useful defaults here?
-    relforge.runner.defaults(config, 'test1', {'wikiUrl': '', 'explainUrl': '', 'allowReuse': True})
-    relforge.runner.defaults(config, 'test2', {'wikiUrl': '', 'explainUrl': '', 'allowReuse': True})
+    relforge.runner.defaults(config, 'test1', {'wikiUrl': '', 'explainUrl': '', 'allowReuse': 'true'})
+    relforge.runner.defaults(config, 'test2', {'wikiUrl': '', 'explainUrl': '', 'allowReuse': 'true'})
 
     res1 = relforge.runner.runSearch(config, 'test1')
     res2 = relforge.runner.runSearch(config, 'test2')

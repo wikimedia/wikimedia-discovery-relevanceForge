@@ -33,14 +33,10 @@ import difflib
 import json
 import os
 import sys
-from itertools import izip_longest
+from itertools import zip_longest
 import urllib
-
-try:
-    # temporary 2->3 hax
-    unicode()
-except NameError:
-    unicode = str
+import urllib.parse
+from relforge_relevance.utils import asciify
 
 
 def add_nums_to_results(results):
@@ -58,12 +54,6 @@ def extract_ids(results, key):
         for result in results['rows']:
             retval.append(result[key])
     return retval
-
-
-def ascii(the_string):
-    if type(the_string) is int:
-        return str(the_string)
-    return the_string.encode('ascii', 'xmlcharrefreplace')
 
 
 def munge_explanation(results):
@@ -159,10 +149,10 @@ def add_diff_sub(aresult, bresult, item):
     if not bresult[item]:
         return
     my_type = type(aresult[item]).__name__
-    if my_type in ('unicode', 'str', 'float', 'int', 'long', 'complex'):
+    if my_type in ('str', 'float', 'int', 'long', 'complex'):
         if aresult[item] != bresult[item]:
-            aresult[item] = diff_span(ascii(unicode(aresult[item])))
-            bresult[item] = diff_span(ascii(unicode(bresult[item])))
+            aresult[item] = diff_span(asciify(str(aresult[item])))
+            bresult[item] = diff_span(asciify(str(bresult[item])))
     elif my_type in ('dict'):
         for subitem in aresult[item].keys():
             add_diff_sub(aresult[item], bresult[item], subitem)
@@ -193,8 +183,8 @@ def html_results(results, map, filename, key, wiki_url='', explain_url='', basel
     query = ''
     if 'query' in results:
         query = results['query']
-    explain = explain_url + "&search=" + urllib.quote_plus(query.encode('utf-8'))
-    query = ascii(query)
+    explain = explain_url + "&search=" + urllib.parse.quote_plus(query.encode('utf-8'))
+    query = asciify(query)
 
     totalHits = ''
     if 'totalHits' in results:
@@ -240,7 +230,7 @@ def html_results(results, map, filename, key, wiki_url='', explain_url='', basel
             else:
                 comp1, comp2 = mapto, res_count
 
-            title = ascii(result['title'])
+            title = asciify(result['title'])
             link = wiki_url + title
             retval += '''\
 
@@ -251,7 +241,7 @@ def html_results(results, map, filename, key, wiki_url='', explain_url='', basel
                 '''.format(this_id, res_count, rankclass, comp1, comp2,
                            extra, title, link)
             if key != 'title':
-                retval += "<b>{0:}:</b> {1:}<br>".format(key, ascii(result[key]))
+                retval += "<b>{0:}:</b> {1:}<br>".format(key, asciify(result[key]))
 
             if 'score' in result:
                 retval += '''\
@@ -283,8 +273,8 @@ def html_results(results, map, filename, key, wiki_url='', explain_url='', basel
 def html_result_item(item, label, indent='                '):
     my_type = type(item).__name__
     value = ''
-    if my_type in ('unicode', 'str', 'float', 'int', 'long', 'complex'):
-        value = ascii(unicode(item))
+    if my_type in ('str', 'float', 'int', 'long', 'complex'):
+        value = asciify(str(item))
     elif my_type in ('dict'):
         for subitem in sorted(item.keys()):
             value += html_result_item(item[subitem], subitem, indent + '    ')
@@ -486,8 +476,7 @@ def main():
         os.makedirs(os.path.dirname(target_dir))
 
     with open(file1) as a, open(file2) as b:
-        for tuple in izip_longest(a, b, fillvalue='{}'):
-            (aline, bline) = tuple
+        for aline, bline in zip_longest(a, b, fillvalue='{}'):
             aline = aline.strip(' \t\n')
             bline = bline.strip(' \t\n')
             if aline == '':
