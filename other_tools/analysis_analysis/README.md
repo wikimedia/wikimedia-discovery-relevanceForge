@@ -1,6 +1,6 @@
 # Trey's Language Analyzer Analysis Tools
 
-April 2019
+April 2020
 
 These are the tools I use to do analysis of Elasticsearch language analyzers and custom analysis
 chains. Most of
@@ -756,9 +756,10 @@ command line, and eventually I probably will.
   Sometimes you really want to lower it to zero and see *eatre/éâtre,* *ebec/ébec* and friends.
 * `$max_lost_found_sample = 500;` This is the maximum number of samples to be shown in **Lost and
   Found Tokens.**
-* `$$hi_freq_cutoff = 500;` This is the minimum frequency to be listed under "*hi-freq tokens*" in
+* `$hi_freq_cutoff = 500;` This is the minimum frequency to be listed under "*hi-freq tokens*" in
   the **Lost and Found Tokens**.
-
+* `$hi_impact_cutoff = 10;` Threshold for highlighting "high impact" collisions in **Changed
+  Groups,** which is based on the number of types added or deleted to the affected groups.
 
 
 <a name="AnalysisExampleEnglish"></a>
@@ -1197,36 +1198,53 @@ find, pointing back to my notes on MediaWiki.org.
 Here are a bunch of things I should probably do, but may never get around to:
 
 * `analyze_counts.pl`
-   * Line batching:
-      * Add config for number of lines and total size of input.
-      * Check for max input size before tacking on the new line rather than after (but it's *so
-        much more complicated!*).
-   * Proper implementation of context sampling for specified tokens.
-   * Consider allowing calling out to external command-line stemmer (all in one pass)
+   * *Tech Debt*
+      * Line batching:
+         * Add config for number of lines and total size of input.
+         * Check for max input size before tacking on the new line rather than after (but it's *so
+           much more complicated!*).
+      * Proper implementation of context sampling for specified tokens.
+   * *New Features*
+      * Consider allowing calling out to external command-line stemmer (all in one pass)
 * `compare_counts.pl`
-   * Add checks that language files and other config files exist and/or open properly.
-   * Refactor / consolidate `strip_*fixes` and `regular_*fixes`.
-      * Consider ordering affix groups to support more heavily-inflected languages. For example,
-        Indonesian prefixes include *mem-, ke-, ber-, per-, member-, memper-, keber-,* and
-        *keper-.* What's really going on is that *mem-* or *ke-* can be followed by *ber-* or
-        *per-,* or any of them can be used alone. At the very least, all combinations should not
-        have to be explicitly spelled out in the config file.
-   * Add support for matching root against inflected forms to look for "problem" stems. Very
-     simple longest affix matching can get confused, especially when stems include common affix
-     bits. Possibly check that non-root part matches known affixes.
-   * Better error checking for input format.
-   * Add samples to Common Prefix/Suffix Alternations.
-   * Expose the hidden parameters.
-   * Add a random seed so random examples are consistent between runs (useful during dev).
-   * Allow some folding on "old" tokens to compare to "new" tokens. (This came up in Serbian—old
-     token is Cyrillic, new token is Latin, everything is folded to Latin, so new token can't
-     match old, generating lots of unneeded "bad" collisions.)
+   * *Tech Debt*
+      * Add checks that language files and other config files exist and/or open properly.
+      * Refactor / consolidate `strip_*fixes` and `regular_*fixes`.
+         * Consider ordering affix groups to support more heavily-inflected languages. For example,
+           Indonesian prefixes include *mem-, ke-, ber-, per-, member-, memper-, keber-,* and
+           *keper-.* What's really going on is that *mem-* or *ke-* can be followed by *ber-* or
+           *per-,* or any of them can be used alone. At the very least, all combinations should not
+           have to be explicitly spelled out in the config file.
+      * Better error checking for input format.
+      * Add samples to Common Prefix/Suffix Alternations.
+      * Expose the hidden parameters.
+      * Add a random seed so random examples are consistent between runs (useful during dev).
+      * Properly handle tokens with pipes in them. | is usually treated as punctuation, so I use it
+        internally to separate tokens in the counts files. However,
+        [ǀ and ǁ](https://en.wikipedia.org/wiki/Click_consonant#Notation_and_sound_description) get
+        normalized to | and || by ICU normalization, so a token like "ǁχ" gets normalzied to "||χ",
+        which looks like three tokens—two empty tokens, and "χ".
+   * *New Features*
+      * Add support for matching root against inflected forms to look for "problem" stems. Very
+        simple longest affix matching can get confused, especially when stems include common affix
+        bits. Possibly check that non-root part matches known affixes.
+      * Allow some folding on "old" tokens to compare to "new" tokens. (This came up in Serbian—old
+        token is Cyrillic, new token is Latin, everything is folded to Latin, so new token can't
+        match old, generating lots of unneeded "bad" collisions.)
+      * Add support for period-separated words in scripts other than Latin; this has come up most
+        for Cyrillic so far.
+      * Add category for script+numbers, such as *B99, Δ1,* or *Д49.*
+      * Allow some punctuation/symbols in script categories (or add modifier for it), so that,
+        for example, *x‘y* doesn't end up in "other".
+      * Add (optional?) category breakdown for all tokens in self analysis, similar to that for lost
+        and found tokens in Comparison Analysis.
 * Why Not Both!
-   * Add checks that input files exist, open properly, and are properly formatted
-   * Use proper JSON parsing.
-   * Explicitly specify output files.
-   * Optionally disable progress indicator.
-   * Add some unit tests.
+   * *Tech Debt*
+      * Add checks that input files exist, open properly, and are properly formatted
+      * Use proper JSON parsing (without introducing external dependencies).
+      * Explicitly specify output files.
+      * Optionally disable progress indicator.
+      * Add some unit tests.
 
 Contact me if you want to encourage me to prioritize any of these improvements over the others.
 
@@ -1240,7 +1258,8 @@ Contact me if you want to encourage me to prioritize any of these improvements o
 >
 > As a result, there's some pretty crappy code in here, and all of it needs a top-down refactor,
 > which will likely never happen. But I was told—quite correctly—that I should share my tools to up
-> the [bus number](https://en.wikipedia.org/wiki/Bus_factor) on this whole "analysis analysis" thing.
+> the [bus number](https://en.wikipedia.org/wiki/Bus_factor) on this whole "analysis analysis"
+> thing.
 >
 > I've tried to do some basic clean-up with
 > [`perlcritic`](https://en.wikipedia.org/wiki/Perl::Critic) and

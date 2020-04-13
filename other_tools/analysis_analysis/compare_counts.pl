@@ -42,10 +42,10 @@ my %old_v_new_results = (); # the results of comparing stemming group changes
 our ($opt_d, $opt_f, $opt_h, $opt_l, $opt_n, $opt_o, $opt_s, $opt_t, $opt_x, $opt_1);
 getopts('d:fhl:n:o:s:t:x1');
 
-my $oldfile = $opt_o;
-my $newfile = $opt_n;
+my $old_file = $opt_o;
+my $new_file = $opt_n;
 
-if (!$newfile || ! -e $newfile) {
+if (!$new_file || ! -e $new_file) {
 	usage();
 	exit;
 	}
@@ -66,13 +66,14 @@ my $min_histogram_link = 10;
 my $token_length_examples = 10;
 my $token_count_examples = 10;
 my $min_alternation_freq = 4;
-my $max_lost_found_sample = 500;
-my $hi_freq_cutoff = 500;
+my $max_lost_found_sample = 100;
+my $hi_freq_cutoff = 1000;
+my $hi_impact_cutoff = 10;
 
 # get to work
 lang_specific_setup();
-process_token_count_file($oldfile, 'old') if $oldfile;
-process_token_count_file($newfile, 'new');
+process_token_count_file($old_file, 'old') if $old_file;
+process_token_count_file($new_file, 'new');
 
 # text/HTML formatting
 my $bold_open = '';
@@ -82,7 +83,7 @@ my $italic_close = '';
 my $red_open = '';
 my $red_close = '';
 my $cr = "\n";
-my $wswrap = "\n" . ' 'x7;
+my $ws_wrap = "\n" . ' 'x7;	#whitespace wrap
 my $indent = "    ";
 my $block_open = $indent;
 my $block_close = $cr;
@@ -97,7 +98,7 @@ if ($config{HTML}) {
 	$red_open = '<span class=red>';
 	$red_close = '</span>';
 	$cr = "<br>\n";
-	$wswrap = '';
+	$ws_wrap = '';
 	$indent = '&nbsp;&nbsp;&nbsp;';
 	}
 
@@ -112,7 +113,7 @@ my $HTMLmeta = <<"HTML";
 </style>
 HTML
 
-if ($oldfile) {
+if ($old_file) {
 
 	my %is_overlap = ();
 
@@ -330,12 +331,12 @@ if ($oldfile) {
 					delete $old_tokens{$tok};
 					}
 				else {
-					$incr = 1;
+					$incr++;
 					}
 				}
 
 			if (scalar(keys %old_tokens)) {
-				$decr = 1;
+				$decr = scalar(keys %old_tokens);
 				}
 
 			if ($config{terse} > 0) {
@@ -351,26 +352,27 @@ if ($oldfile) {
 
 			foreach my $tok (keys %tok_cnt) {
 				if ($tok_cnt{$tok} < 0) {
-					$incr = 1;
+					$incr ||= 1;
 					}
 				elsif ($tok_cnt{$tok} > 0) {
-					$decr = 1;
+					$decr ||= 1;
 					}
 				}
 
-			my $incrdecr = '';
+			my $incr_decr = '';
 
 			if ($incr && $decr) {
-				$incrdecr = 'mixed';
+				$incr_decr = 'mixed';
 				}
 			elsif ($incr) {
-				$incrdecr = 'increased';
+				$incr_decr = 'increased';
 				}
 			else {
-				$incrdecr = 'decreased';
+				$incr_decr = 'decreased';
 				}
 
-			push @{$old_v_new_results{$incrdecr}}, $final;
+			push @{$old_v_new_results{$incr_decr}}, $final;
+			$old_v_new_results{magnitude}{$final} = $incr + $decr;
 			}
 		}
 
@@ -493,7 +495,7 @@ sub common_prefix {
 #
 sub usage {
 print <<"USAGE";
-usage: $0 -n <newfile> [-o <oldfile>] [-d <dir>] [-l <lang,lang,...>]
+usage: $0 -n <new_file> [-o <old_file>] [-d <dir>] [-l <lang,lang,...>]
     [-x] [-1] [-h] [-f] [-s <#>] [-t <#>]
 
     -n <file>  "new" counts file
@@ -629,7 +631,7 @@ sub process_token_count_file {
 				# final tokens
 				my ($empty, $cnt, $tokens) = split(/\t/);
 				my $token_cnt = scalar(split(/\|/, $tokens));
-				push @{$statistics{token_cnt}{$cat}[$token_cnt]}, $orig unless $oldfile;
+				push @{$statistics{token_cnt}{$cat}[$token_cnt]}, $orig unless $old_file;
 				}
 			else {
 				$orig = $_;
@@ -795,8 +797,8 @@ sub print_old_v_new_report {
 	print $HTMLmeta if $HTML;
 
 	# config info header
-	print $bold_open, "Processing $oldfile as \'old\'.", $bold_close, $cr;
-	print $bold_open, "Processing $newfile as \'new\'.", $bold_close, $cr;
+	print $bold_open, "Processing $old_file as \'old\'.", $bold_close, $cr;
+	print $bold_open, "Processing $new_file as \'new\'.", $bold_close, $cr;
 	if (0 < keys %{$config{lang}}) {
 		print $bold_open, "Language processing: ", $bold_close,
 			join(", ", sort keys %{$config{lang}}), $cr;
@@ -832,11 +834,26 @@ $indent<a href='#new_collision_near_match_stats'>New Collision Near Match Stats<
 <a href='#changed_collisions'>Changed Groups</a><br>
 HTML
 
-		if ($old_v_new_results{bad_collisions}) {
-			print "$indent<a href='#bad_collisions_q'>Bad Collisions?</a><br>";
+		my $spacer = 0;
+		if ($old_v_new_results{decreased}) {
+			print "$indent<a href='#changed_collisions_decreased'>Net Losses</a><br>";
+			$spacer = 1;
+			}
+		if ($old_v_new_results{mixed}) {
+			print "$indent<a href='#changed_collisions_mixed'>Mixed</a><br>";
+			$spacer = 1;
+			}
+		if ($old_v_new_results{decreased}) {
+			print "$indent<a href='#changed_collisions_increased'>Net Gains</a><br>";
+			$spacer = 1;
 			}
 
+		if ($old_v_new_results{bad_collisions}) {
+			if ($spacer) { print "<br>\n"; $spacer = 0; }
+			print "$indent<a href='#bad_collisions_q'>Bad Collisions?</a><br>";
+			}
 		if ($old_v_new_results{bad_splits}) {
+			if ($spacer) { print "<br>\n"; $spacer = 0; }
 			print "$indent<a href='#bad_splits_q'>Bad Splits?</a><br>";
 			}
 
@@ -861,7 +878,7 @@ HTML
 	print_table_key ('Key', '',
 		'Categories overlap. Numbers are usually unchanged, and all lc_unchanged are also unchanged.',
 		'unchanged', 'pre-analysis token is the same as post-analysis token',
-		'lc_unchanged', "pre-analysis token is the same as post-analysis$wswrap token after lowercasing",
+		'lc_unchanged', "pre-analysis token is the same as post-analysis$ws_wrap token after lowercasing",
 		'number', 'pre-analysis token is all numerical digits'
 		);
 
@@ -890,6 +907,11 @@ HTML
 		my $pre_tot_pct = percentify($pre_tot/$pre_old);
 		my $tok_pct = percentify($tok/$tok_old);
 
+		$post = comma($post);
+		$pre_new = comma($pre_new);
+		$pre_tot = comma($pre_tot);
+		$tok = comma($tok);
+
 		print "New collisions: $post ($post_pct of post-analysis types)", $cr;
 		print $indent, "added types: $pre_new ($pre_new_pct of pre-analysis types)", $cr if $pre_new;
 		print $indent, "added tokens: $tok ($tok_pct of tokens)", $cr if $tok;
@@ -914,6 +936,11 @@ HTML
 		my $pre_tot_pct = percentify($pre_tot/$pre_old);
 		my $tok_pct = percentify($tok/$tok_old);
 
+		$post = comma($post);
+		$pre_new = comma($pre_new);
+		$pre_tot = comma($pre_tot);
+		$tok = comma($tok);
+
 		print "New splits: $post ($post_pct of post-analysis types)", $cr;
 		print $indent, "lost types: $pre_new ($pre_new_pct of pre-analysis types)", $cr if $pre_new;
 		print $indent, "lost tokens: $tok ($tok_pct of tokens)", $cr if $tok;
@@ -936,6 +963,10 @@ HTML
 		my $pre_pct = percentify($pre/$pre_old);
 		my $tok_pct = percentify($tok/$tok_old);
 
+		$post = comma($post);
+		$pre = comma($pre);
+		$tok = comma($tok);
+
 		print "Gains: $post ($post_pct of post-analysis types)", $cr;
 		print $indent, "types with gains: $pre ($pre_pct of pre-analysis types)", $cr if $pre;
 		print $indent, "tokens gained: $tok ($tok_pct of tokens)", $cr if $tok;
@@ -957,6 +988,10 @@ HTML
 		my $pre_pct = percentify($pre/$pre_old);
 		my $tok_pct = percentify($tok/$tok_old);
 
+		$post = comma($post);
+		$pre = comma($pre);
+		$tok = comma($tok);
+
 		print "Losses: $post ($post_pct of post-analysis types)", $cr;
 		print $indent, "types with losses: $pre ($pre_pct of pre-analysis types)", $cr if $pre;
 		print $indent, "tokens lost: $tok ($tok_pct of tokens)", $cr if $tok;
@@ -969,69 +1004,72 @@ HTML
 	my @types = ('type', 'token');
 	print_table_head(@types, 'kind');
 	foreach my $kind (sort keys %{$old_v_new_results{collision}{near_match}}) {
-		print_table_row([(map { "$old_v_new_results{collision}{near_match}{$kind}{$_}"; } @types), $kind]);
+		print_table_row([(map { comma($old_v_new_results{collision}{near_match}{$kind}{$_}); } @types), $kind]);
 		}
 	print_table_foot();
 	print $cr;
 
 	print_table_key ('Key', 'New collision type is a near match for a type already in the group after...',
 		'Categories do not overlap. Types are post-analysis types',
-		'folded', "applying generic and language-specific character folding,$wswrap de-spacing, and de-hyphenation",
+		'folded', "applying generic and language-specific character folding,$ws_wrap de-spacing, and de-hyphenation",
 		'regulars', 'removing language-specific regular prefixes and suffixes',
-		'folded_regulars', "applying generic and language-specific character$wswrap folding, de-spacing, de-hyphenation, and removing language-specific$wswrap regular prefixes and suffixes"
+		'folded_regulars', "applying generic and language-specific character$ws_wrap folding, de-spacing, de-hyphenation, and removing language-specific$ws_wrap regular prefixes and suffixes"
 		);
 
 	print_section_head('Lost and Found Tokens', 'lost_and_found');
 	my %tot = ();
 	my %only = ();
 
-	foreach my $origfinal ('original', 'final') {
-		my $pre_post = $origfinal eq 'original' ? 'pre' : 'post';
+	foreach my $orig_final ('original', 'final') {
+		my $pre_post = $orig_final eq 'original' ? 'pre' : 'post';
 
-		foreach my $token (keys %{$statistics{token_exists}{$origfinal}}) {
-			my $ocnt = $statistics{token_exists}{$origfinal}{$token}{old};
-			my $ncnt = $statistics{token_exists}{$origfinal}{$token}{new};
+		foreach my $token (keys %{$statistics{token_exists}{$orig_final}}) {
+			my $ocnt = $statistics{token_exists}{$orig_final}{$token}{old};
+			my $ncnt = $statistics{token_exists}{$orig_final}{$token}{new};
 			next if ($ocnt && $ncnt);
 			my $type = token_category($token);
 			if ($ocnt) {
-				$tot{$origfinal}{lost}++;
-				$tot{$origfinal}{lost_token} += $ocnt;
-				push @{$only{$origfinal}{old}{$type}}, $token;
+				$tot{$orig_final}{lost}++;
+				$tot{$orig_final}{lost_token} += $ocnt;
+				push @{$only{$orig_final}{old}{$type}}, $token;
 				}
 			else {
-				$tot{$origfinal}{found}++;
-				$tot{$origfinal}{found_token} += $ncnt;
-				push @{$only{$origfinal}{new}{$type}}, $token;
+				$tot{$orig_final}{found}++;
+				$tot{$orig_final}{found_token} += $ncnt;
+				push @{$only{$orig_final}{new}{$type}}, $token;
 				}
 			}
 
-		if ($tot{$origfinal}{lost} || $tot{$origfinal}{found}) {
-			$tot{$origfinal}{lost} ||= 0;
-			$tot{$origfinal}{found} ||= 0;
-			$tot{$origfinal}{lost_token} ||= 0;
-			$tot{$origfinal}{found_token} ||= 0;
-			print " Lost $pre_post-analysis types/tokens (old only): $tot{$origfinal}{lost} / $tot{$origfinal}{lost_token}", $cr;;
-			print "Found $pre_post-analysis types/tokens (new only): $tot{$origfinal}{found} / $tot{$origfinal}{found_token}", $cr;
+		if ($tot{$orig_final}{lost} || $tot{$orig_final}{found}) {
+			$tot{$orig_final}{lost} ||= 0;
+			$tot{$orig_final}{found} ||= 0;
+			$tot{$orig_final}{lost_token} ||= 0;
+			$tot{$orig_final}{found_token} ||= 0;
+			print $cr;
+			print " Lost $pre_post-analysis types/tokens (old only): ", comma($tot{$orig_final}{lost}),
+				" / ", comma($tot{$orig_final}{lost_token}), $cr;;
+			print "Found $pre_post-analysis types/tokens (new only): ", comma($tot{$orig_final}{found}),
+				" / ", comma($tot{$orig_final}{found_token}), $cr;
 			print $cr;
 			}
 
-		my $need_div = $tot{$origfinal}{lost} && $tot{$origfinal}{found} && $config{HTML};
+		my $need_div = $tot{$orig_final}{lost} && $tot{$orig_final}{found} && $config{HTML};
 
-		if ($tot{$origfinal}{lost}) {
+		if ($tot{$orig_final}{lost}) {
 			if ($need_div) {
 				print "<div style='width:45%; border:1px solid grey; float:left; padding:0.5em; word-wrap: break-word; vertical-align: top;'>\n";
 				}
-			print_lost_found_token_stats('Lost', $origfinal, 'old', \%only);
+			print_lost_found_token_stats('Lost', $orig_final, 'old', \%only);
 			if ($need_div) {
 				print "</div>\n";
 				}
 			}
 
-		if ($tot{$origfinal}{found}) {
+		if ($tot{$orig_final}{found}) {
 			if ($need_div) {
 				print "<div style='width:45%; border:1px solid grey; float:right; padding:0.5em; word-wrap: break-word; vertical-align: top;'>\n";
 				}
-			print_lost_found_token_stats('Found', $origfinal, 'new', \%only);
+			print_lost_found_token_stats('Found', $orig_final, 'new', \%only);
 			if ($need_div) {
 				print "</div><br clear=all>\n";
 				}
@@ -1045,6 +1083,7 @@ HTML
 		'<<', 'indicates net loss of types/tokens',
 		'><', 'indicates mixed gains and losses of types/tokens',
 		'>>', 'indicates net gain of types/tokens',
+		'#', 'the number following indicates the magnitude of the change (#types affected)',
 		'terseness', $config{terse}
 		);
 
@@ -1065,7 +1104,7 @@ HTML
 				lc($a->[2]) cmp lc($b->[2]) || $a->[2] cmp $b->[2] }
 				@{$old_v_new_results{bad_collisions}}) {
 			my ($final, $cnt, $n) = @{$b};
-			print_table_row([$final, "[$cnt $n] -> " . $mapping{$final}{old}]);
+			print_table_row([$final, colorSample("[$cnt $n] -> " . $mapping{$final}{old})]);
 			}
 		print_table_foot();
 		print $cr;
@@ -1080,7 +1119,7 @@ HTML
 				lc($a->[2]) cmp lc($b->[2]) || $a->[2] cmp $b->[2] }
 				@{$old_v_new_results{bad_splits}}) {
 			my ($final, $cnt, $o) = @{$b};
-			print_table_row([$final, "[$cnt $o] <- " . $mapping{$final}{new}]);
+			print_table_row([$final, colorSample("[$cnt $o] <- " . $mapping{$final}{new})]);
 			}
 		print_table_foot();
 		print $cr;
@@ -1101,7 +1140,7 @@ sub print_new_report {
 	print $HTMLmeta if $HTML;
 
 	# config info header
-	print $bold_open, "Processing $newfile as \'new\'.", $bold_close, $cr;
+	print $bold_open, "Processing $new_file as \'new\'.", $bold_close, $cr;
 	print $cr;
 	print $bold_open, "Total new tokens: ", $bold_close, comma($statistics{total_tokens}{new}), $cr;
 
@@ -1249,9 +1288,10 @@ HTML
 # print a section heading, along with internal anchor for HTML report
 #
 sub print_section_head {
-	my ($header, $aname) = @_;
+	my ($header, $aname, $subhead) = @_;
 	if ($config{HTML}) {
-		print "\n<a name='$aname'><h3>$header <a href=#TOC style='font-size:60%'>[TOC]</a></h3>\n";
+		my $head = $subhead?"h$subhead":'h3';
+		print "\n<a name='$aname'><$head>$header <a href=#TOC style='font-size:60%'>[TOC]</a></$head>\n";
 		}
 	else {
 		print "\n\n$header\n", "-" x length($header), "\n";
@@ -1351,7 +1391,7 @@ sub print_table_key {
 # print lost and found token stats
 #
 sub print_lost_found_token_stats {
-	my ($lostfound, $origfinal, $oldnew, $only_ref) = @_;
+	my ($lost_found, $orig_final, $oldnew, $only_ref) = @_;
 
 	my $joiner = "\t";
 
@@ -1359,32 +1399,33 @@ sub print_lost_found_token_stats {
 		$joiner = " &bull; ";
 		}
 
-	my $pre_post = $origfinal eq 'original' ? 'pre' : 'post';
-	print $bold_open, "$lostfound $pre_post-analysis tokens by category", $bold_close, $cr, $cr;
-	foreach my $category (sort keys %{$only_ref->{$origfinal}{$oldnew}}) {
+	my $pre_post = $orig_final eq 'original' ? 'pre' : 'post';
+	print $bold_open, "$lost_found $pre_post-analysis tokens by category", $bold_close, $cr, $cr;
+	foreach my $category (sort keys %{$only_ref->{$orig_final}{$oldnew}}) {
 		my $token_tot = 0;
-		foreach my $item (@{$only_ref->{$origfinal}{$oldnew}{$category}}) {
-			$token_tot += $statistics{token_exists}{$origfinal}{$item}{$oldnew};
+		foreach my $item (@{$only_ref->{$orig_final}{$oldnew}{$category}}) {
+			$token_tot += $statistics{token_exists}{$orig_final}{$item}{$oldnew};
 			}
-		my $type_tot = scalar(@{$only_ref->{$origfinal}{$oldnew}{$category}});
-		print $indent, $italic_open, "$category:$italic_close $type_tot types, $token_tot tokens",
+		my $type_tot = scalar(@{$only_ref->{$orig_final}{$oldnew}{$category}});
+		print $indent, $italic_open, "$category:$italic_close ", comma($type_tot), " types, ",
+			comma($token_tot), " tokens",
 			($type_tot > $max_lost_found_sample)?" (sample of $max_lost_found_sample)":'', $cr;
 		print $block_open;
 
 		my $picks = $max_lost_found_sample;
-		my $samples = scalar( @{$only_ref->{$origfinal}{$oldnew}{$category}});
+		my $samples = scalar( @{$only_ref->{$orig_final}{$oldnew}{$category}});
 		print join($joiner, sort
 			grep { ($picks && rand() < $picks/$samples--)?$picks--:0 }
-			@{$only_ref->{$origfinal}{$oldnew}{$category}}), $cr;
+			@{$only_ref->{$orig_final}{$oldnew}{$category}}), $cr;
 
-		my @hifreq = grep { $statistics{token_exists}{$origfinal}{$_}{$oldnew} >= $hi_freq_cutoff }
-			@{$only_ref->{$origfinal}{$oldnew}{$category}};
+		my @hifreq = grep { $statistics{token_exists}{$orig_final}{$_}{$oldnew} >= $hi_freq_cutoff }
+			@{$only_ref->{$orig_final}{$oldnew}{$category}};
 		if (@hifreq) {
 			print $cr;
 			print $indent, $italic_open, "hi-freq tokens: ", $italic_close,
-				join($joiner, map { "$_ | ".$statistics{token_exists}{$origfinal}{$_}{$oldnew}; }
-				sort { $statistics{token_exists}{$origfinal}{$b}{$oldnew} <=>
-				$statistics{token_exists}{$origfinal}{$a}{$oldnew}} @hifreq), $cr;
+				join($joiner, map { "$_ | " . comma($statistics{token_exists}{$orig_final}{$_}{$oldnew}); }
+				sort { $statistics{token_exists}{$orig_final}{$b}{$oldnew} <=>
+				$statistics{token_exists}{$orig_final}{$a}{$oldnew}} @hifreq), $cr;
 			}
 		print $block_close;
 		}
@@ -1396,32 +1437,65 @@ sub print_lost_found_token_stats {
 # Print the Changed Collision Net Gains and Net Losses
 #
 sub print_changed_collisions {
-	my ($gainloss, $incrdecr, $arr) = @_;
+	my ($gain_loss, $incr_decr, $arr) = @_;
 
-	if (!defined $old_v_new_results{$incrdecr}) {
+	if (!defined $old_v_new_results{$incr_decr}) {
 		return;
 		}
 
 	my $div_open = '<div class=hang>';
 	my $div_close = '</div>';
 
-	print $bold_open, "$gainloss:", $bold_close, $cr;
+	print_section_head($gain_loss, "changed_collisions_" . $incr_decr, 4);
+
+	my $hic = 1;
+	if ($config{HTML}) {
+		print "<a href='#hic_$incr_decr\_1'><b>High Impact Changes</b></a><br><br>\n";
+		}
+
 	print_table_head();
-	foreach my $final (@{$old_v_new_results{$incrdecr}}) {
+	foreach my $final (@{$old_v_new_results{$incr_decr}}) {
 		# Ugh, this just doesn't want to abstract properly; Hack, hack, hack.
 		if ($config{HTML}) {
-			print_table_row(["<nobr>$final $arr</nobr>",
-				$div_open . "o: $mapping{$final}{old}" . $div_close .
-				$div_open . "n: $mapping{$final}{new}" . $div_close]);
+			my $impact = $old_v_new_results{magnitude}{$final};
+			my $hic_open = '';
+			my $hic_close = '';
+			if ($impact >= $hi_impact_cutoff) {
+				$hic_open = "<a name='hic_$incr_decr\_$hic'><a href='#hic_$incr_decr\_" . ++$hic . "'>";
+				$hic_close = '</a>';
+				}
+			print_table_row(["<nobr>$hic_open$final $arr $impact$hic_close</nobr>",
+				$div_open . "o: " . colorSample($mapping{$final}{old}) . $div_close .
+				$div_open . "n: " . colorSample($mapping{$final}{new}) . $div_close]);
 			}
 		else {
-			print "$final $arr", $cr, $indent, "o: $mapping{$final}{old}",
-				$cr, $indent, "n: $mapping{$final}{new}\n";
+			print "$final $arr $old_v_new_results{magnitude}{$final}", $cr,
+				$indent, "o: $mapping{$final}{old}", $cr,
+				$indent, "n: $mapping{$final}{new}", $cr;
 			}
 		}
 	print_table_foot();
+
+	if ($config{HTML}) {
+		print "<a name='hic_$incr_decr\_$hic'>\n";
+		}
+
 	print $cr;
 	return;
+	}
+
+###############
+# add bolding and color (blue by default) to samples "[### token]" where
+# the number is a certain number of digits (4 by default)
+#
+# - will apply incorrectly if "token" contains a close baracket ]
+#
+sub colorSample {
+	my ($str, $digits, $color) = @_;
+	$digits ||= 4;
+	$color ||= 'blue';
+	$str =~ s!(\[[0-9]{$digits}[^\]]+\])!<b style='color:$color'>$1</b>!g;
+	return $str;
 	}
 
 ###############
@@ -1473,7 +1547,7 @@ sub token_category {
 	my $category = ' other';
 	my $modifier = '';
 
-	if ($token =~ s/\x{FEFF}//g) {
+	if ($token =~ s/\x{FEFF}|\x{00A0}//g) {
 		$modifier .= '+nbsp';
 		}
 	if ($token =~ s/\x{200B}//g) {
@@ -1500,13 +1574,13 @@ sub token_category {
 	if ($token =~ s/\$$//g) {
 		$modifier .= '+$';
 		}
-	if ($token =~ / /) {
+	if ($token =~ s/ //g) {
 		$modifier .= '+sp';
 		}
-	if ($token =~ /\t/) {
+	if ($token =~ s/\t//g) {
 		$modifier .= '+tab';
 		}
-	if ($token =~ /\n/) {
+	if ($token =~ s/\n//g) {
 		$modifier .= '+cr';
 		}
 
