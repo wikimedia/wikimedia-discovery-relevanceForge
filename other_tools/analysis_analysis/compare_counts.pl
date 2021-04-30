@@ -1610,6 +1610,7 @@ sub token_category {
 	elsif ($token =~ /^[a-z'’-]+$/i) { $category = 'Latin (Basic)'; }
 	elsif ($token =~ /^([a-z'’-]|\p{Latin})+$/i) { $category = 'Latin (Extended)'; }
 	elsif ($token =~ /^([́']|\p{Cyrillic})+$/i) { $category = 'Cyrillic'; }
+	elsif ($token =~ /^(\\u[0-9A-F]{4})+$/i) { $category = 'Unicode'; }
 	elsif ($token =~ /^\p{Greek}+$/i) { $category = 'Greek'; }
 	elsif ($token =~ /^(\p{Block: Arabic}|\p{Arabic_Ext_A}|\p{Arabic_Supplement}|\x{200E})+$/i) { $category = 'Arabic'; }
 	elsif ($token =~ /^\p{Armenian}+$/i) { $category = 'Armenian'; }
