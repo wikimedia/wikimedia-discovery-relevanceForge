@@ -1,10 +1,26 @@
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
-    th, td { text-align:left; vertical-align: top; border: 1px solid black; dir:auto; }
+    body { font-family:Helvetica; font-size:115%; }
+    th, td { text-align:left; vertical-align: top; border: 1px solid black; dir:auto;
+        padding:2px; }
     table { border-collapse: collapse; }
+    tr:nth-child(even) { background: #f8f8f8; }
+    tr.key td:nth-of-type(3n+1) { text-align:center; }
     .red { color: red; font-weight: bold; }
-    tr:nth-child(even) { background: #f8f8f8 }
-    .hang {padding-left: 2em ; text-indent: -2em}
+    .hang { padding-left: 2em ; text-indent: -2em; }
+    .invis { color:#57c6eb; }
+    .leftCatDiv, .rightCatDiv { width:47%; border:1px solid grey; padding:1%;
+        word-wrap:break-word; vertical-align: top; margin-bottom: -1px; }
+    .leftCatDiv { float:left; clear:left; }
+    .rightCatDiv { float:right; clear:right; }
+    .newCat { border-top: 2px solid black; }
+    .TOC { font-size:60%; }
+    .diff { background-color:#ffffe8; }
+    .bigNum { color:blue }
+    .cyr { color:#f00 }
+    .ltn { color:#070 }
+    .grk { color:#00f }
+    .cyr, .ltn, .grk, .invis { cursor: help; }
 </style>
 <b>Processing samples/output/pl.counts.stempel.txt as 'new'.</b><br>
 <br>
@@ -19,11 +35,21 @@
 &nbsp;&nbsp;&nbsp;<a href="#prob1">Potential Problem Stems</a><br>
 <a href='#commonPrefixes'>Common Prefix Alternations</a><br>
 <a href='#commonSuffixes'>Common Suffix Alternations</a><br>
-<a href='#typeCountHistogram'>Histogram of Case-Insensitive Type Group Counts</a><br>
-<a href='#tokenCountHistogram'>Histogram of Stemmed Tokens Generated per Input Token</a><br>
-<a href='#typeLengthHistogram'>Histogram of Final Type Lengths</a><br>
+<a href='#typeCountFreqTable'>Case-Insensitive Type Group Counts</a><br>
+<a href='#tokenCountFreqTable'>Stemmed Tokens Generated per Input Token</a><br>
+<a href='#typeLengthFreqTable'>Final Type Lengths</a><br>
+<a href='#tokenCategories'>Token Samples by Category</a><br>
 
-<a name='stemmingResults'><h3>Stemming Results (groups only) <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
+<h3>Invisibles and Script Colors <a href=#TOC class=TOC>[TOC]</a></h3>
+<table><tr><th>symbol</th><th>invisible chars</th><th>&nbsp;</th><th>symbol</th><th>invisible chars</th><th>&nbsp;</th><th>color</th><th>script</th></tr>
+<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td></tr>
+<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, FEFF, 00A0)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>⅟</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td>कあ가កกیא</td><td>unlabelled</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td></tr>
+</table>
+
+<a name='stemmingResults'><h3>Stemming Results (groups only) <a href=#TOC class=TOC>[TOC]</a></h3>
 .. indicates raw / lowercased string matches<br>
 :: indicates affix-stripped matches<br>
 -- indicates affix-stripped and folded matches<br>
@@ -4986,13 +5012,13 @@
 </table>
 <a name='prob16'>
 
-<a name='commonPrefixes'><h3>Common Prefix Alternations <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
+<a name='commonPrefixes'><h3>Common Prefix Alternations <a href=#TOC class=TOC>[TOC]</a></h3>
 <table><tr><th>1x1 count</th><th>group count</th><th>alt 1</th><th>alt 2</th></tr>
 <tr><td>7</td><td>3</td><td></td><td>naj</td></tr>
 <tr><td>9</td><td></td><td></td><td>nie</td></tr>
 </table>
 
-<a name='commonSuffixes'><h3>Common Suffix Alternations <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
+<a name='commonSuffixes'><h3>Common Suffix Alternations <a href=#TOC class=TOC>[TOC]</a></h3>
 <table><tr><th>1x1 count</th><th>group count</th><th>alt 1</th><th>alt 2</th><th>known</th></tr>
 <tr><td>543</td><td>371</td><td></td><td>a</td><td>*</td></tr>
 <tr><td>508</td><td>363</td><td>a</td><td>y</td><td>*</td></tr>
@@ -5246,7 +5272,7 @@
 <tr class='red'><td>24</td><td>5</td><td>ej</td><td>mi</td><td></td></tr>
 </table>
 
-<a name='typeCountHistogram'><h3>Histogram of Case-Insensitive Type Group Counts <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
+<a name='typeCountFreqTable'><h3>Case-Insensitive Type Group Counts <a href=#TOC class=TOC>[TOC]</a></h3>
 <table><tr><th>count</th><th>freq</th></tr>
 <tr><td>1</td><td>20662</td></tr>
 <tr><td>2</td><td>2544</td></tr>
@@ -5268,32 +5294,32 @@
 <tr><td><a name='count49.2'><a href='#count49.1'>49</a></td><td>1</td></tr>
 </table>
 
-<a name='tokenCountHistogram'><h3>Histogram of Stemmed Tokens Generated per Input Token <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
+<a name='tokenCountFreqTable'><h3>Stemmed Tokens Generated per Input Token <a href=#TOC class=TOC>[TOC]</a></h3>
 <table><tr><th>count</th><th>freq</th><th>example input tokens</th></tr>
-<tr><td>1</td><td>39392</td><td>1705 &nbsp; &bull; &nbsp; 89192 &nbsp; &bull; &nbsp; Cyaneed &nbsp; &bull; &nbsp; Live &nbsp; &bull; &nbsp; iat.uni &nbsp; &bull; &nbsp; mowie &nbsp; &bull; &nbsp; pałacowego &nbsp; &bull; &nbsp; powrotu &nbsp; &bull; &nbsp; trybach &nbsp; &bull; &nbsp; zbiornik</td></tr>
+<tr><td>1</td><td>39392</td><td>5,2 &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Charakterystycznym</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Crusoe</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Eerste</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kolby</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>pseud</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>widoczna</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wydarzenia</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zgromadzeń</span> &nbsp; &bull; &nbsp; <span class=cyr title='Cyrillic script'>Сергей</span></td></tr>
 </table>
 
-<a name='typeLengthHistogram'><h3>Histogram of Final Type Lengths <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
+<a name='typeLengthFreqTable'><h3>Final Type Lengths <a href=#TOC class=TOC>[TOC]</a></h3>
 <table><tr><th>length</th><th>type freq</th><th>token count</th><th>examples</th></tr>
-<tr><td>1</td><td>87</td><td>2926</td><td>2 &nbsp; &bull; &nbsp; 5 &nbsp; &bull; &nbsp; 7 &nbsp; &bull; &nbsp; f &nbsp; &bull; &nbsp; g &nbsp; &bull; &nbsp; t &nbsp; &bull; &nbsp; w &nbsp; &bull; &nbsp; 宇 &nbsp; &bull; &nbsp; 彦 &nbsp; &bull; &nbsp; 陈</td></tr>
-<tr><td>2</td><td>384</td><td>4970</td><td>08 &nbsp; &bull; &nbsp; 4m &nbsp; &bull; &nbsp; 93 &nbsp; &bull; &nbsp; gl &nbsp; &bull; &nbsp; ho &nbsp; &bull; &nbsp; nu &nbsp; &bull; &nbsp; ré &nbsp; &bull; &nbsp; st &nbsp; &bull; &nbsp; u1 &nbsp; &bull; &nbsp; ud</td></tr>
-<tr><td>3</td><td>1581</td><td>7334</td><td>144 &nbsp; &bull; &nbsp; 169 &nbsp; &bull; &nbsp; ars &nbsp; &bull; &nbsp; awy &nbsp; &bull; &nbsp; dan &nbsp; &bull; &nbsp; nik &nbsp; &bull; &nbsp; pzć &nbsp; &bull; &nbsp; sul &nbsp; &bull; &nbsp; uwe &nbsp; &bull; &nbsp; wał</td></tr>
-<tr><td>4</td><td>2368</td><td>13208</td><td>1547 &nbsp; &bull; &nbsp; 1943 &nbsp; &bull; &nbsp; asek &nbsp; &bull; &nbsp; farc &nbsp; &bull; &nbsp; fosa &nbsp; &bull; &nbsp; idzi &nbsp; &bull; &nbsp; umar &nbsp; &bull; &nbsp; yong &nbsp; &bull; &nbsp; znać &nbsp; &bull; &nbsp; żyły</td></tr>
-<tr><td>5</td><td>2926</td><td>12858</td><td>asroc &nbsp; &bull; &nbsp; burke &nbsp; &bull; &nbsp; girls &nbsp; &bull; &nbsp; haiti &nbsp; &bull; &nbsp; harri &nbsp; &bull; &nbsp; hemow &nbsp; &bull; &nbsp; marki &nbsp; &bull; &nbsp; speed &nbsp; &bull; &nbsp; trasa &nbsp; &bull; &nbsp; świić</td></tr>
-<tr><td>6</td><td>3454</td><td>14792</td><td>amador &nbsp; &bull; &nbsp; aspasi &nbsp; &bull; &nbsp; biedny &nbsp; &bull; &nbsp; choćby &nbsp; &bull; &nbsp; clarka &nbsp; &bull; &nbsp; montan &nbsp; &bull; &nbsp; passos &nbsp; &bull; &nbsp; potęga &nbsp; &bull; &nbsp; płacić &nbsp; &bull; &nbsp; stroąć</td></tr>
-<tr><td>7</td><td>3457</td><td>13010</td><td>basques &nbsp; &bull; &nbsp; busuttć &nbsp; &bull; &nbsp; gwizdka &nbsp; &bull; &nbsp; niewieć &nbsp; &bull; &nbsp; wedding &nbsp; &bull; &nbsp; wiekowy &nbsp; &bull; &nbsp; zasilać &nbsp; &bull; &nbsp; łowicki &nbsp; &bull; &nbsp; śnieżny &nbsp; &bull; &nbsp; николай</td></tr>
-<tr><td>8</td><td>3300</td><td>11318</td><td>bananowy &nbsp; &bull; &nbsp; ewakuowć &nbsp; &bull; &nbsp; fila.com &nbsp; &bull; &nbsp; lekaować &nbsp; &bull; &nbsp; odpływać &nbsp; &bull; &nbsp; skazując &nbsp; &bull; &nbsp; tułowski &nbsp; &bull; &nbsp; wudarski &nbsp; &bull; &nbsp; иванович &nbsp; &bull; &nbsp; странник</td></tr>
-<tr><td>9</td><td>2689</td><td>9175</td><td>baltachać &nbsp; &bull; &nbsp; binkowski &nbsp; &bull; &nbsp; cmentarny &nbsp; &bull; &nbsp; gutenberg &nbsp; &bull; &nbsp; opracować &nbsp; &bull; &nbsp; orleańsky &nbsp; &bull; &nbsp; pamiąteka &nbsp; &bull; &nbsp; piekarski &nbsp; &bull; &nbsp; soccernet &nbsp; &bull; &nbsp; ustrojowy</td></tr>
-<tr><td>10</td><td>2001</td><td>5829</td><td>czarodziej &nbsp; &bull; &nbsp; fatamorgan &nbsp; &bull; &nbsp; graniczący &nbsp; &bull; &nbsp; korporacja &nbsp; &bull; &nbsp; nieodległy &nbsp; &bull; &nbsp; obejmujący &nbsp; &bull; &nbsp; parczewski &nbsp; &bull; &nbsp; perkusista &nbsp; &bull; &nbsp; pochodzęcy &nbsp; &bull; &nbsp; providenka</td></tr>
-<tr><td>11</td><td>1417</td><td>4418</td><td>amerykański &nbsp; &bull; &nbsp; arundinacea &nbsp; &bull; &nbsp; azerbejdżan &nbsp; &bull; &nbsp; czartoryski &nbsp; &bull; &nbsp; midwinter’s &nbsp; &bull; &nbsp; przechodzić &nbsp; &bull; &nbsp; przęsławica &nbsp; &bull; &nbsp; rusyfikacja &nbsp; &bull; &nbsp; szturmowiec &nbsp; &bull; &nbsp; tblstat.net</td></tr>
-<tr><td>12</td><td>809</td><td>1864</td><td>aktualizacja &nbsp; &bull; &nbsp; dziesięciorg &nbsp; &bull; &nbsp; jednoznaczny &nbsp; &bull; &nbsp; niewyciągnąć &nbsp; &bull; &nbsp; pahkinasaari &nbsp; &bull; &nbsp; przyniesioyć &nbsp; &bull; &nbsp; starszeństwo &nbsp; &bull; &nbsp; terytorialno &nbsp; &bull; &nbsp; vanderpleyno &nbsp; &bull; &nbsp; wierzchowski</td></tr>
-<tr><td>13</td><td>505</td><td>1177</td><td>bioenergetics &nbsp; &bull; &nbsp; czterotaktowy &nbsp; &bull; &nbsp; etablissement &nbsp; &bull; &nbsp; investigatiun &nbsp; &bull; &nbsp; miniaturzysta &nbsp; &bull; &nbsp; międzywojenny &nbsp; &bull; &nbsp; niepokalanego &nbsp; &bull; &nbsp; przewodniczyć &nbsp; &bull; &nbsp; rechtensteina &nbsp; &bull; &nbsp; uczestniczący</td></tr>
-<tr><td>14</td><td>278</td><td>642</td><td>czarnoksiężnik &nbsp; &bull; &nbsp; irishtrails.ie &nbsp; &bull; &nbsp; jednoczęściowy &nbsp; &bull; &nbsp; jednoliścienny &nbsp; &bull; &nbsp; nowogródczyzna &nbsp; &bull; &nbsp; przedsiębiorca &nbsp; &bull; &nbsp; przypuszczenie &nbsp; &bull; &nbsp; sull’insurreźć &nbsp; &bull; &nbsp; upamiętniający &nbsp; &bull; &nbsp; współdecydować</td></tr>
-<tr><td>15</td><td>144</td><td>302</td><td>agroturystyczny &nbsp; &bull; &nbsp; encyklopedyczny &nbsp; &bull; &nbsp; farmakologiczny &nbsp; &bull; &nbsp; jednocylindrowy &nbsp; &bull; &nbsp; kilkumiesięczny &nbsp; &bull; &nbsp; międzyzakładowy &nbsp; &bull; &nbsp; nieprzyjacielić &nbsp; &bull; &nbsp; przypieczętować &nbsp; &bull; &nbsp; truncocolumella &nbsp; &bull; &nbsp; wielomiesięczny</td></tr>
-<tr><td>16</td><td>95</td><td>174</td><td>cytoplazmatyczny &nbsp; &bull; &nbsp; formylometionina &nbsp; &bull; &nbsp; kilkusetoseobowy &nbsp; &bull; &nbsp; międzyregionalny &nbsp; &bull; &nbsp; promieniotwórczy &nbsp; &bull; &nbsp; rekonwalescencja &nbsp; &bull; &nbsp; rumuńskojęzyczny &nbsp; &bull; &nbsp; rzymskokatolicki &nbsp; &bull; &nbsp; syntaksonomiczny &nbsp; &bull; &nbsp; zdecentralizować</td></tr>
-<tr><td>17</td><td>48</td><td>89</td><td>elektroakustyczny &nbsp; &bull; &nbsp; francuskojęzyczny &nbsp; &bull; &nbsp; hydroksyfenylecio &nbsp; &bull; &nbsp; izopropenylofenol &nbsp; &bull; &nbsp; niekonwencjonalny &nbsp; &bull; &nbsp; ochsenrückenturmć &nbsp; &bull; &nbsp; przeciwdepresyjny &nbsp; &bull; &nbsp; przeciwstawiający &nbsp; &bull; &nbsp; trifenylometanowy &nbsp; &bull; &nbsp; wschodnioindyjski</td></tr>
-<tr><td>18</td><td>36</td><td>45</td><td>atlaskolejowy.plić &nbsp; &bull; &nbsp; elektromagnetyczny &nbsp; &bull; &nbsp; niefarmakologiczny &nbsp; &bull; &nbsp; prawdopodobieństwo &nbsp; &bull; &nbsp; promieniotwórczość &nbsp; &bull; &nbsp; rdzawopomarańczowy &nbsp; &bull; &nbsp; shakhterstat.by.ru &nbsp; &bull; &nbsp; trzydziestoosobowy &nbsp; &bull; &nbsp; www.wicklowway.com &nbsp; &bull; &nbsp; zachodnioniemiecki</td></tr>
-<tr><td>19</td><td>18</td><td>27</td><td>cyclingarchives.com &nbsp; &bull; &nbsp; nationaltrail.co.uk &nbsp; &bull; &nbsp; przedchrześcijański &nbsp; &bull; &nbsp; północnobrazylijski &nbsp; &bull; &nbsp; socjaldemokratyczny &nbsp; &bull; &nbsp; wschodniofrankijski &nbsp; &bull; &nbsp; współprzewodniczący &nbsp; &bull; &nbsp; www.fallingrain.com &nbsp; &bull; &nbsp; zachodnioafrykański &nbsp; &bull; &nbsp; zachodnioeuropejski</td></tr>
+<tr><td>1</td><td>87</td><td>2926</td><td>g &nbsp; &bull; &nbsp; w &nbsp; &bull; &nbsp; ρ &nbsp; &bull; &nbsp; з &nbsp; &bull; &nbsp; 出 &nbsp; &bull; &nbsp; 彦 &nbsp; &bull; &nbsp; 有 &nbsp; &bull; &nbsp; 瑪 &nbsp; &bull; &nbsp; 茹 &nbsp; &bull; &nbsp; 齊</td></tr>
+<tr><td>2</td><td>384</td><td>4970</td><td>02 &nbsp; &bull; &nbsp; 98 &nbsp; &bull; &nbsp; c2 &nbsp; &bull; &nbsp; ic &nbsp; &bull; &nbsp; it &nbsp; &bull; &nbsp; lo &nbsp; &bull; &nbsp; pu &nbsp; &bull; &nbsp; ré &nbsp; &bull; &nbsp; vc &nbsp; &bull; &nbsp; vs</td></tr>
+<tr><td>3</td><td>1581</td><td>7334</td><td>128 &nbsp; &bull; &nbsp; 376 &nbsp; &bull; &nbsp; ant &nbsp; &bull; &nbsp; ass &nbsp; &bull; &nbsp; bat &nbsp; &bull; &nbsp; efr &nbsp; &bull; &nbsp; gal &nbsp; &bull; &nbsp; len &nbsp; &bull; &nbsp; s45 &nbsp; &bull; &nbsp; sli</td></tr>
+<tr><td>4</td><td>2368</td><td>13208</td><td>1566 &nbsp; &bull; &nbsp; 1912 &nbsp; &bull; &nbsp; 3300 &nbsp; &bull; &nbsp; arto &nbsp; &bull; &nbsp; boży &nbsp; &bull; &nbsp; maur &nbsp; &bull; &nbsp; page &nbsp; &bull; &nbsp; raka &nbsp; &bull; &nbsp; ryxa &nbsp; &bull; &nbsp; zawć</td></tr>
+<tr><td>5</td><td>2926</td><td>12858</td><td>durán &nbsp; &bull; &nbsp; files &nbsp; &bull; &nbsp; gorsz &nbsp; &bull; &nbsp; greka &nbsp; &bull; &nbsp; indie &nbsp; &bull; &nbsp; josef &nbsp; &bull; &nbsp; pałac &nbsp; &bull; &nbsp; ulica &nbsp; &bull; &nbsp; wisły &nbsp; &bull; &nbsp; woleć</td></tr>
+<tr><td>6</td><td>3454</td><td>14792</td><td>beylin &nbsp; &bull; &nbsp; collin &nbsp; &bull; &nbsp; flames &nbsp; &bull; &nbsp; henkel &nbsp; &bull; &nbsp; hänsel &nbsp; &bull; &nbsp; kinazy &nbsp; &bull; &nbsp; kurtis &nbsp; &bull; &nbsp; piętak &nbsp; &bull; &nbsp; wawela &nbsp; &bull; &nbsp; wzięty</td></tr>
+<tr><td>7</td><td>3457</td><td>13010</td><td>hopfera &nbsp; &bull; &nbsp; imitati &nbsp; &bull; &nbsp; nacieka &nbsp; &bull; &nbsp; obiecać &nbsp; &bull; &nbsp; pakieta &nbsp; &bull; &nbsp; paryski &nbsp; &bull; &nbsp; rachuby &nbsp; &bull; &nbsp; ustalać &nbsp; &bull; &nbsp; winburg &nbsp; &bull; &nbsp; ʒuɐˈkı̃</td></tr>
+<tr><td>8</td><td>3300</td><td>11318</td><td>cannibal &nbsp; &bull; &nbsp; cytadela &nbsp; &bull; &nbsp; dyrygent &nbsp; &bull; &nbsp; fernando &nbsp; &bull; &nbsp; grodziec &nbsp; &bull; &nbsp; porywacz &nbsp; &bull; &nbsp; sakralny &nbsp; &bull; &nbsp; socjalny &nbsp; &bull; &nbsp; swastyka &nbsp; &bull; &nbsp; zielonym</td></tr>
+<tr><td>9</td><td>2689</td><td>9175</td><td>boysbandć &nbsp; &bull; &nbsp; elections &nbsp; &bull; &nbsp; kreczmara &nbsp; &bull; &nbsp; plebiscyt &nbsp; &bull; &nbsp; połudwień &nbsp; &bull; &nbsp; ratajczyk &nbsp; &bull; &nbsp; rockowiey &nbsp; &bull; &nbsp; stanforda &nbsp; &bull; &nbsp; suffectus &nbsp; &bull; &nbsp; zginaczyć</td></tr>
+<tr><td>10</td><td>2001</td><td>5829</td><td>furnariiać &nbsp; &bull; &nbsp; haussmanna &nbsp; &bull; &nbsp; hessisches &nbsp; &bull; &nbsp; merriamsić &nbsp; &bull; &nbsp; naśladowca &nbsp; &bull; &nbsp; przebaczyć &nbsp; &bull; &nbsp; scottishić &nbsp; &bull; &nbsp; tamburello &nbsp; &bull; &nbsp; wychładzać &nbsp; &bull; &nbsp; zapomniany</td></tr>
+<tr><td>11</td><td>1417</td><td>4418</td><td>dwujęzyczny &nbsp; &bull; &nbsp; egzemplarze &nbsp; &bull; &nbsp; elektronika &nbsp; &bull; &nbsp; nacjonalizm &nbsp; &bull; &nbsp; nowodworski &nbsp; &bull; &nbsp; obezwładnić &nbsp; &bull; &nbsp; przedszkola &nbsp; &bull; &nbsp; szczepaniak &nbsp; &bull; &nbsp; tolteridyna &nbsp; &bull; &nbsp; zdzielnicki</td></tr>
+<tr><td>12</td><td>809</td><td>1864</td><td>energetyczny &nbsp; &bull; &nbsp; fortepianowy &nbsp; &bull; &nbsp; koniecpolski &nbsp; &bull; &nbsp; motocyklista &nbsp; &bull; &nbsp; oddzielający &nbsp; &bull; &nbsp; poszkodowany &nbsp; &bull; &nbsp; prześladować &nbsp; &bull; &nbsp; realistyczny &nbsp; &bull; &nbsp; samozaparcie &nbsp; &bull; &nbsp; wolszlegiera</td></tr>
+<tr><td>13</td><td>505</td><td>1177</td><td>asphodeloides &nbsp; &bull; &nbsp; częstochowski &nbsp; &bull; &nbsp; informatyczny &nbsp; &bull; &nbsp; itftennis.com &nbsp; &bull; &nbsp; miniaturzysta &nbsp; &bull; &nbsp; przetłumaczyć &nbsp; &bull; &nbsp; sklasyfikować &nbsp; &bull; &nbsp; statistisches &nbsp; &bull; &nbsp; szerokotorowy &nbsp; &bull; &nbsp; współredaktor</td></tr>
+<tr><td>14</td><td>278</td><td>642</td><td>eurohockey.net &nbsp; &bull; &nbsp; najsłynniejszy &nbsp; &bull; &nbsp; niskopodłogowy &nbsp; &bull; &nbsp; przedmuchiwacz &nbsp; &bull; &nbsp; przypuszczenie &nbsp; &bull; &nbsp; psiloboletinus &nbsp; &bull; &nbsp; rockandrollowy &nbsp; &bull; &nbsp; stanisławowski &nbsp; &bull; &nbsp; współzarządzać &nbsp; &bull; &nbsp; średniowieczny</td></tr>
+<tr><td>15</td><td>144</td><td>302</td><td>dystrybucjonizm &nbsp; &bull; &nbsp; eksperymentować &nbsp; &bull; &nbsp; greckokatolicki &nbsp; &bull; &nbsp; głównodowodzący &nbsp; &bull; &nbsp; hymenogastraceć &nbsp; &bull; &nbsp; petrozawodskiei &nbsp; &bull; &nbsp; ponadpodstawowy &nbsp; &bull; &nbsp; schiermonnikoog &nbsp; &bull; &nbsp; szczuroskocznik &nbsp; &bull; &nbsp; współzałozyciel</td></tr>
+<tr><td>16</td><td>95</td><td>174</td><td>autobiograficzny &nbsp; &bull; &nbsp; cytoplazmatyczny &nbsp; &bull; &nbsp; drobnoszlachecki &nbsp; &bull; &nbsp; najpopularniejse &nbsp; &bull; &nbsp; niesformalizować &nbsp; &bull; &nbsp; niewypowiedziany &nbsp; &bull; &nbsp; ogólnokształcący &nbsp; &bull; &nbsp; szesnastowieczny &nbsp; &bull; &nbsp; uniemożliwiający &nbsp; &bull; &nbsp; współorganizator</td></tr>
+<tr><td>17</td><td>48</td><td>89</td><td>alpha.bn.org.plić &nbsp; &bull; &nbsp; anestezjologiczny &nbsp; &bull; &nbsp; charakterystyczny &nbsp; &bull; &nbsp; francuskojęzyczny &nbsp; &bull; &nbsp; latynoamerykański &nbsp; &bull; &nbsp; niekonwencjonalny &nbsp; &bull; &nbsp; przeciwstawiający &nbsp; &bull; &nbsp; północnokoreański &nbsp; &bull; &nbsp; północnowęgierski &nbsp; &bull; &nbsp; trzykondygnacyjny</td></tr>
+<tr><td>18</td><td>36</td><td>45</td><td>atlaskolejowy.plić &nbsp; &bull; &nbsp; belgianfootball.by &nbsp; &bull; &nbsp; dziewięciusetlecie &nbsp; &bull; &nbsp; interkontynentalny &nbsp; &bull; &nbsp; moderntalking.plić &nbsp; &bull; &nbsp; neopozytywistyczny &nbsp; &bull; &nbsp; promieniotwórczość &nbsp; &bull; &nbsp; protomierzanowicki &nbsp; &bull; &nbsp; wiceprzewodniczący &nbsp; &bull; &nbsp; środkowoeuropejski</td></tr>
+<tr><td>19</td><td>18</td><td>27</td><td>autoimmmunologiczny &nbsp; &bull; &nbsp; cyclingarchives.com &nbsp; &bull; &nbsp; kategoria:wyposażen &nbsp; &bull; &nbsp; nationaltrail.co.uk &nbsp; &bull; &nbsp; północnoamerykański &nbsp; &bull; &nbsp; socjaldemokratyczny &nbsp; &bull; &nbsp; wschodniofrankijski &nbsp; &bull; &nbsp; współprzewodniczący &nbsp; &bull; &nbsp; zachodnioeuropejski &nbsp; &bull; &nbsp; średniodystansowiec</td></tr>
 <tr><td>20</td><td>5</td><td>7</td><td>dziewiętnastowieczny &nbsp; &bull; &nbsp; historycznoliteracki &nbsp; &bull; &nbsp; południowoafrykański &nbsp; &bull; &nbsp; projects.latimes.com &nbsp; &bull; &nbsp; skolopendrokształtny</td></tr>
 <tr><td>21</td><td>8</td><td>13</td><td>brązowawopomarańczowy &nbsp; &bull; &nbsp; dwudziestopięciolecie &nbsp; &bull; &nbsp; internacjonalistyczny &nbsp; &bull; &nbsp; legioner.kulichki.com &nbsp; &bull; &nbsp; multiinstrumentalista &nbsp; &bull; &nbsp; niebieskaeskadra.plić &nbsp; &bull; &nbsp; trainingswissenschaft &nbsp; &bull; &nbsp; wczesnośredniowieczny</td></tr>
 <tr><td>22</td><td>3</td><td>3</td><td>hipergammaglobulinemia &nbsp; &bull; &nbsp; hipergammaglobulinemię &nbsp; &bull; &nbsp; players.pointafter.com</td></tr>
@@ -5301,3 +5327,329 @@
 <tr><td>24</td><td>1</td><td>1</td><td>wrzecionowatozarodnikowy</td></tr>
 <tr><td>25</td><td>1</td><td>1</td><td>gemeindeverwaltungsveować</td></tr>
 </table>
+
+<a name='tokenCategories'><h3>Token Samples by Category <a href=#TOC class=TOC>[TOC]</a></h3>
+Pre-analysis types/tokens: 39,392 / 104,185<br>
+Post-analysis types/tokens: 25,616 / 104,185<br>
+<br>
+<div class=leftCatDiv>
+<b> Pre-analysis tokens by category</b>
+</div>
+<div class=rightCatDiv>
+<b> Post-analysis tokens by category</b>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i> other:</i> 34 types, 38 tokens (sample of 25)<br>
+<blockquote>11153<span class=ltn title='Latin script'>ha</span> &bull; 11<span class=ltn title='Latin script'>kW</span> &bull; 151<span class=ltn title='Latin script'>c</span> &bull; 1999<span class=ltn title='Latin script'>dh</span> &bull; 1<span class=cyr title='Cyrillic script'>М</span>8 &bull; 2007<span class=ltn title='Latin script'>bw</span> &bull; 38544<span class=ltn title='Latin script'>ha</span> &bull; 4<span class=ltn title='Latin script'>kB</span> &bull; 90<span class=ltn title='Latin script'>minut</span>.<span class=ltn title='Latin script'>pl</span> &bull; <span class=ltn title='Latin script'>C</span>5<span class=ltn title='Latin script'>a</span> &bull; <span class=ltn title='Latin script'>ch</span>5 &bull; <span class=ltn title='Latin script'>ch</span>9 &bull; <span class=ltn title='Latin script'>E</span>150<span class=ltn title='Latin script'>d</span> &bull; <span class=ltn title='Latin script'>E</span>30<span class=ltn title='Latin script'>Cork</span> &bull; <span class=ltn title='Latin script'>Formula</span>1 &bull; <span class=ltn title='Latin script'>gp</span>91 &bull; <span class=ltn title='Latin script'>H</span>_<span class=ltn title='Latin script'>aluze</span> &bull; <span class=ltn title='Latin script'>H</span>_<span class=ltn title='Latin script'>aluzi</span> &bull; <span class=ltn title='Latin script'>Hero</span>_<span class=ltn title='Latin script'>id</span> &bull; <span class=ltn title='Latin script'>IgG</span>1 &bull; <span class=ltn title='Latin script'>kwietnia</span>1892 &bull; <span class=ltn title='Latin script'>nazwa</span>_<span class=ltn title='Latin script'>usługi</span> &bull; <span class=ltn title='Latin script'>StG</span>44 &bull; <span class=ltn title='Latin script'>VT</span>628.0 &bull; <span class=ltn title='Latin script'>VT</span>628.2<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i> other:</i> 152 types, 712 tokens (sample of 25)<br>
+<blockquote>071<span class=ltn title='Latin script'>ć</span> &bull; 101<span class=ltn title='Latin script'>c</span> &bull; 13<span class=ltn title='Latin script'>ć</span> &bull; 17<span class=ltn title='Latin script'>ć</span> &bull; 19<span class=ltn title='Latin script'>ć</span> &bull; 1<span class=ltn title='Latin script'>m</span>8 &bull; 2001<span class=ltn title='Latin script'>gc</span>000252 &bull; 2007<span class=ltn title='Latin script'>bw</span> &bull; 2760<span class=ltn title='Latin script'>ć</span> &bull; 359<span class=ltn title='Latin script'>mr</span> &bull; <span class=ltn title='Latin script'>al</span>7 &bull; <span class=ltn title='Latin script'>e</span>2<span class=ltn title='Latin script'>ć</span> &bull; <span class=ltn title='Latin script'>fa</span>45 &bull; <span class=ltn title='Latin script'>fb</span>62 &bull; <span class=ltn title='Latin script'>h</span>_<span class=ltn title='Latin script'>aluzi</span> &bull; <span class=ltn title='Latin script'>jh</span>21<span class=ltn title='Latin script'>c</span> &bull; <span class=ltn title='Latin script'>m</span>14 &bull; <span class=ltn title='Latin script'>m</span>1911<span class=ltn title='Latin script'>ć</span> &bull; <span class=ltn title='Latin script'>m</span>19<span class=ltn title='Latin script'>ć</span> &bull; <span class=ltn title='Latin script'>n</span>5<span class=ltn title='Latin script'>bf</span> &bull; <span class=ltn title='Latin script'>nazwa</span>_<span class=ltn title='Latin script'>usługa</span> &bull; <span class=ltn title='Latin script'>sl</span>2 &bull; <span class=ltn title='Latin script'>vt</span>125<span class=ltn title='Latin script'>c</span> &bull; <span class=ltn title='Latin script'>vt</span>515 &bull; <span class=ltn title='Latin script'>vt</span>628.4<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i> other, mixed-Latin-Cyrillic:</i> 3 types, 3 tokens<br>
+<blockquote><span class=cyr title='Cyrillic script'>К</span><span class=ltn title='Latin script'>omitetu</span> &bull; <span class=cyr title='Cyrillic script'>Кос</span><span class=ltn title='Latin script'>i</span><span class=cyr title='Cyrillic script'>в</span> &bull; <span class=cyr title='Cyrillic script'>параф</span><span class=ltn title='Latin script'>i</span><span class=cyr title='Cyrillic script'>я</span><br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i> other, mixed-Latin-Cyrillic:</i> 3 types, 3 tokens<br>
+<blockquote><span class=cyr title='Cyrillic script'>к</span><span class=ltn title='Latin script'>omitet</span> &bull; <span class=cyr title='Cyrillic script'>кос</span><span class=ltn title='Latin script'>i</span><span class=cyr title='Cyrillic script'>в</span> &bull; <span class=cyr title='Cyrillic script'>параф</span><span class=ltn title='Latin script'>i</span><span class=cyr title='Cyrillic script'>я</span><br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Arabic:</i> 11 types, 11 tokens<br>
+<blockquote>آق &bull; اشکانی &bull; بلاغ &bull; حلمي &bull; سالم &bull; عبدالنعيم &bull; علی &bull; قرزة &bull; قلنسوة &bull; ملوية &bull; وادي<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Arabic:</i> 11 types, 11 tokens<br>
+<blockquote>آق &bull; اشکانی &bull; بلاغ &bull; حلمي &bull; سالم &bull; عبدالنعيم &bull; علی &bull; قرزة &bull; قلنسوة &bull; ملوية &bull; وادي<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 106 types, 118 tokens (sample of 25)<br>
+<blockquote>Адраджэнне &bull; Александрович &bull; Андрей &bull; Андрэя &bull; Архітэктура &bull; Верховна &bull; Волга &bull; готыкі &bull; Добронравин &bull; зелёнка &bull; Иван &bull; К &bull; Ловчански &bull; Нарач &bull; организации &bull; паловы &bull; печера &bull; проход &bull; Рыжиков &bull; Сергій &bull; солдаты &bull; стороне &bull; України &bull; Шевцова &bull; Євсєєв<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 106 types, 118 tokens (sample of 25)<br>
+<blockquote>апостала &bull; аркадійович &bull; библейское &bull; божией &bull; витоша &bull; волга &bull; гельфонд &bull; гори &bull; евгений &bull; ефим &bull; иванович &bull; иваново &bull; ильич &bull; лилия &bull; организации &bull; поселение &bull; рейха &bull; роман &bull; российское &bull; ст &bull; странник &bull; україни &bull; эклектыка &bull; энцыклапедычны &bull; євсєєв<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Georgian:</i> 3 types, 4 tokens<br>
+<blockquote>თოფურია &bull; ქეთა &bull; ქეთევან<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Georgian:</i> 3 types, 4 tokens<br>
+<blockquote>თოფურია &bull; ქეთა &bull; ქეთევან<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Greek:</i> 17 types, 18 tokens<br>
+<blockquote>α &bull; Ασπασία &bull; β &bull; Βικιπαίδεια &bull; δ &bull; Δήμος &bull; δακτυλος &bull; εγκυκλοπαίδεια &bull; ελεύθερη &bull; ζ &bull; η &bull; Μάνου &bull; ξηρό &bull; ρ &bull; Σκιάθου &bull; συν &bull; φύλλων<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Greek:</i> 17 types, 18 tokens<br>
+<blockquote>α &bull; ασπασία &bull; β &bull; βικιπαίδεια &bull; δ &bull; δήμος &bull; δακτυλος &bull; εγκυκλοπαίδεια &bull; ελεύθερη &bull; ζ &bull; η &bull; μάνου &bull; ξηρό &bull; ρ &bull; σκιάθου &bull; συν &bull; φύλλων<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Hangul:</i> 3 types, 3 tokens<br>
+<blockquote>류영섭 &bull; 북한자료센터 &bull; 통일부<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Hangul:</i> 3 types, 3 tokens<br>
+<blockquote>류영섭 &bull; 북한자료센터 &bull; 통일부<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 1 types, 1 tokens<br>
+<blockquote>קלנסווה<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 1 types, 1 tokens<br>
+<blockquote>קלנסווה<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>ID-like:</i> 104 types, 137 tokens (sample of 25)<br>
+<blockquote>1004QM &bull; 10DP &bull; 142M &bull; 2001GC000252 &bull; 231M &bull; 26CX &bull; 9MB &bull; A1 &bull; B173 &bull; C5 &bull; C96 &bull; CAMP2 &bull; D3256 &bull; E20 &bull; G3 &bull; JC31 &bull; M107 &bull; M19 &bull; M20 &bull; M62 &bull; NM149S &bull; NX1 &bull; P50 &bull; TVP1 &bull; VT125C<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish:</i> 2 types, 2 tokens<br>
+<blockquote><span class=ltn title='Latin script'>dɔminik</span> &bull; <span class=ltn title='Latin script'>dɨ</span><br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish:</i> 2 types, 2 tokens<br>
+<blockquote><span class=ltn title='Latin script'>dɔminik</span> &bull; <span class=ltn title='Latin script'>dɨ</span><br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+comb:</i> 1 types, 1 tokens<br>
+<blockquote><span class=ltn title='Latin script'>ʒɑ</span>̃<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+comb:</i> 1 types, 1 tokens<br>
+<blockquote><span class=ltn title='Latin script'>ʒɑ</span>̃<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+comb+mod:</i> 1 types, 1 tokens<br>
+<blockquote><span class=ltn title='Latin script'>ʒuɐ</span>ˈ<span class=ltn title='Latin script'>kı</span>̃<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+comb+mod:</i> 1 types, 1 tokens<br>
+<blockquote><span class=ltn title='Latin script'>ʒuɐ</span>ˈ<span class=ltn title='Latin script'>kı</span>̃<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+mod:</i> 2 types, 2 tokens<br>
+<blockquote><span class=ltn title='Latin script'>aɫ</span>ˈ<span class=ltn title='Latin script'>mɐidɐ</span> &bull; ˈ<span class=ltn title='Latin script'>frɛistɑ</span>ː<span class=ltn title='Latin script'>t</span><br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+mod:</i> 2 types, 2 tokens<br>
+<blockquote><span class=ltn title='Latin script'>aɫ</span>ˈ<span class=ltn title='Latin script'>mɐidɐ</span> &bull; ˈ<span class=ltn title='Latin script'>frɛistɑ</span>ː<span class=ltn title='Latin script'>t</span><br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Ideographic:</i> 42 types, 48 tokens (sample of 25)<br>
+<blockquote>主 &bull; 井 &bull; 佳 &bull; 冲 &bull; 利 &bull; 原 &bull; 哈 &bull; 士 &bull; 天 &bull; 宇 &bull; 尔 &bull; 岩 &bull; 徹 &bull; 水 &bull; 江 &bull; 源 &bull; 牧 &bull; 玉 &bull; 瑪 &bull; 监 &bull; 茹 &bull; 裴 &bull; 騎 &bull; 齊 &bull; 齐<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Ideographic:</i> 42 types, 48 tokens (sample of 25)<br>
+<blockquote>主 &bull; 内 &bull; 冲 &bull; 利 &bull; 区 &bull; 哈 &bull; 宇 &bull; 小 &bull; 尔 &bull; 教 &bull; 星 &bull; 有 &bull; 江 &bull; 治 &bull; 源 &bull; 牧 &bull; 玉 &bull; 瑪 &bull; 石 &bull; 翔 &bull; 茹 &bull; 谷 &bull; 騎 &bull; 齊 &bull; 龚<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Katakana:</i> 1 types, 1 tokens<br>
+<blockquote>シュガシュガルーン<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Katakana:</i> 1 types, 1 tokens<br>
+<blockquote>シュガシュガルーン<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Latin (Basic):</i> 24,831 types, 63,461 tokens (sample of 25)<br>
+<blockquote>aktorek &bull; Alpheus &bull; Andreas &bull; Crypton &bull; Diablica &bull; dialektami &bull; Dynama &bull; dziobowy &bull; Guys &bull; JJ &bull; Katie &bull; Kongo &bull; ligowe &bull; mohylewskiego &bull; naturalnego &bull; nieklasyfikowana &bull; niesamowite &bull; plantacje &bull; posiadacze &bull; Santanderze &bull; Sirpa &bull; Skotnickiego &bull; urazy &bull; wyborowa &bull; wywiadu<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Latin (Basic):</i> 15,137 types, 58,534 tokens (sample of 25)<br>
+<blockquote>ali &bull; bacona &bull; fabrica &bull; faumuina &bull; frankfurta &bull; ghost &bull; hidal &bull; innes &bull; jedyna &bull; jeniec &bull; kretynga &bull; lis &bull; morvan &bull; niepoprawny &bull; seryjny &bull; sol &bull; sprawo &bull; stworzenie &bull; tassel &bull; theodor &bull; toto &bull; trybutarny &bull; wilgotniejszy &bull; wojskami &bull; zarembia<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin (Extended):</i> 12,598 types, 29,901 tokens (sample of 25)<br>
+<blockquote>awansowało &bull; bombę &bull; brzegów &bull; ewakuować &bull; Lechosław &bull; Maltańskich &bull; Miejscowości &bull; mrówek &bull; Niegdyś &bull; obrazujących &bull; oderwaną &bull; określenie &bull; oskarżany &bull; oznaczający &bull; Ołtarz &bull; podkopała &bull; podstawiając &bull; pogański &bull; populację &bull; prowadzą &bull; Rozgrywkę &bull; Studentów &bull; sułtana &bull; Wańkowicz &bull; wielmożów<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin (Extended):</i> 8,577 types, 34,866 tokens (sample of 25)<br>
+<blockquote>alć &bull; bruçaj &bull; budućnost &bull; ciepliński &bull; gregoriański &bull; groupesć &bull; keść &bull; kurów &bull; lasweć &bull; ogrywać &bull; pián &bull; począć &bull; poświęcić &bull; promieniotwórczy &bull; przypadać &bull; rewać &bull; ropniąć &bull; spokać &bull; sypiać &bull; tóriwać &bull; władysławy &bull; zdjąć &bull; zdobyczyć &bull; złu &bull; żywioło<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>acronym-like:</i> 10 types, 46 tokens<br>
+<blockquote>a.s &bull; j.a &bull; j.w &bull; n.e &bull; n.p.m &bull; o.o &bull; p.n.e &bull; S.c &bull; s.c &bull; t.r<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>acronym-like:</i> 34 types, 78 tokens (sample of 25)<br>
+<blockquote>a.s &bull; c.a.b &bull; e.a.r.t.h &bull; f.c &bull; g.a &bull; g.r &bull; j.a &bull; j.r.r &bull; j.w &bull; l.a &bull; m.m &bull; m.o.d &bull; n.p.m &bull; o.m &bull; o.o &bull; p.e &bull; p.j &bull; r.t &bull; s.a &bull; s.c &bull; t.j &bull; t.r &bull; t.r.i.p &bull; u.s &bull; z.s.r.r<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>acronyms:</i> 25 types, 32 tokens<br>
+<blockquote>C.A.B &bull; D.R.I &bull; E.A.R.T.H &bull; F.C &bull; G.A &bull; G.R &bull; J.R.R &bull; J.S &bull; L.A &bull; M.M &bull; M.O.D &bull; O.M &bull; O.N.A &bull; P.E &bull; P.J &bull; R.T &bull; S.A &bull; S.O.D &bull; S.P.Q.R &bull; T.D &bull; T.J &bull; T.P &bull; T.R.I.P &bull; U.S &bull; Z.S.R.R<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>measurements:</i> 18 types, 24 tokens<br>
+<blockquote>100m &bull; 124cm &bull; 125cm &bull; 155x &bull; 18m &bull; 1972a &bull; 1972b &bull; 1x &bull; 2.32m &bull; 20m &bull; 2km &bull; 2x &bull; 300km &bull; 3x &bull; 40x50 &bull; 4m &bull; 50m &bull; 6x42<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>measurements:</i> 28 types, 38 tokens (sample of 25)<br>
+<blockquote>100m &bull; 124cm &bull; 125cm &bull; 146m &bull; 155x &bull; 15km &bull; 18m &bull; 1972a &bull; 1972b &bull; 1x &bull; 2.32m &bull; 20m &bull; 217m &bull; 231m &bull; 2km &bull; 2x &bull; 300km &bull; 398m &bull; 3d &bull; 3x &bull; 40x50 &bull; 4m &bull; 50m &bull; 51d &bull; 9a<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>name-like:</i> 1 types, 1 tokens<br>
+<blockquote>W.Karlicki<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>numbers lists, comma-sep:</i> 179 types, 210 tokens (sample of 25)<br>
+<blockquote>0,09 &bull; 0,1 &bull; 0,26 &bull; 1,68 &bull; 10,3 &bull; 10,64 &bull; 11,66 &bull; 15,40 &bull; 16,1 &bull; 19,19 &bull; 2,07 &bull; 2,4,7,9,10,12 &bull; 2,89 &bull; 21,9 &bull; 24,40 &bull; 28,4 &bull; 3,85 &bull; 3,90 &bull; 34,42 &bull; 35,7 &bull; 5,2 &bull; 5,9 &bull; 6,7 &bull; 682,3 &bull; 94,7<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>numbers lists, comma-sep:</i> 168 types, 197 tokens (sample of 25)<br>
+<blockquote>0,8 &bull; 10,95 &bull; 114,8 &bull; 1149,3 &bull; 15,48 &bull; 18,8 &bull; 19,19 &bull; 2,93 &bull; 207,9 &bull; 23,2 &bull; 24,40 &bull; 242,27 &bull; 25,8 &bull; 34,42 &bull; 4,95 &bull; 43,6 &bull; 5,4 &bull; 58,8 &bull; 6,62 &bull; 6,7 &bull; 6,8 &bull; 62,5 &bull; 64,70 &bull; 9,1 &bull; 90,23<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>numbers, decimals:</i> 39 types, 43 tokens (sample of 25)<br>
+<blockquote>0.1 &bull; 10.00 &bull; 10.1029 &bull; 10.5 &bull; 11.0 &bull; 12.00 &bull; 14.00 &bull; 15.000 &bull; 2.0 &bull; 2.3 &bull; 20.00 &bull; 21.08 &bull; 215.000 &bull; 22.3 &bull; 25.000 &bull; 28.99 &bull; 3.000 &bull; 4.00 &bull; 4.2 &bull; 40.000 &bull; 50.39 &bull; 53.7 &bull; 628.0 &bull; 8.00 &bull; 80.000<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>numbers, decimals:</i> 39 types, 43 tokens (sample of 25)<br>
+<blockquote>0.1 &bull; 10.00 &bull; 12.00 &bull; 14.00 &bull; 15.00 &bull; 15.000 &bull; 16.00 &bull; 17.00 &bull; 20.00 &bull; 21.08 &bull; 215.000 &bull; 22.3 &bull; 241.65 &bull; 25.000 &bull; 28.06 &bull; 28.99 &bull; 3.5 &bull; 30.000 &bull; 4.3 &bull; 43.19 &bull; 50.39 &bull; 65.5 &bull; 8.00 &bull; 80.000 &bull; 9.00<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>numbers, integers:</i> 1,193 types, 9,747 tokens (sample of 25)<br>
+<blockquote>1266 &bull; 133 &bull; 1527 &bull; 1654 &bull; 175 &bull; 1849 &bull; 1894 &bull; 1949 &bull; 1971 &bull; 1999 &bull; 2015 &bull; 2017 &bull; 2500 &bull; 375 &bull; 4000 &bull; 40114 &bull; 485 &bull; 552 &bull; 56 &bull; 7436 &bull; 8000 &bull; 81 &bull; 901 &bull; 910 &bull; 934696860<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>numbers, integers:</i> 1,127 types, 9,175 tokens (sample of 25)<br>
+<blockquote>078 &bull; 102 &bull; 106 &bull; 115 &bull; 1712 &bull; 1737 &bull; 1747 &bull; 183 &bull; 1904 &bull; 1992 &bull; 2350 &bull; 237 &bull; 2466 &bull; 2926 &bull; 333 &bull; 409 &bull; 421 &bull; 45 &bull; 490 &bull; 491 &bull; 566 &bull; 629 &bull; 750 &bull; 7740 &bull; 991<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>numbers, ordinals:</i> 3 types, 4 tokens<br>
+<blockquote>10th &bull; 2nd &bull; 6th<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>numbers, ordinals:</i> 3 types, 4 tokens<br>
+<blockquote>10th &bull; 2nd &bull; 6th<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>numbers, period-sep:</i> 7 types, 7 tokens<br>
+<blockquote>1.09.1980 &bull; 18.09.1939 &bull; 23.09.2011 &bull; 24.06.2008 &bull; 3.1.4 &bull; 6.09.1971 &bull; 9.04.1979<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>numbers, period-sep:</i> 5 types, 5 tokens<br>
+<blockquote>1.09.1980 &bull; 18.09.1939 &bull; 24.06.2008 &bull; 3.1.4 &bull; 9.04.1979<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>numbers, with commas:</i> 15 types, 17 tokens<br>
+<blockquote>0,137 &bull; 10,000 &bull; 10,127 &bull; 103,203 &bull; 17,801 &bull; 2,262 &bull; 23,196 &bull; 23,988 &bull; 24,000 &bull; 30,000 &bull; 500,000 &bull; 53,750 &bull; 75,000 &bull; 865,744 &bull; 98,701<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>numbers, with commas:</i> 13 types, 15 tokens<br>
+<blockquote>0,137 &bull; 10,000 &bull; 10,127 &bull; 103,203 &bull; 2,262 &bull; 23,196 &bull; 23,988 &bull; 24,000 &bull; 30,000 &bull; 500,000 &bull; 53,750 &bull; 75,000 &bull; 865,744<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>web domains:</i> 58 types, 78 tokens (sample of 25)<br>
+<blockquote>bahamstrack.com &bull; Battle.net &bull; BDFutbol.com &bull; chidlovski.net &bull; cqranking.com &bull; Discogs.com &bull; Eliteprospects.com &bull; En.wikipedia.org &bull; Fila.com &bull; formula1monaco.com &bull; hierarchy.org &bull; iaaf.org &bull; legioner.kulichki.com &bull; leipzig.de &bull; nationaltrail.co.uk &bull; nbadraft.net &bull; Reference.com &bull; rotoworld.com &bull; scout.com &bull; sportresult.com &bull; usbasket.com &bull; WIKISKY.ORG &bull; wimbledon.com &bull; www.tug.org &bull; www.warheroes.ru<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>web domains:</i> 56 types, 77 tokens (sample of 25)<br>
+<blockquote>battle.net &bull; draftexpress.com &bull; eliteprospects.com &bull; eurohockey.net &bull; fila.com &bull; formula1monaco.com &bull; iaaf.org &bull; itsrugby.co.uk &bull; nationaltrail.co.uk &bull; nba.com &bull; nbadraft.net &bull; projects.latimes.com &bull; radzima.org &bull; reference.com &bull; rotoworld.com &bull; scout.com &bull; swimrankings.net &bull; teams.com &bull; tilastopaja.org &bull; uefa.com &bull; usbasket.com &bull; wikisky.org &bull; www.tug.org &bull; www.warheroes.ru &bull; www.wicklowway.com<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>words, colon-sep, extended:</i> 2 types, 2 tokens<br>
+<blockquote>kategoria:Wyposażenie &bull; skład:Andrejs<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>words, colon-sep, extended:</i> 2 types, 2 tokens<br>
+<blockquote>kategoria:wyposażen &bull; skład:andrejs<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>words, period-sep:</i> 75 types, 217 tokens (sample of 25)<br>
+<blockquote>adonai.pl &bull; alpha.bn.org.pl &bull; bazakolejowa.pl &bull; bsdb.be &bull; cerkiew.pl &bull; Ch.Kroeger &bull; edu.gn &bull; ffnatation.fr &bull; globus.tut.by &bull; Iat.uni &bull; index.html &bull; index.shtml &bull; IrishTrails.ie &bull; kodokan.pl &bull; lnb.fr &bull; Moderntalking.pl &bull; niebieskaeskadra.pl &bull; org.gn &bull; pw.Matki &bull; shakhterstat.by.ru &bull; tanuki.pl &bull; tzw.Baszta &bull; ul.Cegielnianej &bull; warszawa.getto.pl &bull; www.system<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>words, period-sep:</i> 53 types, 167 tokens (sample of 25)<br>
+<blockquote>assn.gr.jp &bull; belgianfootball.by &bull; catholic.by &bull; ch.kroeger &bull; com.gn &bull; edu.gn &bull; globus.tut.by &bull; gov.gn &bull; iat.uni &bull; index.html &bull; kosice.sk &bull; legabasket.it &bull; lnb.fr &bull; m.in &bull; net.gn &bull; org.gn &bull; pechersk.html &bull; reference.infa &bull; rusteam.permian.ru &bull; statistieken.nl &bull; traktat.html &bull; tzw.baszta &bull; ul.cegielniany &bull; www.sports &bull; www.suiseki<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>words, period-sep, extended:</i> 7 types, 7 tokens<br>
+<blockquote>Métr.ex &bull; red.Stanisława &bull; tys.osób &bull; św.Jana &bull; św.Józefa &bull; św.Rocha &bull; św.Wawrzyńca<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>words, period-sep, extended:</i> 29 types, 59 tokens (sample of 25)<br>
+<blockquote>adonai.plić &bull; alpha.bn.org.plić &bull; astronomia.plić &bull; atlaskolejowy.plić &bull; bazakolejowa.plić &bull; culture.plić &bull; fdb.plić &bull; filmpolski.plić &bull; kodokan.plić &bull; lewicowo.plić &bull; moderntalking.plić &bull; muzyka.wp.plić &bull; métr.ex &bull; niebieskaeskadra.plić &bull; podatkowego.plić &bull; red.stanisław &bull; senat.plić &bull; stopklatka.plić &bull; tanuki.plić &bull; teatr.plić &bull; tys.osób &bull; warszawa.getto.plić &bull; św.jan &bull; św.józef &bull; św.roch<br>
+</blockquote>
+</div>
+<br style='clear:both'>

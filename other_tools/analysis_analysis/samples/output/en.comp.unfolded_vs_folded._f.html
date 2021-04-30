@@ -1,10 +1,26 @@
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
-    th, td { text-align:left; vertical-align: top; border: 1px solid black; dir:auto; }
+    body { font-family:Helvetica; font-size:115%; }
+    th, td { text-align:left; vertical-align: top; border: 1px solid black; dir:auto;
+        padding:2px; }
     table { border-collapse: collapse; }
+    tr:nth-child(even) { background: #f8f8f8; }
+    tr.key td:nth-of-type(3n+1) { text-align:center; }
     .red { color: red; font-weight: bold; }
-    tr:nth-child(even) { background: #f8f8f8 }
-    .hang {padding-left: 2em ; text-indent: -2em}
+    .hang { padding-left: 2em ; text-indent: -2em; }
+    .invis { color:#57c6eb; }
+    .leftCatDiv, .rightCatDiv { width:47%; border:1px solid grey; padding:1%;
+        word-wrap:break-word; vertical-align: top; margin-bottom: -1px; }
+    .leftCatDiv { float:left; clear:left; }
+    .rightCatDiv { float:right; clear:right; }
+    .newCat { border-top: 2px solid black; }
+    .TOC { font-size:60%; }
+    .diff { background-color:#ffffe8; }
+    .bigNum { color:blue }
+    .cyr { color:#f00 }
+    .ltn { color:#070 }
+    .grk { color:#00f }
+    .cyr, .ltn, .grk, .invis { cursor: help; }
 </style>
 <b>Processing samples/output/en.counts.unfolded.txt as 'old'.</b><br>
 <b>Processing samples/output/en.counts.folded.txt as 'new'.</b><br>
@@ -13,8 +29,8 @@
 <b>Total old tokens: </b>116,241<br>
 <b>Total new tokens: </b>116,241<br>
 &nbsp;&nbsp;&nbsp;<b>Token delta: </b>0 (0%)<br>
-<br>
-<a name='TOC'><h3>Table of Contents</h3>
+
+<a name='TOC'><h3>Table of Contents <a href=#TOC class=TOC>[TOC]</a></h3>
 <a href='#PPTTS'>Pre/Post Type & Token Stats</a><br>
 
 <a href='#new_collision_stats'>New Collision Stats</a><br>
@@ -25,7 +41,17 @@
 <a href='#lost_and_found'>Lost and Found Tokens</a><br>
 <a href='#changed_collisions'>Changed Groups</a><br>
 &nbsp;&nbsp;&nbsp;<a href='#bad_collisions_q'>Bad Collisions?</a><br>
-<a name='PPTTS'><h3>Pre/Post Type & Token Stats <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
+<h3>Invisibles and Script Colors <a href=#TOC class=TOC>[TOC]</a></h3>
+<table><tr><th>symbol</th><th>invisible chars</th><th>&nbsp;</th><th>symbol</th><th>invisible chars</th><th>&nbsp;</th><th>color</th><th>script</th></tr>
+<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td></tr>
+<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, FEFF, 00A0)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>⅟</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td>कあ가កกیא</td><td>unlabelled</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td></tr>
+</table>
+
+<a name='PPTTS'><h3>Pre/Post Type & Token Stats <a href=#TOC class=TOC>[TOC]</a></h3>
+<div style='display:inline-block; margin-right:3em'>
 <b>
 Old File Info</b><br>
 &nbsp;&nbsp;&nbsp; pre-analysis types: 23,813<br>
@@ -36,7 +62,8 @@ Old File Info</b><br>
 <tr><td>17,862</td><td>96,867</td><td>lc_unchanged</td></tr>
 <tr><td>1,019</td><td>8,465</td><td>number</td></tr>
 </table>
-<br>
+</div>
+<div style='display:inline-block; margin-right:3em'>
 <b>
 New File Info</b><br>
 &nbsp;&nbsp;&nbsp; pre-analysis types: 23,813<br>
@@ -47,11 +74,13 @@ New File Info</b><br>
 <tr><td>17,371</td><td>96,193</td><td>lc_unchanged</td></tr>
 <tr><td>1,019</td><td>8,465</td><td>number</td></tr>
 </table>
+</div>
+<br>
 <br>
 <b>Key</b><br>
 <div class=hang>&nbsp;&nbsp;&nbsp;<b>unchanged:</b> pre-analysis token is the same as post-analysis token</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>lc_unchanged:</b> pre-analysis token is the same as post-analysis token after lowercasing</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>number:</b> pre-analysis token is all numerical digits</div>Categories overlap. Numbers are usually unchanged, and all lc_unchanged are also unchanged.<br>
 
-<a name='new_collision_stats'><h3>New Collision Stats <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
+<a name='new_collision_stats'><h3>New Collision Stats <a href=#TOC class=TOC>[TOC]</a></h3>
 New collisions: 70 (0.403% of post-analysis types)<br>
 &nbsp;&nbsp;&nbsp;added types: 73 (0.307% of pre-analysis types)<br>
 &nbsp;&nbsp;&nbsp;added tokens: 123 (0.106% of tokens)<br>
@@ -61,7 +90,7 @@ Narrative: 73 pre-analysis types (0.307% of pre-analysis types) / 123 tokens (0.
 <br>
 Note: All percentages are relative to old token/type counts.<br>
 
-<a name='new_collision_near_match_stats'><h3>New Collision Near Match Stats <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
+<a name='new_collision_near_match_stats'><h3>New Collision Near Match Stats <a href=#TOC class=TOC>[TOC]</a></h3>
 <table><tr><th>type</th><th>token</th><th>kind</th></tr>
 <tr><td>62</td><td>109</td><td>folded</td></tr>
 <tr><td>11</td><td>14</td><td>other</td></tr>
@@ -71,135 +100,196 @@ Note: All percentages are relative to old token/type counts.<br>
 New collision type is a near match for a type already in the group after...<br>
 <div class=hang>&nbsp;&nbsp;&nbsp;<b>folded:</b> applying generic and language-specific character folding, de-spacing, and de-hyphenation</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>regulars:</b> removing language-specific regular prefixes and suffixes</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>folded_regulars:</b> applying generic and language-specific character folding, de-spacing, de-hyphenation, and removing language-specific regular prefixes and suffixes</div>Categories do not overlap. Types are post-analysis types<br>
 
-<a name='lost_and_found'><h3>Lost and Found Tokens <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
- Lost post-analysis types/tokens (old only): 484 / 661<br>
-Found post-analysis types/tokens (new only): 409 / 535<br>
+<a name='lost_and_found'><h3>Lost and Found Tokens <a href=#TOC class=TOC>[TOC]</a></h3>
+Lost (old only) post-analysis types/tokens: 484 / 674<br>
+Found (new only) post-analysis types/tokens: 409 / 551<br>
 <br>
-<div style='width:45%; border:1px solid grey; float:left; padding:0.5em; word-wrap: break-word; vertical-align: top;'>
-<b>Lost post-analysis tokens by category</b><br>
-<br>
+<div class=leftCatDiv>
+<b> Lost (old only) post-analysis tokens by category</b>
+</div>
+<div class=rightCatDiv>
+<b> Found (new only) post-analysis tokens by category</b>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Arabic:</i> 6 types, 6 tokens<br>
 <blockquote>أبو &bull; جمعية &bull; عودة &bull; هزارگی &bull; کرمی &bull; یوسف<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 6 types, 7 tokens<br>
-<blockquote>барсукоў &bull; валерій &bull; евгений &bull; новий &bull; події &bull; яўген<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Devanagari:</i> 2 types, 2 tokens<br>
-<blockquote>कृष्णप्रसाद &bull; भट्टराई<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 4 types, 4 tokens<br>
-<blockquote>יִשְׂרְאֵלִית &bull; יִשׂרְאְלִיּוֹת &bull; לִירָה &bull; לִירוֹת<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>IPA-ish:</i> 4 types, 4 tokens<br>
-<blockquote>flœʁ &bull; pɛl &bull; ɢ &bull; ɨ<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>IPA-ish+comb:</i> 1 types, 1 tokens<br>
-<blockquote>ʁɛ̃<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>IPA-ish+comb+mod:</i> 3 types, 3 tokens<br>
-<blockquote>ɡɔˈʂɨt͡sɛ &bull; ˈeːijaˌfjœrðʏr̥ &bull; ˈɕt͡ɕeɡnɨ<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>IPA-ish+mod:</i> 3 types, 3 tokens<br>
-<blockquote>ˈveɾð &bull; ˈvilɐ &bull; ˈɡrabuf<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Kannada:</i> 1 types, 1 tokens<br>
-<blockquote>ಸಂಕೇಶ್ವರ<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Katakana:</i> 2 types, 2 tokens<br>
-<blockquote>ガス &bull; テレビ<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Latin (Basic)+mod:</i> 1 types, 1 tokens<br>
-<blockquote>ˈzbraxlin<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Latin (Extended):</i> 451 types, 627 tokens<br>
-<blockquote>abū &bull; adhémar &bull; administrația &bull; adésio &bull; ajilimójili &bull; ají &bull; alexandrín &bull; alfréd &bull; aliæ &bull; almási &bull; altădată &bull; améleté &bull; américaine &bull; andrás &bull; andrés &bull; angélica &bull; antónio &bull; apatzingán &bull; archäologische &bull; armançon &bull; arê &bull; associação &bull; atlética &bull; atê &bull; autónoma &bull; ayê &bull; aýlagy &bull; bahá &bull; balgstädt &bull; bartolomé &bull; baçente &bull; baš &bull; bengoué &bull; bibliothèque &bull; bjølsegrøvvatnet &bull; bjørgvin &bull; blatný &bull; bobuțac &bull; bolesław &bull; boulangère &bull; boţan &bull; bragança &bull; brașov &bull; bucurești &bull; burău &bull; buṭ &bull; bäčkäm &bull; béla &bull; bílý &bull; bóbr &bull; bû &bull; bălan &bull; běh &bull; café &bull; camões &bull; casé &bull; charrière &bull; chorągiews &bull; châtelain &bull; città &bull; constanța &bull; cristóvão &bull; créole &bull; crépin &bull; crónica &bull; cárdenas &bull; césar &bull; cîrstea &bull; córdoba &bull; cărturari &bull; dalvík &bull; decepción &bull; democrático &bull; diabétique &bull; domicó &bull; domínguez &bull; début &bull; défense &bull; département &bull; dépistage &bull; día &bull; efraín &bull; eheverhältnisse &bull; ejército &bull; emām &bull; epistolæ &bull; erótico &bull; escultórico &bull; esitelmä &bull; esmé &bull; españa &bull; estádio &bull; etelä &bull; eyjafjarðardalur &bull; eyjafjarðará &bull; eyjafjörður &bull; fatwās &bull; fehér &bull; fehérvári &bull; fernández &bull; fiancé &bull; filisţīnī &bull; flatabø &bull; fnjóská &bull; franché &bull; français &bull; françois &bull; frédéric &bull; fáil &bull; félicien &bull; garcía &bull; geográfico &bull; gjögurtá &bull; godeliève &bull; gonzález &bull; grabów &bull; grenivík &bull; grévin &bull; grímsey &bull; grímsson &bull; grünberg &bull; guatémalienne &bull; guillén &bull; guimarães &bull; guérard &bull; győr &bull; gábor &bull; gérard &bull; góra &bull; głogowa &bull; głogów &bull; haendŭp &bull; hamlagrøvatnet &bull; haïti &bull; haïtiens &bull; hebräer &bull; hlavní &bull; hlaváček &bull; hrál &bull; hrísey &bull; häcken &bull; hälströmin &bull; hébertville &bull; hörgá &bull; hörgárdalur &bull; hā &bull; ichirō &bull; iidesjärvi &bull; ildikó &bull; ilić &bull; imrûz &bull; imām &bull; intégration &bull; inéditos &bull; isrāīlī &bull; itäinen &bull; jiménez &bull; jiří &bull; josé &bull; județului &bull; jutarō &bull; jóhanna &bull; jüdische &bull; jüdischen &bull; jürgen &bull; kalû &bull; kaposvár &bull; kaški &bull; kaṭa &bull; keflavík &bull; khairābād &bull; kheyrābād &bull; khālid &bull; kocmyrzów &bull; koppányszántó &bull; kraków &bull; květa &bull; kállay &bull; kálmán &bull; käerjéng &bull; kärryseppiä &bull; könnin &bull; kōgen &bull; kōkai &bull; latinského &bull; lehkých &bull; león &bull; liebedswíller &bull; lillafüred &bull; linné &bull; loué &bull; lucía &bull; luleå &bull; lusíadas &bull; luziânia &bull; luís &bull; lycée &bull; läntinen &bull; lékó &bull; léo &bull; lópez &bull; löf &bull; maatalousnäyttelyyn &bull; manjirō &bull; martyniów &bull; martynów &bull; masqué &bull; maḥmud &bull; mețianu &bull; michoacán &bull; microïds &bull; mondragón &bull; monáe &bull; munții &bull; munților &bull; muḥammad &bull; mácha &bull; mádl &bull; mékambo &bull; métabetchouan &bull; métis &bull; méxico &bull; mê &bull; møre &bull; mākānī &bull; nakło &bull; națională &bull; neguța &bull; neuchâtel &bull; nièvre &bull; niérika &bull; nopankylän &bull; nygårdshaug &bull; nyström &bull; nyströmøya &bull; nyynäinen &bull; náhrada &bull; näscher &bull; näyttely &bull; née &bull; nóra &bull; nāga &bull; ogooué &bull; oldřich &bull; olléon &bull; opéra &bull; országos &bull; ouèssè &bull; paraná &bull; patiția &bull; patrícia &bull; paweł &bull; pašm &bull; penélope &bull; pernía &bull; personæ &bull; perényi &bull; pestszentlőrinc &bull; petőfi &bull; pirḥe &bull; podgórzyn &bull; polatlı &bull; polgár &bull; porównawcza &bull; pourtalès &bull; protégé &bull; protégés &bull; przekładu &bull; prémonition &bull; prénoms &bull; ptáků &bull; páramos &bull; pärt &bull; péter &bull; póšum &bull; păcurariu &bull; păun &bull; přízvučná &bull; québec &bull; radioélectrique &bull; raça &bull; rațiu &bull; rené &bull; rhône &bull; rivière &bull; român &bull; române &bull; româniei &bull; ropočevo &bull; rozdół &bull; rychlé &bull; règles &bull; rémi &bull; rétinopathie &bull; rîurile &bull; römischen &bull; salomón &bull; santé &bull; seinäjoen &bull; sekä &bull; seán &bull; señora &bull; sgallová &bull; shā &bull; shāfī &bull; shǔ &bull; siglufjörður &bull; sigurðardóttir &bull; sinéad &bull; snälla &bull; soirée &bull; spånga &bull; stanisław &bull; století &bull; sueños &bull; suárez &bull; svalbarðseyri &bull; svarfaðardalur &bull; sá &bull; süddeutsche &bull; südtirol &bull; sącz &bull; słowiańska &bull; słowiańskich &bull; tecnológico &bull; telepacífico &bull; terán &bull; théâtre &bull; topográfico &bull; toruń &bull; tréteaux &bull; tröllaskagi &bull; tulḡa &bull; tunkúl &bull; tájékoztató &bull; tánchéng &bull; tène &bull; tête &bull; tír &bull; tørvikbygd &bull; türkmenbaşy &bull; tǐyù &bull; umeå &bull; união &bull; urlăţelu &bull; vaigattøyane &bull; valérie &bull; varaldsøy &bull; varietät &bull; varietäten &bull; varèse &bull; vemmelsääri &bull; veslování &bull; vieuchêne &bull; vikør &bull; vikøy &bull; vikøyar &bull; vladimír &bull; vlădeasa &bull; vršovci &bull; vyhlídal &bull; vác &bull; värmland &bull; värnamo &bull; vålerenga &bull; vítězslav &bull; wahlbergøya &bull; worî &bull; wrocław &bull; wuḵt &bull; wörner &bull; władysław &bull; yši &bull; zadié &bull; zeleném &bull; zihlbrücke &bull; zoltán &bull; zsófia &bull; zöllner &bull; à &bull; álava &bull; álmos &bull; árpád &bull; árskógssandur &bull; å &bull; ålvik &bull; åsegrenda &bull; åsgrenda &bull; ælfric &bull; école &bull; écus &bull; étoile &bull; été &bull; évelyne &bull; évêque &bull; í &bull; ía &bull; íba &bull; în &bull; ó &bull; óg &bull; ólafsfjörður &bull; ólafur &bull; östers &bull; øre &bull; øystese &bull; øyvind &bull; úrvalsdeild &bull; û &bull; ûw &bull; über &bull; überzone &bull; ā &bull; āb &bull; ān &bull; čaman &bull; červenka &bull; česká &bull; český &bull; čiz &bull; člůnků &bull; ēm &bull; ēw &bull; łaszcz &bull; łódź &bull; łęczyca &bull; řeckého &bull; ściegny &bull; świecie &bull; şafī &bull; şanlıurfaspor &bull; šaydi &bull; ši &bull; šuda &bull; ţării &bull; ūdah &bull; șaguna &bull; și &bull; țurcan &bull; țăranu &bull; ḍ &bull; ḥarbī &bull; ḵona &bull; ḵondagi &bull; ḵot &bull; ḵu &bull; ḵun &bull; ḵût &bull; ḵāh &bull; ṭ &bull; ẓefirah<br>
-</blockquote></div>
-<div style='width:45%; border:1px solid grey; float:right; padding:0.5em; word-wrap: break-word; vertical-align: top;'>
-<b>Found post-analysis tokens by category</b><br>
-<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Arabic:</i> 6 types, 6 tokens<br>
 <blockquote>ابو &bull; جمعيه &bull; عوده &bull; كرمي &bull; هزارگي &bull; يوسف<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 6 types, 7 tokens<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 6 types, 7 tokens<br>
+<blockquote>барсукоў &bull; валерій &bull; евгений &bull; новий &bull; події &bull; яўген<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 6 types, 7 tokens<br>
 <blockquote>барсукоу &bull; валеріи &bull; евгении &bull; новии &bull; подіі &bull; яуген<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Devanagari:</i> 2 types, 2 tokens<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Devanagari:</i> 2 types, 2 tokens<br>
+<blockquote>कृष्णप्रसाद &bull; भट्टराई<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Devanagari:</i> 2 types, 2 tokens<br>
 <blockquote>कृषणपरसाद &bull; भटटराई<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 2 types, 2 tokens<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 4 types, 4 tokens<br>
+<blockquote>יִשְׂרְאֵלִית &bull; יִשׂרְאְלִיּוֹת &bull; לִירָה &bull; לִירוֹת<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 2 types, 2 tokens<br>
 <blockquote>ישראליות &bull; לירות<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Kannada:</i> 1 types, 1 tokens<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish:</i> 4 types, 4 tokens<br>
+<blockquote><span class=ltn title='Latin script'>flœʁ</span> &bull; <span class=ltn title='Latin script'>pɛl</span> &bull; <span class=ltn title='Latin script'>ɢ</span> &bull; <span class=ltn title='Latin script'>ɨ</span><br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+comb:</i> 1 types, 1 tokens<br>
+<blockquote><span class=ltn title='Latin script'>ʁɛ</span>̃<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+comb+mod:</i> 3 types, 3 tokens<br>
+<blockquote><span class=ltn title='Latin script'>ɡɔ</span>ˈ<span class=ltn title='Latin script'>ʂɨt</span>͡<span class=ltn title='Latin script'>sɛ</span> &bull; ˈ<span class=ltn title='Latin script'>e</span>ː<span class=ltn title='Latin script'>ija</span>ˌ<span class=ltn title='Latin script'>fjœrðʏr</span>̥ &bull; ˈ<span class=ltn title='Latin script'>ɕt</span>͡<span class=ltn title='Latin script'>ɕeɡnɨ</span><br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+mod:</i> 4 types, 4 tokens<br>
+<blockquote>ˈ<span class=ltn title='Latin script'>veɾð</span> &bull; ˈ<span class=ltn title='Latin script'>vilɐ</span> &bull; ˈ<span class=ltn title='Latin script'>zbraxlin</span> &bull; ˈ<span class=ltn title='Latin script'>ɡrabuf</span><br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Kannada:</i> 1 types, 1 tokens<br>
+<blockquote>ಸಂಕೇಶ್ವರ<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Kannada:</i> 1 types, 1 tokens<br>
 <blockquote>ಸಂಕೇಶವರ<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Katakana:</i> 2 types, 2 tokens<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Katakana:</i> 2 types, 2 tokens<br>
+<blockquote>ガス &bull; テレビ<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Katakana:</i> 2 types, 2 tokens<br>
 <blockquote>カス &bull; テレヒ<br>
-</blockquote>&nbsp;&nbsp;&nbsp;<i>Latin (Basic):</i> 390 types, 515 tokens<br>
-<blockquote>a &bull; adesio &bull; adhemar &bull; administratia &bull; aelfric &bull; aji &bull; ajilimojili &bull; alava &bull; aliae &bull; almasi &bull; almo &bull; altadata &bull; alvik &bull; amelete &bull; americaine &bull; an &bull; andra &bull; andre &bull; angelica &bull; apatzingan &bull; archaologische &bull; are &bull; armancon &bull; arpad &bull; arskogssandur &bull; asegrenda &bull; asgrenda &bull; associacao &bull; ate &bull; atletica &bull; autonoma &bull; aye &bull; aylagy &bull; bacente &bull; backam &bull; baha &bull; balan &bull; balgstadt &bull; bartolome &bull; bas &bull; beh &bull; bengoue &bull; bibliotheque &bull; bile &bull; bjolsegrovvatnet &bull; bjorgvin &bull; blatny &bull; bobr &bull; bobutac &bull; boleslaw &bull; botan &bull; boulangere &bull; braganca &bull; brasov &bull; bu &bull; bucuresti &bull; burau &bull; but &bull; caman &bull; camoe &bull; cardena &bull; carturari &bull; cervenka &bull; cesar &bull; ceska &bull; cesky &bull; charriere &bull; chatelain &bull; choragiew &bull; cirstea &bull; citta &bull; ciz &bull; clunku &bull; constanta &bull; cordoba &bull; crepin &bull; cristovao &bull; cronica &bull; ctcegni &bull; dalvik &bull; decepcion &bull; democratico &bull; departement &bull; depistage &bull; diabetique &bull; domico &bull; dominguez &bull; ecole &bull; ecu &bull; efrain &bull; eheverhaltnisse &bull; eijafjoerdyr &bull; ejercito &bull; epistolae &bull; erotico &bull; escultorico &bull; esitelma &bull; espana &bull; estadio &bull; etela &bull; etoile &bull; evelyne &bull; eveque &bull; ew &bull; eyjafjardara &bull; eyjafjardardalur &bull; eyjafjordur &bull; fatwa &bull; feher &bull; fehervari &bull; felicien &bull; fernandez &bull; fie &bull; filistini &bull; flatabo &bull; floe &bull; fnjoska &bull; francai &bull; franche &bull; frederic &bull; garcia &bull; geografico &bull; gerard &bull; gjogurta &bull; glogowa &bull; godelieve &bull; gonzalez &bull; gora &bull; gositse &bull; grabow &bull; grabuf &bull; grenivik &bull; grevin &bull; grimsey &bull; grimsson &bull; grunberg &bull; guatemalienne &bull; guerard &bull; guillen &bull; guimarae &bull; gyor &bull; hacken &bull; haendup &bull; haiti &bull; haitien &bull; halstromin &bull; hamlagrovatnet &bull; hebraer &bull; hlavacek &bull; hlavni &bull; horga &bull; horgardalur &bull; hral &bull; hrisey &bull; ia &bull; iba &bull; ichiro &bull; iidesjarvi &bull; ildiko &bull; ilic &bull; imruz &bull; in &bull; inedito &bull; israili &bull; itainen &bull; jimenez &bull; jiri &bull; johanna &bull; judetului &bull; judische &bull; judischen &bull; jurgen &bull; jutaro &bull; kaerjeng &bull; kah &bull; kallay &bull; kalman &bull; kalu &bull; kaposvar &bull; karryseppia &bull; kaski &bull; kata &bull; keflavik &bull; khairabad &bull; khalid &bull; kocmyrzow &bull; kogen &bull; kokai &bull; kona &bull; kondagi &bull; konnin &bull; koppanyszanto &bull; kot &bull; krakow &bull; kut &bull; kveta &bull; lantinen &bull; laszcz &bull; latinskeho &bull; leczyca &bull; lehkych &bull; leko &bull; liebedswiller &bull; lillafure &bull; linne &bull; lodz &bull; lof &bull; loue &bull; lulea &bull; lusiada &bull; luziania &bull; lycee &bull; maatalousnayttelyyn &bull; macha &bull; madl &bull; makani &bull; manjiro &bull; martyniow &bull; martynow &bull; masque &bull; mekambo &bull; metabetchouan &bull; meti &bull; metianu &bull; michoacan &bull; microid &bull; monae &bull; mondragon &bull; muntii &bull; muntilor &bull; nahrada &bull; naklo &bull; nascher &bull; nationala &bull; naytte &bull; nee &bull; neguta &bull; neuchatel &bull; nierika &bull; nievre &bull; nopankylan &bull; nora &bull; nygardshaug &bull; nystrom &bull; nystromoya &bull; nyynainen &bull; ogooue &bull; olafsfjordur &bull; olafur &bull; oldrich &bull; olleon &bull; orszago &bull; oster &bull; ouesse &bull; oystese &bull; oyvind &bull; pacurariu &bull; paramo &bull; parana &bull; pasm &bull; patitia &bull; patricia &bull; paun &bull; pawel &bull; pel &bull; penelope &bull; perenyi &bull; pernia &bull; pestszentlorinc &bull; petofi &bull; pirhe &bull; podgorzyn &bull; polatli &bull; porownawcza &bull; posum &bull; pourtale &bull; premonition &bull; prenom &bull; prizvucna &bull; protege &bull; przekladu &bull; ptaku &bull; raca &bull; radioelectrique &bull; ratiu &bull; reckeho &bull; regle &bull; retinopathie &bull; rhone &bull; riurile &bull; riviere &bull; romane &bull; romaniei &bull; romischen &bull; ropocevo &bull; rozdol &bull; rychle &bull; sacz &bull; saguna &bull; salomon &bull; sanliurfaspor &bull; sante &bull; saydi &bull; sciegny &bull; seinajoen &bull; seka &bull; sgallova &bull; shafi &bull; shu &bull; si &bull; siglufjordur &bull; sigurdardottir &bull; sinead &bull; slowianska &bull; slowianskich &bull; snalla &bull; soiree &bull; spanga &bull; stanislaw &bull; stoleti &bull; suarez &bull; suda &bull; suddeutsche &bull; sudtirol &bull; sueno &bull; svalbardseyri &bull; svarfadardalur &bull; swiecie &bull; tajekoztato &bull; tancheng &bull; taranu &bull; tarii &bull; tecnologico &bull; telepacifico &bull; tene &bull; teran &bull; tete &bull; tir &bull; tiyu &bull; topografico &bull; torun &bull; torvikbygd &bull; treteaux &bull; trollaskagi &bull; tulga &bull; tunkul &bull; turcan &bull; turkmenbasy &bull; uber &bull; uberzone &bull; udah &bull; umea &bull; uniao &bull; urlatelu &bull; urvalsdeild &bull; uw &bull; vac &bull; vaigattoyane &bull; valerenga &bull; varaldsoy &bull; varese &bull; varietat &bull; varietaten &bull; varmland &bull; varnamo &bull; vemmelsaari &bull; verd &bull; veslovani &bull; vieuchene &bull; vikor &bull; vikoy &bull; vikoyar &bull; vitezslav &bull; vladeasa &bull; vrsovci &bull; vyhlidal &bull; wahlbergoya &bull; wladyslaw &bull; wori &bull; wroclaw &bull; wukt &bull; ysi &bull; zadie &bull; zbraxlin &bull; zefirah &bull; zelenem &bull; zihlbrucke &bull; zollner &bull; zoltan &bull; zsofia<br>
-</blockquote></div><br clear=all>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Latin (Basic):</i> 390 types, 531 tokens (sample of 100)<br>
+<blockquote>adhemar &bull; aelfric &bull; aliae &bull; altadata &bull; armancon &bull; arpad &bull; asegrenda &bull; asgrenda &bull; ate &bull; balgstadt &bull; bas &bull; braganca &bull; bu &bull; burau &bull; charriere &bull; chatelain &bull; ctcegni &bull; decepcion &bull; departement &bull; depistage &bull; erotico &bull; etela &bull; etoile &bull; eyjafjardardalur &bull; fatwa &bull; felicien &bull; filistini &bull; flatabo &bull; franche &bull; frederic &bull; glogowa &bull; godelieve &bull; gonzalez &bull; grabuf &bull; grevin &bull; gyor &bull; halstromin &bull; hamlagrovatnet &bull; hlavacek &bull; horgardalur &bull; ildiko &bull; imruz &bull; johanna &bull; judetului &bull; jurgen &bull; jutaro &bull; kaposvar &bull; khairabad &bull; khalid &bull; kogen &bull; kot &bull; laszcz &bull; lehkych &bull; leko &bull; lusiada &bull; luziania &bull; martynow &bull; masque &bull; mekambo &bull; muntilor &bull; nahrada &bull; naklo &bull; naytte &bull; nygardshaug &bull; nystromoya &bull; nyynainen &bull; oyvind &bull; paramo &bull; parana &bull; patricia &bull; perenyi &bull; posum &bull; raca &bull; romaniei &bull; sante &bull; seinajoen &bull; siglufjordur &bull; slowianskich &bull; soiree &bull; suarez &bull; tajekoztato &bull; tarii &bull; telepacifico &bull; tene &bull; topografico &bull; torun &bull; tunkul &bull; uber &bull; uberzone &bull; uw &bull; valerenga &bull; varese &bull; varietaten &bull; vikor &bull; vrsovci &bull; vyhlidal &bull; wahlbergoya &bull; wukt &bull; zbraxlin &bull; zsofia<br>
+</blockquote>
+</div>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Latin (Extended):</i> 451 types, 640 tokens (sample of 100)<br>
+<blockquote>abū &bull; adhémar &bull; adésio &bull; ají &bull; améleté &bull; andrés &bull; archäologische &bull; atê &bull; autónoma &bull; ayê &bull; baš &bull; bjørgvin &bull; brașov &bull; burău &bull; bäčkäm &bull; bălan &bull; città &bull; constanța &bull; cristóvão &bull; créole &bull; début &bull; département &bull; dépistage &bull; eheverhältnisse &bull; emām &bull; fehér &bull; fernández &bull; filisţīnī &bull; fnjóská &bull; français &bull; fáil &bull; félicien &bull; grenivík &bull; gábor &bull; gérard &bull; góra &bull; haïti &bull; hälströmin &bull; hébertville &bull; ichirō &bull; ildikó &bull; imām &bull; isrāīlī &bull; județului &bull; kalû &bull; květa &bull; kärryseppiä &bull; könnin &bull; león &bull; liebedswíller &bull; lillafüred &bull; loué &bull; lycée &bull; maatalousnäyttelyyn &bull; michoacán &bull; mádl &bull; neuchâtel &bull; nièvre &bull; nyström &bull; nyynäinen &bull; nóra &bull; országos &bull; perényi &bull; pärt &bull; póšum &bull; québec &bull; radioélectrique &bull; român &bull; ropočevo &bull; salomón &bull; sigurðardóttir &bull; sinéad &bull; století &bull; sueños &bull; südtirol &bull; topográfico &bull; tröllaskagi &bull; tulḡa &bull; tájékoztató &bull; türkmenbaşy &bull; tǐyù &bull; união &bull; vemmelsääri &bull; vieuchêne &bull; vladimír &bull; yši &bull; árpád &bull; å &bull; í &bull; östers &bull; úrvalsdeild &bull; û &bull; ā &bull; červenka &bull; český &bull; łaszcz &bull; šuda &bull; țurcan &bull; țăranu &bull; ḵût<br>
+</blockquote>
+</div>
+<br style='clear:both'>
 
-<a name='changed_collisions'><h3>Changed Groups <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
-<div class=hang>&nbsp;&nbsp;&nbsp;<b><<:</b> indicates net loss of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>><:</b> indicates mixed gains and losses of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>>>:</b> indicates net gain of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>terseness:</b> 0</div><br>
-<b>Net Gains:</b><br>
+<a name='changed_collisions'><h3>Changed Groups <a href=#TOC class=TOC>[TOC]</a></h3>
+<div class=hang>&nbsp;&nbsp;&nbsp;<b><<:</b> indicates net loss of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>><:</b> indicates mixed gains and losses of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>>>:</b> indicates net gain of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>#:</b> the number following indicates the magnitude of the change (#types affected)</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>terseness:</b> 0</div><div class=hang>&nbsp;&nbsp;&nbsp;<b><span class=diff>[1 diff]</span>:</b> diffs between old and new sets</div><div class=hang>&nbsp;&nbsp;&nbsp;<b><b class=bigNum>[1000 freq]</b>:</b> high-frequency terms</div>
+<a name='changed_collisions_increased'><h4>Net Gains <a href=#TOC class=TOC>[TOC]</a></h4>
+<a href='#hic_increased_1'><b>High Impact Changes</b></a><br><br>
 <table>
-<tr><td><nobr>ab >></nobr></td><td><div class=hang>o: [2 AB][1 ab]</div><div class=hang>n: [2 AB][1 ab][1 āb]</div></td></tr>
-<tr><td><nobr>abu >></nobr></td><td><div class=hang>o: [8 Abu]</div><div class=hang>n: [8 Abu][1 Abū]</div></td></tr>
-<tr><td><nobr>alexandrin >></nobr></td><td><div class=hang>o: [1 alexandrin]</div><div class=hang>n: [1 alexandrin][2 alexandrín]</div></td></tr>
-<tr><td><nobr>alfred >></nobr></td><td><div class=hang>o: [5 Alfred]</div><div class=hang>n: [5 Alfred][2 Alfréd]</div></td></tr>
-<tr><td><nobr>antonio >></nobr></td><td><div class=hang>o: [4 Antonio]</div><div class=hang>n: [4 Antonio][2 António]</div></td></tr>
-<tr><td><nobr>bela >></nobr></td><td><div class=hang>o: [2 Bela]</div><div class=hang>n: [2 Bela][1 Béla]</div></td></tr>
-<tr><td><nobr>cafe >></nobr></td><td><div class=hang>o: [2 Cafe][1 cafe]</div><div class=hang>n: [2 Cafe][1 Café][1 cafe][1 café]</div></td></tr>
-<tr><td><nobr>case >></nobr></td><td><div class=hang>o: [1 Case][1 Cases][33 case][18 cases]</div><div class=hang>n: [1 Case][1 Cases][1 Casé][33 case][18 cases]</div></td></tr>
-<tr><td><nobr>creole >></nobr></td><td><div class=hang>o: [3 Creole]</div><div class=hang>n: [3 Creole][3 Créole]</div></td></tr>
-<tr><td><nobr>d >></nobr></td><td><div class=hang>o: [48 D][16 d]</div><div class=hang>n: [48 D][16 d][1 ḍ]</div></td></tr>
-<tr><td><nobr>debut >></nobr></td><td><div class=hang>o: [19 debut][3 debuted]</div><div class=hang>n: [19 debut][3 debuted][1 début]</div></td></tr>
-<tr><td><nobr>defense >></nobr></td><td><div class=hang>o: [3 Defense][6 defense][1 defenses]</div><div class=hang>n: [3 Defense][6 defense][1 defenses][1 défense]</div></td></tr>
-<tr><td><nobr>dia >></nobr></td><td><div class=hang>o: [3 Dia]</div><div class=hang>n: [3 Dia][1 Día]</div></td></tr>
-<tr><td><nobr>em >></nobr></td><td><div class=hang>o: [2 EM]</div><div class=hang>n: [2 EM][1 ēm]</div></td></tr>
-<tr><td><nobr>emam >></nobr></td><td><div class=hang>o: [1 Emam]</div><div class=hang>n: [1 Emam][2 Emām]</div></td></tr>
-<tr><td><nobr>esme >></nobr></td><td><div class=hang>o: [1 Esme]</div><div class=hang>n: [1 Esme][1 Esmé]</div></td></tr>
-<tr><td><nobr>ete >></nobr></td><td><div class=hang>o: [1 ete]</div><div class=hang>n: [1 ete][1 Été]</div></td></tr>
-<tr><td><nobr>fail >></nobr></td><td><div class=hang>o: [2 Failed][1 fail][20 failed]</div><div class=hang>n: [2 Failed][1 Fáil][1 fail][20 failed]</div></td></tr>
-<tr><td><nobr>francoi >></nobr></td><td><div class=hang>o: [1 Francois]</div><div class=hang>n: [1 Francois][1 François]</div></td></tr>
-<tr><td><nobr>g >></nobr></td><td><div class=hang>o: [23 G][35 g]</div><div class=hang>n: [23 G][35 g][1 ɢ]</div></td></tr>
-<tr><td><nobr>gab >></nobr></td><td><div class=hang>o: [1 Gabes][1 gabions]</div><div class=hang>n: [1 Gabes][1 Gábor][1 gabions]</div></td></tr>
-<tr><td><nobr>glogow >></nobr></td><td><div class=hang>o: [1 GLOGOW]</div><div class=hang>n: [1 GLOGOW][13 Głogów]</div></td></tr>
-<tr><td><nobr>ha >></nobr></td><td><div class=hang>o: [5 Ha][8 ha]</div><div class=hang>n: [5 Ha][8 ha][1 hā]</div></td></tr>
-<tr><td><nobr>harbi >></nobr></td><td><div class=hang>o: [17 Harbi]</div><div class=hang>n: [17 Harbi][1 Ḥarbī]</div></td></tr>
-<tr><td><nobr>hebertville >></nobr></td><td><div class=hang>o: [1 Hebertville]</div><div class=hang>n: [1 Hebertville][2 Hébertville]</div></td></tr>
-<tr><td><nobr>i >></nobr></td><td><div class=hang>o: [153 I][30 i]</div><div class=hang>n: [153 I][30 i][2 í][1 ɨ]</div></td></tr>
-<tr><td><nobr>imam >></nobr></td><td><div class=hang>o: [1 Imam][1 imams]</div><div class=hang>n: [1 Imam][1 Imām][1 imams]</div></td></tr>
-<tr><td><nobr>integrate >></nobr></td><td><div class=hang>o: [1 Integration][1 integrate][2 integrates][1 integrating][2 integration][1 integrative]</div><div class=hang>n: [1 Integration][1 Intégration][1 integrate][2 integrates][1 integrating][2 integration][1 integrative]</div></td></tr>
-<tr><td><nobr>jose >></nobr></td><td><div class=hang>o: [5 Jose]</div><div class=hang>n: [5 Jose][3 José]</div></td></tr>
-<tr><td><nobr>kheyrabad >></nobr></td><td><div class=hang>o: [1 Kheyrabad]</div><div class=hang>n: [1 Kheyrabad][1 Kheyrābād]</div></td></tr>
-<tr><td><nobr>ku >></nobr></td><td><div class=hang>o: [1 ku]</div><div class=hang>n: [1 ku][3 ḵu]</div></td></tr>
-<tr><td><nobr>kun >></nobr></td><td><div class=hang>o: [1 kun]</div><div class=hang>n: [1 kun][1 ḵun]</div></td></tr>
-<tr><td><nobr>leo >></nobr></td><td><div class=hang>o: [4 Leo]</div><div class=hang>n: [4 Leo][1 Léo]</div></td></tr>
-<tr><td><nobr>leon >></nobr></td><td><div class=hang>o: [6 Leon]</div><div class=hang>n: [6 Leon][1 León]</div></td></tr>
-<tr><td><nobr>lopez >></nobr></td><td><div class=hang>o: [3 Lopez]</div><div class=hang>n: [3 Lopez][4 López]</div></td></tr>
-<tr><td><nobr>lucia >></nobr></td><td><div class=hang>o: [1 Lucia]</div><div class=hang>n: [1 Lucia][1 Lucía]</div></td></tr>
-<tr><td><nobr>lui >></nobr></td><td><div class=hang>o: [3 Luis]</div><div class=hang>n: [3 Luis][1 Luís]</div></td></tr>
-<tr><td><nobr>mahmud >></nobr></td><td><div class=hang>o: [1 Mahmud]</div><div class=hang>n: [1 Mahmud][1 Maḥmud]</div></td></tr>
-<tr><td><nobr>me >></nobr></td><td><div class=hang>o: [14 Me][7 me]</div><div class=hang>n: [14 Me][7 me][1 mê]</div></td></tr>
-<tr><td><nobr>mexico >></nobr></td><td><div class=hang>o: [24 Mexican][21 Mexico]</div><div class=hang>n: [24 Mexican][21 Mexico][3 México][1 méxico]</div></td></tr>
-<tr><td><nobr>more >></nobr></td><td><div class=hang>o: [12 More][166 more]</div><div class=hang>n: [12 More][2 Møre][166 more]</div></td></tr>
-<tr><td><nobr>muhammad >></nobr></td><td><div class=hang>o: [4 Muhammad]</div><div class=hang>n: [4 Muhammad][1 Muḥammad]</div></td></tr>
-<tr><td><nobr>naga >></nobr></td><td><div class=hang>o: [3 Naga][1 Nagas][2 naga][2 nagas]</div><div class=hang>n: [3 Naga][1 Nagas][1 Nāga][2 naga][2 nagas]</div></td></tr>
-<tr><td><nobr>o >></nobr></td><td><div class=hang>o: [41 O][22 o]</div><div class=hang>n: [41 O][22 o][1 Ó]</div></td></tr>
-<tr><td><nobr>og >></nobr></td><td><div class=hang>o: [3 og]</div><div class=hang>n: [3 og][1 Óg]</div></td></tr>
-<tr><td><nobr>opera >></nobr></td><td><div class=hang>o: [1 opera][1 operas]</div><div class=hang>n: [1 opera][1 operas][1 opéra]</div></td></tr>
-<tr><td><nobr>ore >></nobr></td><td><div class=hang>o: [1 ore]</div><div class=hang>n: [1 ore][1 Øre]</div></td></tr>
-<tr><td><nobr>part >></nobr></td><td><div class=hang>o: [14 Part][104 part]</div><div class=hang>n: [14 Part][1 Pärt][104 part]</div></td></tr>
-<tr><td><nobr>personae >></nobr></td><td><div class=hang>o: [1 personae]</div><div class=hang>n: [1 personae][1 personæ]</div></td></tr>
-<tr><td><nobr>peter >></nobr></td><td><div class=hang>o: [44 Peter][1 peter]</div><div class=hang>n: [44 Peter][1 Péter][1 peter]</div></td></tr>
-<tr><td><nobr>polgar >></nobr></td><td><div class=hang>o: [1 Polgar]</div><div class=hang>n: [1 Polgar][2 Polgár]</div></td></tr>
-<tr><td><nobr>quebec >></nobr></td><td><div class=hang>o: [14 Quebec]</div><div class=hang>n: [14 Quebec][3 Québec]</div></td></tr>
-<tr><td><nobr>re >></nobr></td><td><div class=hang>o: [3 Re][26 re]</div><div class=hang>n: [3 Re][26 re][1 ʁɛ̃]</div></td></tr>
-<tr><td><nobr>remi >></nobr></td><td><div class=hang>o: [1 Remi]</div><div class=hang>n: [1 Remi][1 Rémi]</div></td></tr>
-<tr><td><nobr>rene >></nobr></td><td><div class=hang>o: [2 Rene]</div><div class=hang>n: [2 Rene][12 René]</div></td></tr>
-<tr><td><nobr>roman >></nobr></td><td><div class=hang>o: [25 Roman][2 Romanized][5 Romans]</div><div class=hang>n: [25 Roman][2 Romanized][5 Romans][1 Român]</div></td></tr>
-<tr><td><nobr>sa >></nobr></td><td><div class=hang>o: [2 SA]</div><div class=hang>n: [2 SA][1 Sá]</div></td></tr>
-<tr><td><nobr>safi >></nobr></td><td><div class=hang>o: [1 Safi]</div><div class=hang>n: [1 Safi][1 Şafī]</div></td></tr>
-<tr><td><nobr>sean >></nobr></td><td><div class=hang>o: [2 Sean]</div><div class=hang>n: [2 Sean][1 Seán]</div></td></tr>
-<tr><td><nobr>senora >></nobr></td><td><div class=hang>o: [2 Senora]</div><div class=hang>n: [2 Senora][2 Señora]</div></td></tr>
-<tr><td><nobr>sha >></nobr></td><td><div class=hang>o: [1 Sha]</div><div class=hang>n: [1 Sha][1 Shā]</div></td></tr>
-<tr><td><nobr>t >></nobr></td><td><div class=hang>o: [29 T][32 t]</div><div class=hang>n: [29 T][32 t][1 ṭ]</div></td></tr>
-<tr><td><nobr>theatre >></nobr></td><td><div class=hang>o: [5 theatre]</div><div class=hang>n: [2 Théâtre][5 theatre]</div></td></tr>
-<tr><td><nobr>u >></nobr></td><td><div class=hang>o: [76 U][3 u]</div><div class=hang>n: [76 U][3 u][4 û]</div></td></tr>
-<tr><td><nobr>valerie >></nobr></td><td><div class=hang>o: [1 Valerie]</div><div class=hang>n: [1 Valerie][1 Valérie]</div></td></tr>
-<tr><td><nobr>vila >></nobr></td><td><div class=hang>o: [3 Vila]</div><div class=hang>n: [3 Vila][1 ˈvilɐ]</div></td></tr>
-<tr><td><nobr>vladimir >></nobr></td><td><div class=hang>o: [1 Vladimir]</div><div class=hang>n: [1 Vladimir][1 Vladimír]</div></td></tr>
-<tr><td><nobr>worn >></nobr></td><td><div class=hang>o: [6 worn]</div><div class=hang>n: [2 Wörner][6 worn]</div></td></tr>
-<tr><td><nobr>ישראלית >></nobr></td><td><div class=hang>o: [1 ישראלית]</div><div class=hang>n: [1 יִשְׂרְאֵלִית][1 ישראלית]</div></td></tr>
-<tr><td><nobr>לירה >></nobr></td><td><div class=hang>o: [2 לירה]</div><div class=hang>n: [1 לִירָה][2 לירה]</div></td></tr>
+<tr><td><nobr>ab >> 1</nobr></td><td><div class=hang>o: [2 AB][1 ab]</div><div class=hang>n: [2 AB][1 ab]<span class=diff>[1 āb]</span></div></td></tr>
+<tr><td><nobr>abu >> 1</nobr></td><td><div class=hang>o: [8 Abu]</div><div class=hang>n: [8 Abu]<span class=diff>[1 Abū]</span></div></td></tr>
+<tr><td><nobr>alexandrin >> 1</nobr></td><td><div class=hang>o: [1 alexandrin]</div><div class=hang>n: [1 alexandrin]<span class=diff>[2 alexandrín]</span></div></td></tr>
+<tr><td><nobr>alfred >> 1</nobr></td><td><div class=hang>o: [5 Alfred]</div><div class=hang>n: [5 Alfred]<span class=diff>[2 Alfréd]</span></div></td></tr>
+<tr><td><nobr>antonio >> 1</nobr></td><td><div class=hang>o: [4 Antonio]</div><div class=hang>n: [4 Antonio]<span class=diff>[2 António]</span></div></td></tr>
+<tr><td><nobr>bela >> 1</nobr></td><td><div class=hang>o: [2 Bela]</div><div class=hang>n: [2 Bela]<span class=diff>[1 Béla]</span></div></td></tr>
+<tr><td><nobr>cafe >> 2</nobr></td><td><div class=hang>o: [2 Cafe][1 cafe]</div><div class=hang>n: [2 Cafe]<span class=diff>[1 Café]</span>[1 cafe]<span class=diff>[1 café]</span></div></td></tr>
+<tr><td><nobr>case >> 1</nobr></td><td><div class=hang>o: [1 Case][1 Cases][33 case][18 cases]</div><div class=hang>n: [1 Case][1 Cases]<span class=diff>[1 Casé]</span>[33 case][18 cases]</div></td></tr>
+<tr><td><nobr>creole >> 1</nobr></td><td><div class=hang>o: [3 Creole]</div><div class=hang>n: [3 Creole]<span class=diff>[3 Créole]</span></div></td></tr>
+<tr><td><nobr>d >> 1</nobr></td><td><div class=hang>o: [48 D][16 d]</div><div class=hang>n: [48 D][16 d]<span class=diff>[1 ḍ]</span></div></td></tr>
+<tr><td><nobr>debut >> 1</nobr></td><td><div class=hang>o: [19 debut][3 debuted]</div><div class=hang>n: [19 debut][3 debuted]<span class=diff>[1 début]</span></div></td></tr>
+<tr><td><nobr>defense >> 1</nobr></td><td><div class=hang>o: [3 Defense][6 defense][1 defenses]</div><div class=hang>n: [3 Defense][6 defense][1 defenses]<span class=diff>[1 défense]</span></div></td></tr>
+<tr><td><nobr>dia >> 1</nobr></td><td><div class=hang>o: [3 Dia]</div><div class=hang>n: [3 Dia]<span class=diff>[1 Día]</span></div></td></tr>
+<tr><td><nobr>em >> 1</nobr></td><td><div class=hang>o: [2 EM]</div><div class=hang>n: [2 EM]<span class=diff>[1 ēm]</span></div></td></tr>
+<tr><td><nobr>emam >> 1</nobr></td><td><div class=hang>o: [1 Emam]</div><div class=hang>n: [1 Emam]<span class=diff>[2 Emām]</span></div></td></tr>
+<tr><td><nobr>esme >> 1</nobr></td><td><div class=hang>o: [1 Esme]</div><div class=hang>n: [1 Esme]<span class=diff>[1 Esmé]</span></div></td></tr>
+<tr><td><nobr>ete >> 1</nobr></td><td><div class=hang>o: [1 ete]</div><div class=hang>n: [1 ete]<span class=diff>[1 Été]</span></div></td></tr>
+<tr><td><nobr>fail >> 1</nobr></td><td><div class=hang>o: [2 Failed][1 fail][20 failed]</div><div class=hang>n: [2 Failed]<span class=diff>[1 Fáil]</span>[1 fail][20 failed]</div></td></tr>
+<tr><td><nobr>francoi >> 1</nobr></td><td><div class=hang>o: [1 Francois]</div><div class=hang>n: [1 Francois]<span class=diff>[1 François]</span></div></td></tr>
+<tr><td><nobr>g >> 1</nobr></td><td><div class=hang>o: [23 G][35 g]</div><div class=hang>n: [23 G][35 g]<span class=diff>[1 ɢ]</span></div></td></tr>
+<tr><td><nobr>gab >> 1</nobr></td><td><div class=hang>o: [1 Gabes][1 gabions]</div><div class=hang>n: [1 Gabes]<span class=diff>[1 Gábor]</span>[1 gabions]</div></td></tr>
+<tr><td><nobr>glogow >> 1</nobr></td><td><div class=hang>o: [1 GLOGOW]</div><div class=hang>n: [1 GLOGOW]<span class=diff>[13 Głogów]</span></div></td></tr>
+<tr><td><nobr>ha >> 1</nobr></td><td><div class=hang>o: [5 Ha][8 ha]</div><div class=hang>n: [5 Ha][8 ha]<span class=diff>[1 hā]</span></div></td></tr>
+<tr><td><nobr>harbi >> 1</nobr></td><td><div class=hang>o: [17 Harbi]</div><div class=hang>n: [17 Harbi]<span class=diff>[1 Ḥarbī]</span></div></td></tr>
+<tr><td><nobr>hebertville >> 1</nobr></td><td><div class=hang>o: [1 Hebertville]</div><div class=hang>n: [1 Hebertville]<span class=diff>[2 Hébertville]</span></div></td></tr>
+<tr><td><nobr>i >> 2</nobr></td><td><div class=hang>o: [153 I][30 i]</div><div class=hang>n: [153 I][30 i]<span class=diff>[2 í]</span><span class=diff>[1 ɨ]</span></div></td></tr>
+<tr><td><nobr>imam >> 1</nobr></td><td><div class=hang>o: [1 Imam][1 imams]</div><div class=hang>n: [1 Imam]<span class=diff>[1 Imām]</span>[1 imams]</div></td></tr>
+<tr><td><nobr>integrate >> 1</nobr></td><td><div class=hang>o: [1 Integration][1 integrate][2 integrates][1 integrating][2 integration][1 integrative]</div><div class=hang>n: [1 Integration]<span class=diff>[1 Intégration]</span>[1 integrate][2 integrates][1 integrating][2 integration][1 integrative]</div></td></tr>
+<tr><td><nobr>jose >> 1</nobr></td><td><div class=hang>o: [5 Jose]</div><div class=hang>n: [5 Jose]<span class=diff>[3 José]</span></div></td></tr>
+<tr><td><nobr>kheyrabad >> 1</nobr></td><td><div class=hang>o: [1 Kheyrabad]</div><div class=hang>n: [1 Kheyrabad]<span class=diff>[1 Kheyrābād]</span></div></td></tr>
+<tr><td><nobr>ku >> 1</nobr></td><td><div class=hang>o: [1 ku]</div><div class=hang>n: [1 ku]<span class=diff>[3 ḵu]</span></div></td></tr>
+<tr><td><nobr>kun >> 1</nobr></td><td><div class=hang>o: [1 kun]</div><div class=hang>n: [1 kun]<span class=diff>[1 ḵun]</span></div></td></tr>
+<tr><td><nobr>leo >> 1</nobr></td><td><div class=hang>o: [4 Leo]</div><div class=hang>n: [4 Leo]<span class=diff>[1 Léo]</span></div></td></tr>
+<tr><td><nobr>leon >> 1</nobr></td><td><div class=hang>o: [6 Leon]</div><div class=hang>n: [6 Leon]<span class=diff>[1 León]</span></div></td></tr>
+<tr><td><nobr>lopez >> 1</nobr></td><td><div class=hang>o: [3 Lopez]</div><div class=hang>n: [3 Lopez]<span class=diff>[4 López]</span></div></td></tr>
+<tr><td><nobr>lucia >> 1</nobr></td><td><div class=hang>o: [1 Lucia]</div><div class=hang>n: [1 Lucia]<span class=diff>[1 Lucía]</span></div></td></tr>
+<tr><td><nobr>lui >> 1</nobr></td><td><div class=hang>o: [3 Luis]</div><div class=hang>n: [3 Luis]<span class=diff>[1 Luís]</span></div></td></tr>
+<tr><td><nobr>mahmud >> 1</nobr></td><td><div class=hang>o: [1 Mahmud]</div><div class=hang>n: [1 Mahmud]<span class=diff>[1 Maḥmud]</span></div></td></tr>
+<tr><td><nobr>me >> 1</nobr></td><td><div class=hang>o: [14 Me][7 me]</div><div class=hang>n: [14 Me][7 me]<span class=diff>[1 mê]</span></div></td></tr>
+<tr><td><nobr>mexico >> 2</nobr></td><td><div class=hang>o: [24 Mexican][21 Mexico]</div><div class=hang>n: [24 Mexican][21 Mexico]<span class=diff>[3 México]</span><span class=diff>[1 méxico]</span></div></td></tr>
+<tr><td><nobr>more >> 1</nobr></td><td><div class=hang>o: [12 More][166 more]</div><div class=hang>n: [12 More]<span class=diff>[2 Møre]</span>[166 more]</div></td></tr>
+<tr><td><nobr>muhammad >> 1</nobr></td><td><div class=hang>o: [4 Muhammad]</div><div class=hang>n: [4 Muhammad]<span class=diff>[1 Muḥammad]</span></div></td></tr>
+<tr><td><nobr>naga >> 1</nobr></td><td><div class=hang>o: [3 Naga][1 Nagas][2 naga][2 nagas]</div><div class=hang>n: [3 Naga][1 Nagas]<span class=diff>[1 Nāga]</span>[2 naga][2 nagas]</div></td></tr>
+<tr><td><nobr>o >> 1</nobr></td><td><div class=hang>o: [41 O][22 o]</div><div class=hang>n: [41 O][22 o]<span class=diff>[1 Ó]</span></div></td></tr>
+<tr><td><nobr>og >> 1</nobr></td><td><div class=hang>o: [3 og]</div><div class=hang>n: [3 og]<span class=diff>[1 Óg]</span></div></td></tr>
+<tr><td><nobr>opera >> 1</nobr></td><td><div class=hang>o: [1 opera][1 operas]</div><div class=hang>n: [1 opera][1 operas]<span class=diff>[1 opéra]</span></div></td></tr>
+<tr><td><nobr>ore >> 1</nobr></td><td><div class=hang>o: [1 ore]</div><div class=hang>n: [1 ore]<span class=diff>[1 Øre]</span></div></td></tr>
+<tr><td><nobr>part >> 1</nobr></td><td><div class=hang>o: [14 Part][104 part]</div><div class=hang>n: [14 Part]<span class=diff>[1 Pärt]</span>[104 part]</div></td></tr>
+<tr><td><nobr>personae >> 1</nobr></td><td><div class=hang>o: [1 personae]</div><div class=hang>n: [1 personae]<span class=diff>[1 personæ]</span></div></td></tr>
+<tr><td><nobr>peter >> 1</nobr></td><td><div class=hang>o: [44 Peter][1 peter]</div><div class=hang>n: [44 Peter]<span class=diff>[1 Péter]</span>[1 peter]</div></td></tr>
+<tr><td><nobr>polgar >> 1</nobr></td><td><div class=hang>o: [1 Polgar]</div><div class=hang>n: [1 Polgar]<span class=diff>[2 Polgár]</span></div></td></tr>
+<tr><td><nobr>quebec >> 1</nobr></td><td><div class=hang>o: [14 Quebec]</div><div class=hang>n: [14 Quebec]<span class=diff>[3 Québec]</span></div></td></tr>
+<tr><td><nobr>re >> 1</nobr></td><td><div class=hang>o: [3 Re][26 re]</div><div class=hang>n: [3 Re][26 re]<span class=diff>[1 ʁɛ̃]</span></div></td></tr>
+<tr><td><nobr>remi >> 1</nobr></td><td><div class=hang>o: [1 Remi]</div><div class=hang>n: [1 Remi]<span class=diff>[1 Rémi]</span></div></td></tr>
+<tr><td><nobr>rene >> 1</nobr></td><td><div class=hang>o: [2 Rene]</div><div class=hang>n: [2 Rene]<span class=diff>[12 René]</span></div></td></tr>
+<tr><td><nobr>roman >> 1</nobr></td><td><div class=hang>o: [25 Roman][2 Romanized][5 Romans]</div><div class=hang>n: [25 Roman][2 Romanized][5 Romans]<span class=diff>[1 Român]</span></div></td></tr>
+<tr><td><nobr>sa >> 1</nobr></td><td><div class=hang>o: [2 SA]</div><div class=hang>n: [2 SA]<span class=diff>[1 Sá]</span></div></td></tr>
+<tr><td><nobr>safi >> 1</nobr></td><td><div class=hang>o: [1 Safi]</div><div class=hang>n: [1 Safi]<span class=diff>[1 Şafī]</span></div></td></tr>
+<tr><td><nobr>sean >> 1</nobr></td><td><div class=hang>o: [2 Sean]</div><div class=hang>n: [2 Sean]<span class=diff>[1 Seán]</span></div></td></tr>
+<tr><td><nobr>senora >> 1</nobr></td><td><div class=hang>o: [2 Senora]</div><div class=hang>n: [2 Senora]<span class=diff>[2 Señora]</span></div></td></tr>
+<tr><td><nobr>sha >> 1</nobr></td><td><div class=hang>o: [1 Sha]</div><div class=hang>n: [1 Sha]<span class=diff>[1 Shā]</span></div></td></tr>
+<tr><td><nobr>t >> 1</nobr></td><td><div class=hang>o: [29 T][32 t]</div><div class=hang>n: [29 T][32 t]<span class=diff>[1 ṭ]</span></div></td></tr>
+<tr><td><nobr>theatre >> 1</nobr></td><td><div class=hang>o: [5 theatre]</div><div class=hang>n: <span class=diff>[2 Théâtre]</span>[5 theatre]</div></td></tr>
+<tr><td><nobr>u >> 1</nobr></td><td><div class=hang>o: [76 U][3 u]</div><div class=hang>n: [76 U][3 u]<span class=diff>[4 û]</span></div></td></tr>
+<tr><td><nobr>valerie >> 1</nobr></td><td><div class=hang>o: [1 Valerie]</div><div class=hang>n: [1 Valerie]<span class=diff>[1 Valérie]</span></div></td></tr>
+<tr><td><nobr>vila >> 1</nobr></td><td><div class=hang>o: [3 Vila]</div><div class=hang>n: [3 Vila]<span class=diff>[1 ˈvilɐ]</span></div></td></tr>
+<tr><td><nobr>vladimir >> 1</nobr></td><td><div class=hang>o: [1 Vladimir]</div><div class=hang>n: [1 Vladimir]<span class=diff>[1 Vladimír]</span></div></td></tr>
+<tr><td><nobr>worn >> 1</nobr></td><td><div class=hang>o: [6 worn]</div><div class=hang>n: <span class=diff>[2 Wörner]</span>[6 worn]</div></td></tr>
+<tr><td><nobr>ישראלית >> 1</nobr></td><td><div class=hang>o: [1 ישראלית]</div><div class=hang>n: <span class=diff>[1 יִשְׂרְאֵלִית]</span>[1 ישראלית]</div></td></tr>
+<tr><td><nobr>לירה >> 1</nobr></td><td><div class=hang>o: [2 לירה]</div><div class=hang>n: <span class=diff>[1 לִירָה]</span>[2 לירה]</div></td></tr>
 </table>
+<a name='hic_increased_1'>
 <br>
 
-<a name='bad_collisions_q'><h3>Bad Collisions? <a href=#TOC style='font-size:60%'>[TOC]</a></h3>
+<a name='bad_collisions_q'><h3>Bad Collisions? <a href=#TOC class=TOC>[TOC]</a></h3>
 &nbsp;&nbsp;&nbsp;11 collisions vs mininmum stem length: 5<br>
 <br>
 <table><tr><th>stemmed</th><th>added type -> group</th></tr>
