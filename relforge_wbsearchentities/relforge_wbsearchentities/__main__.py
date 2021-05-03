@@ -120,7 +120,7 @@ def iterate_lucene_explains(paths):
                     yield row, hits
                     hits_pbar.update(len(hits))
             except:  # noqa: E722
-                log.error('Failed while reading %s'.format(one_path))
+                log.error('Failed while reading {}'.format(one_path))
                 raise
 
 
@@ -129,7 +129,7 @@ def iterate_lucene_explains(paths):
 # into their contents
 with_batch_size = with_arg('-b', '--batch-size', dest='batch_size', type=positive_int, default=1000, required=False)
 with_resample = with_arg('-r', '--resample', dest='resample', type=positive_int, default=None, required=False)
-with_seed = with_arg('--seed', type=int, default=0, required=False)
+with_seed = with_arg('--seed', dest='seed', type=int, default=0, required=False)
 with_es_query = with_arg('--es-query', dest='es_query', type=load_pkl, required=True)
 with_equation = with_arg('-e', '--equation', dest='equation', type=load_pkl, required=True)
 with_source_dataset = with_arg('-s', '--source-dataset', dest='df_source', loader=load_source_df_args, required=True)
@@ -240,7 +240,7 @@ def fetch_explain(df, out_path, es_query, batch_size, es, index):
                     .replace('"{{query_string}}"', json.dumps(row['prefix']))
                     .replace('"{{QUERY_STRING}}"', json.dumps(row['prefix'].upper())))
             except JSONDecodeError:
-                log.warning('Invalid string, bad utf8? str:`{}` json:`{}`'.format(row['prefix']))
+                log.warning('Invalid string, bad utf8? str:`{}` json:`{}`'.format(row['prefix'], encoded_query))
                 continue
             local_query = {
                 'size': batch_size,
