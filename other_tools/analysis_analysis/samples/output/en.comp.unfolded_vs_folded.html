@@ -1,14 +1,16 @@
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
     body { font-family:Helvetica; font-size:115%; }
-    th, td { text-align:left; vertical-align: top; border: 1px solid black; dir:auto;
-        padding:2px; }
+    th, td { text-align:left; border: 1px solid black; dir:auto;
+        padding:2px 3px; }
     table { border-collapse: collapse; }
+    .vtop tr td, .vtop tr th { vertical-align:top; }
+    .vcent tr td, .vcent tr td { vertical-align:center }
     tr:nth-child(even) { background: #f8f8f8; }
     tr.key td:nth-of-type(3n+1) { text-align:center; }
     .red { color: red; font-weight: bold; }
     .hang { padding-left: 2em ; text-indent: -2em; }
-    .invis { color:#57c6eb; }
+    .invis { color:#57c6eb; cursor: help; }
     .leftCatDiv, .rightCatDiv { width:47%; border:1px solid grey; padding:1%;
         word-wrap:break-word; vertical-align: top; margin-bottom: -1px; }
     .leftCatDiv { float:left; clear:left; }
@@ -17,11 +19,14 @@
     .TOC { font-size:60%; }
     .diff { background-color:#ffffe8; }
     .bigNum { color:blue }
-    .cyr { color:#f00 }
-    .ltn { color:#070 }
-    .grk { color:#00f }
-    .cyr, .ltn, .grk, .invis { cursor: help; }
+	.ltn { color:#007700 }
+	.ben { color:#107896 }
+	.cyr { color:#ff0000 }
+	.dev { color:#e68d2e }
+	.grk { color:#0000ff }
+	.ltn, .ben, .cyr, .dev, .grk { cursor: help; }
 </style>
+
 <b>Processing samples/output/en.counts.unfolded.txt as 'old'.</b><br>
 <b>Processing samples/output/en.counts.folded.txt as 'new'.</b><br>
 <b>Language processing: </b>default<br>
@@ -40,14 +45,14 @@
 &nbsp;&nbsp;&nbsp;<a href='#new_collision_near_match_stats'>New Collision Near Match Stats</a><br>
 <a href='#lost_and_found'>Lost and Found Tokens</a><br>
 <a href='#changed_collisions'>Changed Groups</a><br>
-&nbsp;&nbsp;&nbsp;<a href='#bad_collisions_q'>Bad Collisions?</a><br>
+
 <h3>Invisibles and Script Colors <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>symbol</th><th>invisible chars</th><th>&nbsp;</th><th>symbol</th><th>invisible chars</th><th>&nbsp;</th><th>color</th><th>script</th></tr>
-<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td></tr>
-<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, FEFF, 00A0)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>⅟</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td>कあ가កกیא</td><td>unlabelled</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td></tr>
+<table class='vcent'><tr><th>symbol</th><th>invisible chars</th><th></th><th>symbol</th><th>invisible chars</th><th></th><th>color</th><th>script</th><th></th><th>color</th><th>script</th></tr>
+<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=ben title='Bengali script'>বাংলা</span></td><td>Bengali</td><td></td><td>あ가កกᎹیא</td><td>unlabelled</td></tr>
+<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>⅟</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=dev title='Devanagari script'>देवनागरी</span></td><td>Devanagari</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
+<tr class='key'><td></td><td></td><td></td><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, 202F, FEFF, 00A0)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
 </table>
 
 <a name='PPTTS'><h3>Pre/Post Type & Token Stats <a href=#TOC class=TOC>[TOC]</a></h3>
@@ -57,7 +62,7 @@ Old File Info</b><br>
 &nbsp;&nbsp;&nbsp; pre-analysis types: 23,813<br>
 &nbsp;&nbsp;&nbsp;post-analysis types: 17,367<br>
 <br>
-<table><tr><th>type</th><th>token</th><th>change_type</th></tr>
+<table class='vtop'><tr><th>type</th><th>token</th><th>change_type</th></tr>
 <tr><td>8,680</td><td>62,824</td><td>unchanged</td></tr>
 <tr><td>17,862</td><td>96,867</td><td>lc_unchanged</td></tr>
 <tr><td>1,019</td><td>8,465</td><td>number</td></tr>
@@ -69,7 +74,7 @@ New File Info</b><br>
 &nbsp;&nbsp;&nbsp; pre-analysis types: 23,813<br>
 &nbsp;&nbsp;&nbsp;post-analysis types: 17,292<br>
 <br>
-<table><tr><th>type</th><th>token</th><th>change_type</th></tr>
+<table class='vtop'><tr><th>type</th><th>token</th><th>change_type</th></tr>
 <tr><td>8,547</td><td>62,673</td><td>unchanged</td></tr>
 <tr><td>17,371</td><td>96,193</td><td>lc_unchanged</td></tr>
 <tr><td>1,019</td><td>8,465</td><td>number</td></tr>
@@ -91,7 +96,7 @@ Narrative: 73 pre-analysis types (0.307% of pre-analysis types) / 123 tokens (0.
 Note: All percentages are relative to old token/type counts.<br>
 
 <a name='new_collision_near_match_stats'><h3>New Collision Near Match Stats <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>type</th><th>token</th><th>kind</th></tr>
+<table class='vtop'><tr><th>type</th><th>token</th><th>kind</th></tr>
 <tr><td>73</td><td>123</td><td>other</td></tr>
 </table>
 <br>
@@ -100,8 +105,8 @@ New collision type is a near match for a type already in the group after...<br>
 <div class=hang>&nbsp;&nbsp;&nbsp;<b>folded:</b> applying generic and language-specific character folding, de-spacing, and de-hyphenation</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>regulars:</b> removing language-specific regular prefixes and suffixes</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>folded_regulars:</b> applying generic and language-specific character folding, de-spacing, de-hyphenation, and removing language-specific regular prefixes and suffixes</div>Categories do not overlap. Types are post-analysis types<br>
 
 <a name='lost_and_found'><h3>Lost and Found Tokens <a href=#TOC class=TOC>[TOC]</a></h3>
-Lost (old only) post-analysis types/tokens: 484 / 674<br>
-Found (new only) post-analysis types/tokens: 409 / 551<br>
+&bull; Lost (old only) post-analysis types/tokens: 484 / 674<br>
+&bull; Found (new only) post-analysis types/tokens: 409 / 551<br>
 <br>
 <div class=leftCatDiv>
 <b> Lost (old only) post-analysis tokens by category</b>
@@ -197,23 +202,24 @@ Found (new only) post-analysis types/tokens: 409 / 551<br>
 </blockquote>
 </div>
 <br style='clear:both'>
-<div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Latin (Basic):</i> 390 types, 531 tokens (sample of 100)<br>
-<blockquote>administratia &bull; aelfric &bull; alava &bull; almasi &bull; ate &bull; aylagy &bull; beh &bull; bengoue &bull; bucuresti &bull; burau &bull; cervenka &bull; crepin &bull; cronica &bull; decepcion &bull; democratico &bull; depistage &bull; diabetique &bull; efrain &bull; ejercito &bull; erotico &bull; escultorico &bull; evelyne &bull; fatwa &bull; filistini &bull; gerard &bull; grabow &bull; grabuf &bull; grimsson &bull; grunberg &bull; haendup &bull; haiti &bull; hamlagrovatnet &bull; hral &bull; iidesjarvi &bull; imruz &bull; itainen &bull; judische &bull; judischen &bull; jurgen &bull; kah &bull; kalman &bull; kokai &bull; krakow &bull; kut &bull; leko &bull; linne &bull; loue &bull; lusiada &bull; maatalousnayttelyyn &bull; martynow &bull; masque &bull; metabetchouan &bull; michoacan &bull; naklo &bull; nora &bull; oster &bull; ouesse &bull; oyvind &bull; parana &bull; pasm &bull; patitia &bull; pernia &bull; pestszentlorinc &bull; podgorzyn &bull; polatli &bull; protege &bull; raca &bull; reckeho &bull; romane &bull; rozdol &bull; rychle &bull; saguna &bull; seka &bull; sgallova &bull; siglufjordur &bull; suarez &bull; suda &bull; sudtirol &bull; sueno &bull; swiecie &bull; tajekoztato &bull; taranu &bull; torvikbygd &bull; treteaux &bull; trollaskagi &bull; tulga &bull; uber &bull; uberzone &bull; udah &bull; uniao &bull; urvalsdeild &bull; vaigattoyane &bull; varietat &bull; vemmelsaari &bull; verd &bull; veslovani &bull; vikoyar &bull; vrsovci &bull; vyhlidal &bull; wori<br>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Latin:</i> 451 types, 640 tokens (sample of 100)<br>
+<blockquote>adésio &bull; andrás &bull; arê &bull; ayê &bull; balgstädt &bull; boulangère &bull; boţan &bull; bragança &bull; brașov &bull; běh &bull; camões &bull; châtelain &bull; cristóvão &bull; crónica &bull; efraín &bull; eheverhältnisse &bull; erótico &bull; estádio &bull; eyjafjarðará &bull; filisţīnī &bull; fnjóská &bull; français &bull; frédéric &bull; félicien &bull; grenivík &bull; grévin &bull; guatémalienne &bull; guimarães &bull; hrál &bull; häcken &bull; iidesjärvi &bull; ilić &bull; imām &bull; isrāīlī &bull; județului &bull; jürgen &bull; kaposvár &bull; kaški &bull; kaṭa &bull; keflavík &bull; khairābād &bull; kheyrābād &bull; könnin &bull; lehkých &bull; lillafüred &bull; lycée &bull; läntinen &bull; maatalousnäyttelyyn &bull; manjirō &bull; martyniów &bull; munții &bull; mádl &bull; méxico &bull; mê &bull; mākānī &bull; nakło &bull; ogooué &bull; opéra &bull; penélope &bull; pernía &bull; pestszentlőrinc &bull; pourtalès &bull; przekładu &bull; prémonition &bull; pärt &bull; póšum &bull; radioélectrique &bull; rhône &bull; rychlé &bull; rétinopathie &bull; römischen &bull; seinäjoen &bull; sekä &bull; svalbarðseyri &bull; sá &bull; süddeutsche &bull; südtirol &bull; sącz &bull; tájékoztató &bull; tête &bull; tørvikbygd &bull; tǐyù &bull; vikør &bull; vác &bull; worî &bull; yši &bull; zsófia &bull; árpád &bull; écus &bull; ó &bull; ólafur &bull; øyvind &bull; ûw &bull; über &bull; überzone &bull; člůnků &bull; şanlıurfaspor &bull; ḍ &bull; ḵu &bull; ḵût<br>
 </blockquote>
 </div>
-<div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Latin (Extended):</i> 451 types, 640 tokens (sample of 100)<br>
-<blockquote>alexandrín &bull; aliæ &bull; altădată &bull; antónio &bull; apatzingán &bull; baçente &bull; baš &bull; bengoué &bull; bolesław &bull; béla &bull; běh &bull; charrière &bull; città &bull; córdoba &bull; début &bull; día &bull; efraín &bull; ejército &bull; emām &bull; erótico &bull; esmé &bull; españa &bull; estádio &bull; filisţīnī &bull; fáil &bull; gonzález &bull; grabów &bull; grenivík &bull; guimarães &bull; głogowa &bull; hörgárdalur &bull; jürgen &bull; kaṭa &bull; keflavík &bull; kärryseppiä &bull; latinského &bull; lillafüred &bull; linné &bull; loué &bull; lycée &bull; lékó &bull; léo &bull; maatalousnäyttelyyn &bull; martynów &bull; métabetchouan &bull; nopankylän &bull; olléon &bull; ouèssè &bull; pašm &bull; pernía &bull; perényi &bull; prémonition &bull; póšum &bull; păcurariu &bull; româniei &bull; rychlé &bull; rîurile &bull; seinäjoen &bull; sekä &bull; señora &bull; sgallová &bull; shǔ &bull; soirée &bull; svarfaðardalur &bull; tulḡa &bull; tène &bull; tête &bull; urlăţelu &bull; varèse &bull; vieuchêne &bull; vlădeasa &bull; vác &bull; värnamo &bull; vålerenga &bull; wahlbergøya &bull; zadié &bull; zeleném &bull; árskógssandur &bull; å &bull; ålvik &bull; åsegrenda &bull; ælfric &bull; évelyne &bull; évêque &bull; í &bull; íba &bull; óg &bull; über &bull; überzone &bull; čaman &bull; český &bull; čiz &bull; člůnků &bull; řeckého &bull; şafī &bull; și &bull; țurcan &bull; ḍ &bull; ḵondagi &bull; ḵāh<br>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>Latin:</i> 390 types, 531 tokens (sample of 100)<br>
+<blockquote>adesio &bull; adhemar &bull; aelfric &bull; alvik &bull; andre &bull; archaologische &bull; armancon &bull; backam &bull; beh &bull; blatny &bull; botan &bull; but &bull; carturari &bull; cirstea &bull; ciz &bull; cristovao &bull; dalvik &bull; decepcion &bull; departement &bull; domico &bull; dominguez &bull; ecu &bull; ejercito &bull; erotico &bull; eyjafjardara &bull; eyjafjardardalur &bull; flatabo &bull; gerard &bull; gonzalez &bull; gositse &bull; grabow &bull; grabuf &bull; grenivik &bull; grevin &bull; gyor &bull; haiti &bull; hebraer &bull; horgardalur &bull; hrisey &bull; ia &bull; ichiro &bull; imruz &bull; judetului &bull; judischen &bull; jurgen &bull; kah &bull; kocmyrzow &bull; koppanyszanto &bull; leczyca &bull; leko &bull; lof &bull; lycee &bull; maatalousnayttelyyn &bull; mekambo &bull; metabetchouan &bull; meti &bull; michoacan &bull; nora &bull; nystrom &bull; olleon &bull; oystese &bull; paramo &bull; parana &bull; patricia &bull; perenyi &bull; pernia &bull; pestszentlorinc &bull; petofi &bull; ptaku &bull; radioelectrique &bull; regle &bull; retinopathie &bull; rhone &bull; riviere &bull; romischen &bull; rozdol &bull; salomon &bull; shu &bull; sigurdardottir &bull; slowianska &bull; snalla &bull; suda &bull; sudtirol &bull; sueno &bull; tajekoztato &bull; tarii &bull; tir &bull; tiyu &bull; uniao &bull; varaldsoy &bull; varietat &bull; vikoy &bull; vitezslav &bull; vyhlidal &bull; wladyslaw &bull; wori &bull; zbraxlin &bull; zefirah &bull; zihlbrucke &bull; zollner<br>
 </blockquote>
 </div>
 <br style='clear:both'>
+<br>
 
 <a name='changed_collisions'><h3>Changed Groups <a href=#TOC class=TOC>[TOC]</a></h3>
 <div class=hang>&nbsp;&nbsp;&nbsp;<b><<:</b> indicates net loss of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>><:</b> indicates mixed gains and losses of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>>>:</b> indicates net gain of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>#:</b> the number following indicates the magnitude of the change (#types affected)</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>terseness:</b> 0</div><div class=hang>&nbsp;&nbsp;&nbsp;<b><span class=diff>[1 diff]</span>:</b> diffs between old and new sets</div><div class=hang>&nbsp;&nbsp;&nbsp;<b><b class=bigNum>[1000 freq]</b>:</b> high-frequency terms</div>
 <a name='changed_collisions_increased'><h4>Net Gains <a href=#TOC class=TOC>[TOC]</a></h4>
 <a href='#hic_increased_1'><b>High Impact Changes</b></a><br><br>
-<table>
+<table class='vtop'>
 <tr><td><nobr>ab >> 1</nobr></td><td><div class=hang>o: [2 AB][1 ab]</div><div class=hang>n: [2 AB][1 ab]<span class=diff>[1 āb]</span></div></td></tr>
 <tr><td><nobr>abu >> 1</nobr></td><td><div class=hang>o: [8 Abu]</div><div class=hang>n: [8 Abu]<span class=diff>[1 Abū]</span></div></td></tr>
 <tr><td><nobr>alexandrin >> 1</nobr></td><td><div class=hang>o: [1 alexandrin]</div><div class=hang>n: [1 alexandrin]<span class=diff>[2 alexandrín]</span></div></td></tr>
@@ -286,84 +292,4 @@ Found (new only) post-analysis types/tokens: 409 / 551<br>
 <tr><td><nobr>לירה >> 1</nobr></td><td><div class=hang>o: [2 לירה]</div><div class=hang>n: <span class=diff>[1 לִירָה]</span>[2 לירה]</div></td></tr>
 </table>
 <a name='hic_increased_1'>
-<br>
-
-<a name='bad_collisions_q'><h3>Bad Collisions? <a href=#TOC class=TOC>[TOC]</a></h3>
-&nbsp;&nbsp;&nbsp;73 collisions vs mininmum stem length: 5<br>
-<br>
-<table><tr><th>stemmed</th><th>added type -> group</th></tr>
-<tr><td>ab</td><td>[1 āb] -> [2 AB][1 ab]</td></tr>
-<tr><td>abu</td><td>[1 Abū] -> [8 Abu]</td></tr>
-<tr><td>alexandrin</td><td>[2 alexandrín] -> [1 alexandrin]</td></tr>
-<tr><td>alfred</td><td>[2 Alfréd] -> [5 Alfred]</td></tr>
-<tr><td>antonio</td><td>[2 António] -> [4 Antonio]</td></tr>
-<tr><td>bela</td><td>[1 Béla] -> [2 Bela]</td></tr>
-<tr><td>cafe</td><td>[1 Café] -> [2 Cafe][1 cafe]</td></tr>
-<tr><td>cafe</td><td>[1 café] -> [2 Cafe][1 cafe]</td></tr>
-<tr><td>case</td><td>[1 Casé] -> [1 Case][1 Cases][33 case][18 cases]</td></tr>
-<tr><td>creole</td><td>[3 Créole] -> [3 Creole]</td></tr>
-<tr><td>d</td><td>[1 ḍ] -> [48 D][16 d]</td></tr>
-<tr><td>debut</td><td>[1 début] -> [19 debut][3 debuted]</td></tr>
-<tr><td>defense</td><td>[1 défense] -> [3 Defense][6 defense][1 defenses]</td></tr>
-<tr><td>dia</td><td>[1 Día] -> [3 Dia]</td></tr>
-<tr><td>em</td><td>[1 ēm] -> [2 EM]</td></tr>
-<tr><td>emam</td><td>[2 Emām] -> [1 Emam]</td></tr>
-<tr><td>esme</td><td>[1 Esmé] -> [1 Esme]</td></tr>
-<tr><td>ete</td><td>[1 Été] -> [1 ete]</td></tr>
-<tr><td>fail</td><td>[1 Fáil] -> [2 Failed][1 fail][20 failed]</td></tr>
-<tr><td>francoi</td><td>[1 François] -> [1 Francois]</td></tr>
-<tr><td>g</td><td>[1 ɢ] -> [23 G][35 g]</td></tr>
-<tr><td>gab</td><td>[1 Gábor] -> [1 Gabes][1 gabions]</td></tr>
-<tr><td>glogow</td><td>[13 Głogów] -> [1 GLOGOW]</td></tr>
-<tr><td>ha</td><td>[1 hā] -> [5 Ha][8 ha]</td></tr>
-<tr><td>harbi</td><td>[1 Ḥarbī] -> [17 Harbi]</td></tr>
-<tr><td>hebertville</td><td>[2 Hébertville] -> [1 Hebertville]</td></tr>
-<tr><td>i</td><td>[2 í] -> [153 I][30 i]</td></tr>
-<tr><td>i</td><td>[1 ɨ] -> [153 I][30 i]</td></tr>
-<tr><td>imam</td><td>[1 Imām] -> [1 Imam][1 imams]</td></tr>
-<tr><td>integrate</td><td>[1 Intégration] -> [1 Integration][1 integrate][2 integrates][1 integrating][2 integration][1 integrative]</td></tr>
-<tr><td>jose</td><td>[3 José] -> [5 Jose]</td></tr>
-<tr><td>kheyrabad</td><td>[1 Kheyrābād] -> [1 Kheyrabad]</td></tr>
-<tr><td>ku</td><td>[3 ḵu] -> [1 ku]</td></tr>
-<tr><td>kun</td><td>[1 ḵun] -> [1 kun]</td></tr>
-<tr><td>leo</td><td>[1 Léo] -> [4 Leo]</td></tr>
-<tr><td>leon</td><td>[1 León] -> [6 Leon]</td></tr>
-<tr><td>lopez</td><td>[4 López] -> [3 Lopez]</td></tr>
-<tr><td>lucia</td><td>[1 Lucía] -> [1 Lucia]</td></tr>
-<tr><td>lui</td><td>[1 Luís] -> [3 Luis]</td></tr>
-<tr><td>mahmud</td><td>[1 Maḥmud] -> [1 Mahmud]</td></tr>
-<tr><td>me</td><td>[1 mê] -> [14 Me][7 me]</td></tr>
-<tr><td>mexico</td><td>[3 México] -> [24 Mexican][21 Mexico]</td></tr>
-<tr><td>mexico</td><td>[1 méxico] -> [24 Mexican][21 Mexico]</td></tr>
-<tr><td>more</td><td>[2 Møre] -> [12 More][166 more]</td></tr>
-<tr><td>muhammad</td><td>[1 Muḥammad] -> [4 Muhammad]</td></tr>
-<tr><td>naga</td><td>[1 Nāga] -> [3 Naga][1 Nagas][2 naga][2 nagas]</td></tr>
-<tr><td>o</td><td>[1 Ó] -> [41 O][22 o]</td></tr>
-<tr><td>og</td><td>[1 Óg] -> [3 og]</td></tr>
-<tr><td>opera</td><td>[1 opéra] -> [1 opera][1 operas]</td></tr>
-<tr><td>ore</td><td>[1 Øre] -> [1 ore]</td></tr>
-<tr><td>part</td><td>[1 Pärt] -> [14 Part][104 part]</td></tr>
-<tr><td>personae</td><td>[1 personæ] -> [1 personae]</td></tr>
-<tr><td>peter</td><td>[1 Péter] -> [44 Peter][1 peter]</td></tr>
-<tr><td>polgar</td><td>[2 Polgár] -> [1 Polgar]</td></tr>
-<tr><td>quebec</td><td>[3 Québec] -> [14 Quebec]</td></tr>
-<tr><td>re</td><td>[1 ʁɛ̃] -> [3 Re][26 re]</td></tr>
-<tr><td>remi</td><td>[1 Rémi] -> [1 Remi]</td></tr>
-<tr><td>rene</td><td>[12 René] -> [2 Rene]</td></tr>
-<tr><td>roman</td><td>[1 Român] -> [25 Roman][2 Romanized][5 Romans]</td></tr>
-<tr><td>sa</td><td>[1 Sá] -> [2 SA]</td></tr>
-<tr><td>safi</td><td>[1 Şafī] -> [1 Safi]</td></tr>
-<tr><td>sean</td><td>[1 Seán] -> [2 Sean]</td></tr>
-<tr><td>senora</td><td>[2 Señora] -> [2 Senora]</td></tr>
-<tr><td>sha</td><td>[1 Shā] -> [1 Sha]</td></tr>
-<tr><td>t</td><td>[1 ṭ] -> [29 T][32 t]</td></tr>
-<tr><td>theatre</td><td>[2 Théâtre] -> [5 theatre]</td></tr>
-<tr><td>u</td><td>[4 û] -> [76 U][3 u]</td></tr>
-<tr><td>valerie</td><td>[1 Valérie] -> [1 Valerie]</td></tr>
-<tr><td>vila</td><td>[1 ˈvilɐ] -> [3 Vila]</td></tr>
-<tr><td>vladimir</td><td>[1 Vladimír] -> [1 Vladimir]</td></tr>
-<tr><td>worn</td><td>[2 Wörner] -> [6 worn]</td></tr>
-<tr><td>ישראלית</td><td>[1 יִשְׂרְאֵלִית] -> [1 ישראלית]</td></tr>
-<tr><td>לירה</td><td>[1 לִירָה] -> [2 לירה]</td></tr>
-</table>
 <br>

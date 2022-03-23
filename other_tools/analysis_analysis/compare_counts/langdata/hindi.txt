@@ -1,0 +1,27 @@
+# Hindi / Devanagari
+
+# digits
+fold	०	0
+fold	१	1
+fold	२	2
+fold	३	3
+fold	४	4
+fold	५	5
+fold	६	6
+fold	७	7
+fold	८	8
+fold	९	9
+
+# doubled letters
+fold	ई	इ
+fold	ऊ	उ
+fold	ॠ	ऋ
+fold	ॡ	ऌ
+fold	ऐ	ए
+fold	औ	ओ
+fold	ऱ	र
+
+# candra/nasalized letters
+fold	ॲ	अ
+fold	ऍ	ए
+fold	ऑ	ओ

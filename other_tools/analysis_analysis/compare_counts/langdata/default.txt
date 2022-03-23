@@ -323,6 +323,7 @@ fold	ϖ	π
 fold	ϱ	ρ
 fold	ϲ	σ
 fold	ϒ	Υ
+fold	ϕ	φ
 
 # misc
 fold	㎝	cm
@@ -339,6 +340,7 @@ fold	ª	a
 fold	º	o
 fold	­	
 fold	ℛ	r
+fold	ℏ	ħ
 
 # variants in circles and parens
 fold	⑩	10

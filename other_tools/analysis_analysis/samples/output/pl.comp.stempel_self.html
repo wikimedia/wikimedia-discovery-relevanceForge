@@ -1,14 +1,16 @@
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
     body { font-family:Helvetica; font-size:115%; }
-    th, td { text-align:left; vertical-align: top; border: 1px solid black; dir:auto;
-        padding:2px; }
+    th, td { text-align:left; border: 1px solid black; dir:auto;
+        padding:2px 3px; }
     table { border-collapse: collapse; }
+    .vtop tr td, .vtop tr th { vertical-align:top; }
+    .vcent tr td, .vcent tr td { vertical-align:center }
     tr:nth-child(even) { background: #f8f8f8; }
     tr.key td:nth-of-type(3n+1) { text-align:center; }
     .red { color: red; font-weight: bold; }
     .hang { padding-left: 2em ; text-indent: -2em; }
-    .invis { color:#57c6eb; }
+    .invis { color:#57c6eb; cursor: help; }
     .leftCatDiv, .rightCatDiv { width:47%; border:1px solid grey; padding:1%;
         word-wrap:break-word; vertical-align: top; margin-bottom: -1px; }
     .leftCatDiv { float:left; clear:left; }
@@ -17,11 +19,14 @@
     .TOC { font-size:60%; }
     .diff { background-color:#ffffe8; }
     .bigNum { color:blue }
-    .cyr { color:#f00 }
-    .ltn { color:#070 }
-    .grk { color:#00f }
-    .cyr, .ltn, .grk, .invis { cursor: help; }
+	.ltn { color:#007700 }
+	.ben { color:#107896 }
+	.cyr { color:#ff0000 }
+	.dev { color:#e68d2e }
+	.grk { color:#0000ff }
+	.ltn, .ben, .cyr, .dev, .grk { cursor: help; }
 </style>
+
 <b>Processing samples/output/pl.counts.stempel.txt as 'new'.</b><br>
 <br>
 <b>Total new tokens: </b>104,185<br>
@@ -33,6 +38,7 @@
 <a name='TOC'><h3>Table of Contents</h3>
 <a href='#stemmingResults'>Stemming Results</a><br>
 &nbsp;&nbsp;&nbsp;<a href="#prob1">Potential Problem Stems</a><br>
+<a href='#samplesForReview'>Samples for Speaker Review</a><br>
 <a href='#commonPrefixes'>Common Prefix Alternations</a><br>
 <a href='#commonSuffixes'>Common Suffix Alternations</a><br>
 <a href='#typeCountFreqTable'>Case-Insensitive Type Group Counts</a><br>
@@ -41,12 +47,12 @@
 <a href='#tokenCategories'>Token Samples by Category</a><br>
 
 <h3>Invisibles and Script Colors <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>symbol</th><th>invisible chars</th><th>&nbsp;</th><th>symbol</th><th>invisible chars</th><th>&nbsp;</th><th>color</th><th>script</th></tr>
-<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td></tr>
-<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, FEFF, 00A0)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>⅟</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td>कあ가កกیא</td><td>unlabelled</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td></tr>
+<table class='vcent'><tr><th>symbol</th><th>invisible chars</th><th></th><th>symbol</th><th>invisible chars</th><th></th><th>color</th><th>script</th><th></th><th>color</th><th>script</th></tr>
+<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=ben title='Bengali script'>বাংলা</span></td><td>Bengali</td><td></td><td>あ가កกᎹیא</td><td>unlabelled</td></tr>
+<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>⅟</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=dev title='Devanagari script'>देवनागरी</span></td><td>Devanagari</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
+<tr class='key'><td></td><td></td><td></td><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, 202F, FEFF, 00A0)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
 </table>
 
 <a name='stemmingResults'><h3>Stemming Results (groups only) <a href=#TOC class=TOC>[TOC]</a></h3>
@@ -54,7 +60,7 @@
 :: indicates affix-stripped matches<br>
 -- indicates affix-stripped and folded matches<br>
 <br>
-<table><tr><th>stem</th><th>common</th><th>group total</th><th>distinct types</th><th>types (counts)</th></tr>
+<table class='vtop'><tr><th>stem</th><th>common</th><th>group total</th><th>distinct types</th><th>types (counts)</th></tr>
 <tr><td>10ć</td><td>10 .. 1</td><td>2</td><td>2</td><td>[1&nbsp;1001][1&nbsp;1021]</td></tr>
 <tr><td>11ć</td><td>11 .. 1</td><td>2</td><td>2</td><td>[1&nbsp;1181][1&nbsp;1191]</td></tr>
 <tr><td>12ć</td><td>12 .. 1</td><td>2</td><td>2</td><td>[1&nbsp;12,1][1&nbsp;1291]</td></tr>
@@ -123,7 +129,7 @@
 <tr><td>alć</td><td>al .. </td><td>2</td><td>2</td><td>[1&nbsp;Alaer][1&nbsp;Allgau]</td></tr>
 <tr><td>amatorski</td><td>amatorsk .. o</td><td>2</td><td>2</td><td>[1&nbsp;amatorskiego][1&nbsp;amatorsko]</td></tr>
 <tr><td>ambasada</td><td>ambasad .. </td><td>5</td><td>3</td><td>[2&nbsp;Ambasada][1&nbsp;ambasada][1&nbsp;ambasady][1&nbsp;ambasadzie]</td></tr>
-<tr><td>amerykański</td><td>amerykańs .. </td><td>137</td><td><a name='count10.1'><a href='#count10.2'><span class=red>10</span></a></td><td>[1&nbsp;Amerykańska][1&nbsp;Amerykański][1&nbsp;Amerykańskie][2&nbsp;Amerykańskiego][1&nbsp;Amerykańskiej][1&nbsp;amerykańscy][26&nbsp;amerykańska][72&nbsp;amerykański][3&nbsp;amerykańskich][8&nbsp;amerykańskie][3&nbsp;amerykańskiego][10&nbsp;amerykańskiej][5&nbsp;amerykańskim][1&nbsp;amerykańsko][2&nbsp;amerykańską]</td></tr>
+<tr><td>amerykański</td><td>amerykańs .. </td><td>137</td><td>10</td><td>[1&nbsp;Amerykańska][1&nbsp;Amerykański][1&nbsp;Amerykańskie][2&nbsp;Amerykańskiego][1&nbsp;Amerykańskiej][1&nbsp;amerykańscy][26&nbsp;amerykańska][72&nbsp;amerykański][3&nbsp;amerykańskich][8&nbsp;amerykańskie][3&nbsp;amerykańskiego][10&nbsp;amerykańskiej][5&nbsp;amerykańskim][1&nbsp;amerykańsko][2&nbsp;amerykańską]</td></tr>
 <tr><td>an</td><td>an .. n</td><td>26</td><td>2</td><td>[11&nbsp;AN][6&nbsp;An][5&nbsp;Anton][4&nbsp;an]</td></tr>
 <tr><td>analiza</td><td>analiz .. </td><td>6</td><td>2</td><td>[1&nbsp;analizie][5&nbsp;analizy]</td></tr>
 <tr><td>analizować</td><td>analizowa .. </td><td>2</td><td>2</td><td>[1&nbsp;analizowanym][1&nbsp;analizować]</td></tr>
@@ -206,7 +212,7 @@
 <tr><td>australia</td><td>australi .. </td><td>17</td><td>2</td><td>[2&nbsp;Australia][15&nbsp;Australii]</td></tr>
 <tr><td>australijski</td><td>australijsk .. </td><td>6</td><td>4</td><td>[1&nbsp;australijska][3&nbsp;australijski][1&nbsp;australijskiej][1&nbsp;australijską]</td></tr>
 <tr><td>austria</td><td>austri .. </td><td>6</td><td>2</td><td>[1&nbsp;Austria][5&nbsp;Austrii]</td></tr>
-<tr><td>austriacki</td><td>austriack .. </td><td>23</td><td><a name='count10.2'><a href='#count10.3'><span class=red>10</span></a></td><td>[1&nbsp;Austriackie][2&nbsp;austriacka][8&nbsp;austriacki][2&nbsp;austriackich][3&nbsp;austriackiego][2&nbsp;austriackiej][1&nbsp;austriackim][1&nbsp;austriackimi][2&nbsp;austriacko][1&nbsp;austriacką]</td></tr>
+<tr><td>austriacki</td><td>austriack .. </td><td>23</td><td>10</td><td>[1&nbsp;Austriackie][2&nbsp;austriacka][8&nbsp;austriacki][2&nbsp;austriackich][3&nbsp;austriackiego][2&nbsp;austriackiej][1&nbsp;austriackim][1&nbsp;austriackimi][2&nbsp;austriacko][1&nbsp;austriacką]</td></tr>
 <tr><td>aut</td><td>aut .. </td><td>3</td><td>2</td><td>[1&nbsp;aut][2&nbsp;autem]</td></tr>
 <tr><td>autobus</td><td>autobus .. </td><td>14</td><td>5</td><td>[1&nbsp;Autobus][1&nbsp;Autobusy][6&nbsp;autobus][1&nbsp;autobusami][1&nbsp;autobusie][2&nbsp;autobusu][2&nbsp;autobusy]</td></tr>
 <tr><td>autobusowy</td><td>autobusow .. </td><td>9</td><td>4</td><td>[1&nbsp;Autobusowe][1&nbsp;autobusowa][1&nbsp;autobusowe][2&nbsp;autobusowego][4&nbsp;autobusowy]</td></tr>
@@ -283,7 +289,7 @@
 <tr><td>białogardzki</td><td>białogardzki .. </td><td>2</td><td>2</td><td>[1&nbsp;Białogardzkie][1&nbsp;białogardzkim]</td></tr>
 <tr><td>białoruski</td><td>białoruskie .. </td><td>2</td><td>2</td><td>[1&nbsp;Białoruskiej][1&nbsp;białoruskiego]</td></tr>
 <tr><td>białostocki</td><td>białostocki .. </td><td>2</td><td>2</td><td>[1&nbsp;białostockiego][1&nbsp;białostockim]</td></tr>
-<tr><td>biały</td><td>bia .. </td><td>44</td><td><a name='count10.3'><a href='#count10.4'><span class=red>10</span></a></td><td>[3&nbsp;Biali][5&nbsp;Biała][1&nbsp;Białe][6&nbsp;Białego][4&nbsp;Białej][5&nbsp;Biały][3&nbsp;Białych][1&nbsp;Białym][1&nbsp;Białą][1&nbsp;biali][1&nbsp;białego][2&nbsp;białej][2&nbsp;biały][5&nbsp;białych][1&nbsp;białymi][3&nbsp;białą]</td></tr>
+<tr><td>biały</td><td>bia .. </td><td>44</td><td>10</td><td>[3&nbsp;Biali][5&nbsp;Biała][1&nbsp;Białe][6&nbsp;Białego][4&nbsp;Białej][5&nbsp;Biały][3&nbsp;Białych][1&nbsp;Białym][1&nbsp;Białą][1&nbsp;biali][1&nbsp;białego][2&nbsp;białej][2&nbsp;biały][5&nbsp;białych][1&nbsp;białymi][3&nbsp;białą]</td></tr>
 <tr><td>biblijny</td><td>biblijne .. </td><td>9</td><td>2</td><td>[2&nbsp;Biblijne][6&nbsp;Biblijnego][1&nbsp;biblijne]</td></tr>
 <tr><td>biblioteka</td><td>bibliote .. </td><td>8</td><td>4</td><td>[3&nbsp;Biblioteki][1&nbsp;Biblioteką][2&nbsp;bibliotece][1&nbsp;biblioteki][1&nbsp;bibliotekę]</td></tr>
 <tr><td>bibliotekarz</td><td>bibliotekarz .. </td><td>2</td><td>2</td><td>[1&nbsp;bibliotekarz][1&nbsp;bibliotekarza]</td></tr>
@@ -339,7 +345,7 @@
 <tr><td>bratysław</td><td>bratysław .. </td><td>6</td><td>2</td><td>[4&nbsp;Bratysława][2&nbsp;Bratysławie]</td></tr>
 <tr><td>brazylia</td><td>brazyli .. </td><td>59</td><td>4</td><td>[1&nbsp;Brazylia][51&nbsp;Brazylii][4&nbsp;Brazylią][3&nbsp;Brazylię]</td></tr>
 <tr><td>brazylijczyk</td><td>brazylijczyk .. </td><td>4</td><td>3</td><td>[1&nbsp;Brazylijczyka][2&nbsp;Brazylijczykiem][1&nbsp;Brazylijczyków]</td></tr>
-<tr><td>brazylijski</td><td>brazylijs .. </td><td>55</td><td><a name='count10.4'><a href='#count10.5'><span class=red>10</span></a></td><td>[1&nbsp;Brazylijska][2&nbsp;brazylijscy][3&nbsp;brazylijska][11&nbsp;brazylijski][3&nbsp;brazylijskich][2&nbsp;brazylijskie][1&nbsp;brazylijskiego][17&nbsp;brazylijskiej][5&nbsp;brazylijskim][1&nbsp;brazylijskimi][9&nbsp;brazylijską]</td></tr>
+<tr><td>brazylijski</td><td>brazylijs .. </td><td>55</td><td>10</td><td>[1&nbsp;Brazylijska][2&nbsp;brazylijscy][3&nbsp;brazylijska][11&nbsp;brazylijski][3&nbsp;brazylijskich][2&nbsp;brazylijskie][1&nbsp;brazylijskiego][17&nbsp;brazylijskiej][5&nbsp;brazylijskim][1&nbsp;brazylijskimi][9&nbsp;brazylijską]</td></tr>
 <tr><td>brać</td><td>b .. </td><td>45</td><td>9</td><td>[3&nbsp;Braci][12&nbsp;Brał][2&nbsp;bierze][4&nbsp;biorą][2&nbsp;braci][4&nbsp;brali][1&nbsp;brać][5&nbsp;braćmi][10&nbsp;brał][1&nbsp;brała][1&nbsp;brało]</td></tr>
 <tr><td>bretania</td><td>bretani .. </td><td>8</td><td>2</td><td>[2&nbsp;Bretania][6&nbsp;Bretanii]</td></tr>
 <tr><td>bretoński</td><td>bretoński .. </td><td>3</td><td>2</td><td>[1&nbsp;bretoński][2&nbsp;bretońskich]</td></tr>
@@ -839,7 +845,7 @@
 <tr><td>ewangelicki</td><td>ewangelick .. </td><td>10</td><td>2</td><td>[7&nbsp;ewangelicki][3&nbsp;ewangelicko]</td></tr>
 <tr><td>ewntualny</td><td>ewentualn .. </td><td>3</td><td>3</td><td>[1&nbsp;ewentualne][1&nbsp;ewentualnej][1&nbsp;ewentualnie]</td></tr>
 <tr><td>ewolucja</td><td>ewolucj .. </td><td>5</td><td>2</td><td>[1&nbsp;ewolucja][4&nbsp;ewolucji]</td></tr>
-<tr><td><a name='prob4'><a href='#prob5'><span class=red>eć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>62</td><td><a name='count12.1'><a href='#count12.2'><span class=red>12</span></a></td><td>[17&nbsp;Brno][2&nbsp;Enemy][1&nbsp;Kozioł][1&nbsp;Patty][1&nbsp;Wright][1&nbsp;Zaraz][1&nbsp;epopei][4&nbsp;napisany][1&nbsp;pobity][4&nbsp;prawdę][24&nbsp;samby][4&nbsp;szuwar][1&nbsp;zaraz]</td></tr>
+<tr><td><a name='prob4'><a href='#prob5'><span class=red>eć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>62</td><td>12</td><td>[17&nbsp;Brno][2&nbsp;Enemy][1&nbsp;Kozioł][1&nbsp;Patty][1&nbsp;Wright][1&nbsp;Zaraz][1&nbsp;epopei][4&nbsp;napisany][1&nbsp;pobity][4&nbsp;prawdę][24&nbsp;samby][4&nbsp;szuwar][1&nbsp;zaraz]</td></tr>
 <tr><td>f</td><td>f .. </td><td>12</td><td>2</td><td>[8&nbsp;F][2&nbsp;f][2&nbsp;firm]</td></tr>
 <tr><td>fabryczny</td><td>fabryczn .. </td><td>3</td><td>3</td><td>[1&nbsp;Fabrycznej][1&nbsp;Fabrycznie][1&nbsp;fabrycznych]</td></tr>
 <tr><td>fabryka</td><td>fabry .. </td><td>22</td><td>4</td><td>[2&nbsp;Fabryce][3&nbsp;Fabryka][7&nbsp;fabryce][2&nbsp;fabryka][7&nbsp;fabryki][1&nbsp;fabrykę]</td></tr>
@@ -920,7 +926,7 @@
 <tr><td>franciszek</td><td>francisz .. </td><td>17</td><td>2</td><td>[14&nbsp;Franciszek][3&nbsp;Franciszka]</td></tr>
 <tr><td>franciszkański</td><td>franciszkańsk .. </td><td>3</td><td>2</td><td>[2&nbsp;franciszkańska][1&nbsp;franciszkański]</td></tr>
 <tr><td>francja</td><td>francj .. </td><td>53</td><td>4</td><td>[5&nbsp;Francja][45&nbsp;Francji][2&nbsp;Francją][1&nbsp;Francję]</td></tr>
-<tr><td>francuski</td><td>francus .. </td><td>94</td><td><a name='count11.1'><a href='#count11.2'><span class=red>11</span></a></td><td>[2&nbsp;Francuskiej][1&nbsp;francuscy][9&nbsp;francuska][49&nbsp;francuski][4&nbsp;francuskich][3&nbsp;francuskie][7&nbsp;francuskiego][10&nbsp;francuskiej][1&nbsp;francuskiemu][4&nbsp;francuskim][2&nbsp;francuskimi][2&nbsp;francusko]</td></tr>
+<tr><td>francuski</td><td>francus .. </td><td>94</td><td>11</td><td>[2&nbsp;Francuskiej][1&nbsp;francuscy][9&nbsp;francuska][49&nbsp;francuski][4&nbsp;francuskich][3&nbsp;francuskie][7&nbsp;francuskiego][10&nbsp;francuskiej][1&nbsp;francuskiemu][4&nbsp;francuskim][2&nbsp;francuskimi][2&nbsp;francusko]</td></tr>
 <tr><td>frank</td><td>frank .. </td><td>10</td><td>3</td><td>[7&nbsp;Frank][2&nbsp;Franka][1&nbsp;franków]</td></tr>
 <tr><td>franz</td><td>fran .. </td><td>5</td><td>2</td><td>[2&nbsp;Franks][3&nbsp;Franz]</td></tr>
 <tr><td>fretka</td><td>fretk .. </td><td>5</td><td>2</td><td>[3&nbsp;Fretka][2&nbsp;Fretki]</td></tr>
@@ -1017,7 +1023,7 @@
 <tr><td>granica</td><td>granic .. </td><td>18</td><td>6</td><td>[1&nbsp;Granica][2&nbsp;granic][3&nbsp;granica][4&nbsp;granicach][3&nbsp;granicami][1&nbsp;granicą][4&nbsp;granicę]</td></tr>
 <tr><td>graniczny</td><td>graniczn .. </td><td>7</td><td>6</td><td>[1&nbsp;Graniczna][2&nbsp;Granicznej][1&nbsp;graniczny][1&nbsp;granicznych][1&nbsp;granicznym][1&nbsp;graniczną]</td></tr>
 <tr><td>graniczący</td><td>granicząc .. </td><td>2</td><td>2</td><td>[1&nbsp;graniczące][1&nbsp;graniczącą]</td></tr>
-<tr><td>grać</td><td>gra .. </td><td>67</td><td><a name='count17.1'><a href='#count17.2'><span class=red>17</span></a></td><td>[1&nbsp;Grając][1&nbsp;Grający][1&nbsp;Grał][1&nbsp;Grań][5&nbsp;grają][1&nbsp;grając][20&nbsp;grający][1&nbsp;grali][1&nbsp;gramy][1&nbsp;grana][3&nbsp;grane][3&nbsp;granej][4&nbsp;grani][1&nbsp;grania][1&nbsp;granie][3&nbsp;grany][1&nbsp;granym][1&nbsp;grać][15&nbsp;grał][2&nbsp;grały]</td></tr>
+<tr><td>grać</td><td>gra .. </td><td>67</td><td>17</td><td>[1&nbsp;Grając][1&nbsp;Grający][1&nbsp;Grał][1&nbsp;Grań][5&nbsp;grają][1&nbsp;grając][20&nbsp;grający][1&nbsp;grali][1&nbsp;gramy][1&nbsp;grana][3&nbsp;grane][3&nbsp;granej][4&nbsp;grani][1&nbsp;grania][1&nbsp;granie][3&nbsp;grany][1&nbsp;granym][1&nbsp;grać][15&nbsp;grał][2&nbsp;grały]</td></tr>
 <tr><td>grecja</td><td>grecj .. </td><td>7</td><td>3</td><td>[1&nbsp;Grecja][5&nbsp;Grecji][1&nbsp;Grecję]</td></tr>
 <tr><td>grecki</td><td>greck .. </td><td>19</td><td>6</td><td>[2&nbsp;Grecka][1&nbsp;grecka][3&nbsp;grecki][1&nbsp;greckich][7&nbsp;greckiego][4&nbsp;greckiej][1&nbsp;greckim]</td></tr>
 <tr><td>gregoriański</td><td>gregoriański .. </td><td>2</td><td>2</td><td>[1&nbsp;gregoriańskiego][1&nbsp;gregoriańskim]</td></tr>
@@ -1345,7 +1351,7 @@
 <tr><td>katechizm</td><td>katechizm .. </td><td>6</td><td>3</td><td>[1&nbsp;Katechizm][1&nbsp;katechizmie][4&nbsp;katechizmu]</td></tr>
 <tr><td>katedra</td><td>katedr .. </td><td>19</td><td>4</td><td>[9&nbsp;Katedra][1&nbsp;Katedrze][1&nbsp;Katedrę][1&nbsp;katedra][4&nbsp;katedry][3&nbsp;katedrze]</td></tr>
 <tr><td>kategoria</td><td>kategori .. </td><td>17</td><td>3</td><td>[1&nbsp;kategoria][13&nbsp;kategorii][3&nbsp;kategorię]</td></tr>
-<tr><td>katolicki</td><td>katolick .. </td><td>60</td><td><a name='count10.5'><a href='#count10.6'><span class=red>10</span></a></td><td>[1&nbsp;Katolickich][1&nbsp;katolicka][29&nbsp;katolicki][1&nbsp;katolickich][3&nbsp;katolickie][16&nbsp;katolickiego][1&nbsp;katolickiej][4&nbsp;katolickim][1&nbsp;katolickimi][2&nbsp;katolicko][1&nbsp;katolicką]</td></tr>
+<tr><td>katolicki</td><td>katolick .. </td><td>60</td><td>10</td><td>[1&nbsp;Katolickich][1&nbsp;katolicka][29&nbsp;katolicki][1&nbsp;katolickich][3&nbsp;katolickie][16&nbsp;katolickiego][1&nbsp;katolickiej][4&nbsp;katolickim][1&nbsp;katolickimi][2&nbsp;katolicko][1&nbsp;katolicką]</td></tr>
 <tr><td>katowice</td><td>katowic .. </td><td>6</td><td>3</td><td>[1&nbsp;Katowic][1&nbsp;Katowicach][4&nbsp;Katowice]</td></tr>
 <tr><td>katyński</td><td>katyński .. </td><td>3</td><td>2</td><td>[1&nbsp;Katyński][2&nbsp;katyńskiej]</td></tr>
 <tr><td>kaukaski</td><td>kaukaski .. </td><td>2</td><td>2</td><td>[1&nbsp;Kaukaskiej][1&nbsp;kaukaskich]</td></tr>
@@ -1409,7 +1415,7 @@
 <tr><td>kolegiacki</td><td>kolegiack .. </td><td>3</td><td>2</td><td>[1&nbsp;Kolegiacka][1&nbsp;Kolegiackiej][1&nbsp;kolegiacka]</td></tr>
 <tr><td>kolegiata</td><td>kolegiat .. </td><td>4</td><td>2</td><td>[2&nbsp;Kolegiata][1&nbsp;kolegiata][1&nbsp;kolegiatę]</td></tr>
 <tr><td>kolejność</td><td>kolejności .. </td><td>5</td><td>2</td><td>[4&nbsp;kolejności][1&nbsp;kolejnością]</td></tr>
-<tr><td>kolejny</td><td>kolejn .. </td><td>60</td><td><a name='count11.2'><a href='#count11.3'><span class=red>11</span></a></td><td>[5&nbsp;Kolejne][3&nbsp;Kolejny][1&nbsp;Kolejnym][1&nbsp;Kolejną][4&nbsp;kolejna][15&nbsp;kolejne][1&nbsp;kolejnego][4&nbsp;kolejnej][1&nbsp;kolejnemu][1&nbsp;kolejni][4&nbsp;kolejny][10&nbsp;kolejnych][3&nbsp;kolejnym][1&nbsp;kolejnymi][6&nbsp;kolejną]</td></tr>
+<tr><td>kolejny</td><td>kolejn .. </td><td>60</td><td>11</td><td>[5&nbsp;Kolejne][3&nbsp;Kolejny][1&nbsp;Kolejnym][1&nbsp;Kolejną][4&nbsp;kolejna][15&nbsp;kolejne][1&nbsp;kolejnego][4&nbsp;kolejnej][1&nbsp;kolejnemu][1&nbsp;kolejni][4&nbsp;kolejny][10&nbsp;kolejnych][3&nbsp;kolejnym][1&nbsp;kolejnymi][6&nbsp;kolejną]</td></tr>
 <tr><td>kolejowy</td><td>kolejow .. </td><td>31</td><td>8</td><td>[2&nbsp;Kolejowej][2&nbsp;Kolejowym][12&nbsp;kolejowa][4&nbsp;kolejowe][1&nbsp;kolejowego][3&nbsp;kolejowej][3&nbsp;kolejowy][3&nbsp;kolejowych][1&nbsp;kolejową]</td></tr>
 <tr><td>kolekcja</td><td>kolekcj .. </td><td>33</td><td>4</td><td>[1&nbsp;Kolekcja][8&nbsp;kolekcja][8&nbsp;kolekcjach][15&nbsp;kolekcji][1&nbsp;kolekcję]</td></tr>
 <tr><td>kolekcjoner</td><td>kolekcjoner .. </td><td>4</td><td>3</td><td>[1&nbsp;kolekcjoner][2&nbsp;kolekcjonera][1&nbsp;kolekcjonerem]</td></tr>
@@ -1566,7 +1572,7 @@
 <tr><td>królewski</td><td>królewsk .. </td><td>22</td><td>8</td><td>[2&nbsp;Królewskich][3&nbsp;Królewskie][1&nbsp;Królewskiego][2&nbsp;Królewskiej][1&nbsp;Królewskim][1&nbsp;królewska][1&nbsp;królewski][3&nbsp;królewskich][2&nbsp;królewskiego][1&nbsp;królewskiej][4&nbsp;królewskim][1&nbsp;królewską]</td></tr>
 <tr><td>królowa</td><td>królow .. </td><td>18</td><td>2</td><td>[4&nbsp;Królowa][3&nbsp;Królowej][4&nbsp;królowa][7&nbsp;królowej]</td></tr>
 <tr><td>królowy</td><td>królow .. </td><td>2</td><td>2</td><td>[1&nbsp;królowe][1&nbsp;królowi]</td></tr>
-<tr><td>krótki</td><td>krót :: </td><td>33</td><td><a name='count11.3'><a href='#count11.4'><span class=red>11</span></a></td><td>[1&nbsp;Krótko][1&nbsp;Krótką][2&nbsp;krótka][13&nbsp;krótki][3&nbsp;krótkie][1&nbsp;krótkiej][5&nbsp;krótkim][1&nbsp;krótkimi][1&nbsp;krótko][2&nbsp;krótką][1&nbsp;krótsze][1&nbsp;krótszym][1&nbsp;najkrótszy]</td></tr>
+<tr><td>krótki</td><td>krót :: </td><td>33</td><td>11</td><td>[1&nbsp;Krótko][1&nbsp;Krótką][2&nbsp;krótka][13&nbsp;krótki][3&nbsp;krótkie][1&nbsp;krótkiej][5&nbsp;krótkim][1&nbsp;krótkimi][1&nbsp;krótko][2&nbsp;krótką][1&nbsp;krótsze][1&nbsp;krótszym][1&nbsp;najkrótszy]</td></tr>
 <tr><td>krążek</td><td>krąż .. </td><td>3</td><td>3</td><td>[1&nbsp;krążek][1&nbsp;krążki][1&nbsp;krążku]</td></tr>
 <tr><td>krążyć</td><td>krążeni .. </td><td>3</td><td>3</td><td>[1&nbsp;Krążenia][1&nbsp;krążenie][1&nbsp;krążeniem]</td></tr>
 <tr><td>kręcić</td><td>kręc .. </td><td>4</td><td>4</td><td>[1&nbsp;kręcenia][1&nbsp;kręcone][1&nbsp;kręcono][1&nbsp;kręcony]</td></tr>
@@ -1675,7 +1681,7 @@
 <tr><td>liczba</td><td>liczb .. </td><td>44</td><td>6</td><td>[3&nbsp;Liczba][9&nbsp;liczba][1&nbsp;liczbami][1&nbsp;liczbom][22&nbsp;liczby][5&nbsp;liczbą][3&nbsp;liczbę]</td></tr>
 <tr><td>liczbowiey</td><td>liczbowy .. </td><td>2</td><td>2</td><td>[1&nbsp;liczbowych][1&nbsp;liczbowym]</td></tr>
 <tr><td>liczebny</td><td>liczebn .. </td><td>3</td><td>3</td><td>[1&nbsp;liczebna][1&nbsp;liczebnej][1&nbsp;liczebny]</td></tr>
-<tr><td>liczny</td><td>liczn :: </td><td>50</td><td><a name='count11.4'><a href='#count11.5'><span class=red>11</span></a></td><td>[2&nbsp;Liczne][18&nbsp;liczne][1&nbsp;licznej][1&nbsp;liczni][1&nbsp;liczniejsze][1&nbsp;liczniejszych][15&nbsp;licznych][1&nbsp;licznym][5&nbsp;licznymi][2&nbsp;liczną][2&nbsp;nieliczne][1&nbsp;nielicznych]</td></tr>
+<tr><td>liczny</td><td>liczn :: </td><td>50</td><td>11</td><td>[2&nbsp;Liczne][18&nbsp;liczne][1&nbsp;licznej][1&nbsp;liczni][1&nbsp;liczniejsze][1&nbsp;liczniejszych][15&nbsp;licznych][1&nbsp;licznym][5&nbsp;licznymi][2&nbsp;liczną][2&nbsp;nieliczne][1&nbsp;nielicznych]</td></tr>
 <tr><td>liczyć</td><td>licz .. </td><td>43</td><td>7</td><td>[4&nbsp;Liczy][2&nbsp;liczona][7&nbsp;liczy][7&nbsp;liczył][17&nbsp;liczyła][4&nbsp;liczyło][1&nbsp;liczyły][1&nbsp;liczą]</td></tr>
 <tr><td>liczący</td><td>licząc .. </td><td>5</td><td>4</td><td>[1&nbsp;liczące][1&nbsp;liczących][2&nbsp;liczącym][1&nbsp;liczącą]</td></tr>
 <tr><td>lig</td><td>lig .. </td><td>18</td><td>2</td><td>[8&nbsp;Ligi][1&nbsp;ligach][9&nbsp;ligi]</td></tr>
@@ -1849,7 +1855,7 @@
 <tr><td>miejscewy</td><td>miejscow .. </td><td>8</td><td>3</td><td>[1&nbsp;miejscowe][5&nbsp;miejscowej][2&nbsp;miejscową]</td></tr>
 <tr><td>miejscowość</td><td>miejscowoś .. </td><td>123</td><td>6</td><td>[3&nbsp;Miejscowości][7&nbsp;Miejscowość][37&nbsp;miejscowości][2&nbsp;miejscowościach][1&nbsp;miejscowościami][1&nbsp;miejscowościom][3&nbsp;miejscowością][69&nbsp;miejscowość]</td></tr>
 <tr><td>miejscowy</td><td>miejscowy .. </td><td>8</td><td>3</td><td>[5&nbsp;miejscowych][2&nbsp;miejscowym][1&nbsp;miejscowymi]</td></tr>
-<tr><td>miejski</td><td>miejsk .. </td><td>81</td><td><a name='count10.6'><a href='#count10.7'><span class=red>10</span></a></td><td>[1&nbsp;Miejska][3&nbsp;Miejski][3&nbsp;Miejskich][1&nbsp;Miejskie][4&nbsp;Miejskiego][7&nbsp;Miejskiej][9&nbsp;miejska][7&nbsp;miejski][11&nbsp;miejskich][18&nbsp;miejskie][3&nbsp;miejskiego][6&nbsp;miejskiej][3&nbsp;miejskim][1&nbsp;miejskimi][1&nbsp;miejsko][3&nbsp;miejską]</td></tr>
+<tr><td>miejski</td><td>miejsk .. </td><td>81</td><td>10</td><td>[1&nbsp;Miejska][3&nbsp;Miejski][3&nbsp;Miejskich][1&nbsp;Miejskie][4&nbsp;Miejskiego][7&nbsp;Miejskiej][9&nbsp;miejska][7&nbsp;miejski][11&nbsp;miejskich][18&nbsp;miejskie][3&nbsp;miejskiego][6&nbsp;miejskiej][3&nbsp;miejskim][1&nbsp;miejskimi][1&nbsp;miejsko][3&nbsp;miejską]</td></tr>
 <tr><td>mielec</td><td>miel .. </td><td>7</td><td>2</td><td>[3&nbsp;Mielcu][3&nbsp;Mielec][1&nbsp;mielec]</td></tr>
 <tr><td>mieloperoksydaza</td><td>mieloperoksydaz .. </td><td>2</td><td>2</td><td>[1&nbsp;mieloperoksydaza][1&nbsp;mieloperoksydazę]</td></tr>
 <tr><td>mierzanowicki</td><td>mierzanowick .. </td><td>2</td><td>2</td><td>[1&nbsp;mierzanowicka][1&nbsp;mierzanowickiej]</td></tr>
@@ -1862,8 +1868,8 @@
 <tr><td>mieszkający</td><td>mieszkając .. </td><td>3</td><td>3</td><td>[1&nbsp;Mieszkając][1&nbsp;mieszkające][1&nbsp;mieszkającemu]</td></tr>
 <tr><td>mieszkalny</td><td>mieszkaln .. </td><td>9</td><td>5</td><td>[2&nbsp;mieszkalne][2&nbsp;mieszkalnego][3&nbsp;mieszkalnych][1&nbsp;mieszkalnym][1&nbsp;mieszkalną]</td></tr>
 <tr><td>mieszkaniec</td><td>mieszkańc .. </td><td>100</td><td>6</td><td>[1&nbsp;Mieszkańcy][1&nbsp;mieszkańca][1&nbsp;mieszkańcach][2&nbsp;mieszkańcami][2&nbsp;mieszkańcom][4&nbsp;mieszkańcy][89&nbsp;mieszkańców]</td></tr>
-<tr><td>mieszkać</td><td>mieszka .. </td><td>29</td><td><a name='count10.7'><a href='#count10.8'><span class=red>10</span></a></td><td>[1&nbsp;Mieszkali][3&nbsp;Mieszkał][1&nbsp;mieszka][2&nbsp;mieszkają][1&nbsp;mieszkali][5&nbsp;mieszkania][1&nbsp;mieszkanie][4&nbsp;mieszkaniu][8&nbsp;mieszkał][1&nbsp;mieszkała][1&nbsp;mieszkało][1&nbsp;mieszkały]</td></tr>
-<tr><td>mieć</td><td>m .. </td><td>104</td><td><a name='count10.8'><a href='#count10.9'><span class=red>10</span></a></td><td>[2&nbsp;Mając][3&nbsp;Miała][4&nbsp;Miało][2&nbsp;Miały][2&nbsp;mając][3&nbsp;mający][3&nbsp;miano][32&nbsp;miała][2&nbsp;miałby][19&nbsp;miało][20&nbsp;miały][9&nbsp;mieli][1&nbsp;mieniu][2&nbsp;mieć]</td></tr>
+<tr><td>mieszkać</td><td>mieszka .. </td><td>29</td><td>10</td><td>[1&nbsp;Mieszkali][3&nbsp;Mieszkał][1&nbsp;mieszka][2&nbsp;mieszkają][1&nbsp;mieszkali][5&nbsp;mieszkania][1&nbsp;mieszkanie][4&nbsp;mieszkaniu][8&nbsp;mieszkał][1&nbsp;mieszkała][1&nbsp;mieszkało][1&nbsp;mieszkały]</td></tr>
+<tr><td>mieć</td><td>m .. </td><td>104</td><td>10</td><td>[2&nbsp;Mając][3&nbsp;Miała][4&nbsp;Miało][2&nbsp;Miały][2&nbsp;mając][3&nbsp;mający][3&nbsp;miano][32&nbsp;miała][2&nbsp;miałby][19&nbsp;miało][20&nbsp;miały][9&nbsp;mieli][1&nbsp;mieniu][2&nbsp;mieć]</td></tr>
 <tr><td>mieścić</td><td>mie .. </td><td>7</td><td>4</td><td>[2&nbsp;Mieści][1&nbsp;mieszczą][1&nbsp;mieści][1&nbsp;mieściła][2&nbsp;mieściło]</td></tr>
 <tr><td>migracja</td><td>migracj .. </td><td>3</td><td>2</td><td>[1&nbsp;migracje][2&nbsp;migracji]</td></tr>
 <tr><td>mikołaj</td><td>mikołaj .. </td><td>7</td><td>3</td><td>[4&nbsp;Mikołaj][2&nbsp;Mikołajowi][1&nbsp;Mikołajów]</td></tr>
@@ -1977,7 +1983,7 @@
 <tr><td>myślistwo</td><td>myślistw .. </td><td>2</td><td>2</td><td>[1&nbsp;myślistwem][1&nbsp;myślistwo]</td></tr>
 <tr><td>myśliwiec</td><td>myśliw .. </td><td>3</td><td>2</td><td>[2&nbsp;myśliwca][1&nbsp;myśliwiec]</td></tr>
 <tr><td>myśliwski</td><td>myśliwsk .. </td><td>7</td><td>4</td><td>[2&nbsp;Myśliwski][1&nbsp;myśliwska][3&nbsp;myśliwskiego][1&nbsp;myśliwskim]</td></tr>
-<tr><td>móc</td><td>m .. </td><td>29</td><td><a name='count10.9'><a href='#count10.10'><span class=red>10</span></a></td><td>[1&nbsp;Mogłem][1&nbsp;Mogły][1&nbsp;Mógł][4&nbsp;mogli][1&nbsp;mogliby][1&nbsp;mogła][1&nbsp;mogłem][1&nbsp;mogło][2&nbsp;mogły][1&nbsp;mogłyby][2&nbsp;możemy][11&nbsp;mógł][2&nbsp;mógłby]</td></tr>
+<tr><td>móc</td><td>m .. </td><td>29</td><td>10</td><td>[1&nbsp;Mogłem][1&nbsp;Mogły][1&nbsp;Mógł][4&nbsp;mogli][1&nbsp;mogliby][1&nbsp;mogła][1&nbsp;mogłem][1&nbsp;mogło][2&nbsp;mogły][1&nbsp;mogłyby][2&nbsp;możemy][11&nbsp;mógł][2&nbsp;mógłby]</td></tr>
 <tr><td>mój</td><td>m .. </td><td>2</td><td>2</td><td>[1&nbsp;Moim][1&nbsp;Mój]</td></tr>
 <tr><td>mów</td><td>m .. </td><td>2</td><td>2</td><td>[1&nbsp;mowa][1&nbsp;mów]</td></tr>
 <tr><td>mówić</td><td>mówi .. </td><td>17</td><td>5</td><td>[2&nbsp;Mówi][1&nbsp;Mówiono][5&nbsp;mówi][3&nbsp;mówiąc][2&nbsp;mówić][4&nbsp;mówił]</td></tr>
@@ -2000,14 +2006,14 @@
 <tr><td>naczelny</td><td>naczeln .. </td><td>12</td><td>3</td><td>[8&nbsp;Naczelnej][1&nbsp;Naczelnym][1&nbsp;naczelnych][2&nbsp;naczelnym]</td></tr>
 <tr><td>naczynie</td><td>naczy .. </td><td>2</td><td>2</td><td>[1&nbsp;naczynie][1&nbsp;naczyń]</td></tr>
 <tr><td>nadawać</td><td>nadawa .. </td><td>12</td><td>8</td><td>[1&nbsp;nadawali][1&nbsp;nadawana][2&nbsp;nadawane][2&nbsp;nadawanie][1&nbsp;nadawano][3&nbsp;nadawany][1&nbsp;nadawaną][1&nbsp;nadawał]</td></tr>
-<tr><td>nadać</td><td>nada .. </td><td>33</td><td><a name='count11.5'><a href='#count11.6'><span class=red>11</span></a></td><td>[1&nbsp;Nadanie][2&nbsp;Nadał][2&nbsp;nada][1&nbsp;nadali][1&nbsp;nadane][4&nbsp;nadania][2&nbsp;nadanie][2&nbsp;nadano][3&nbsp;nadany][1&nbsp;nadanym][1&nbsp;nadaną][1&nbsp;nadać][12&nbsp;nadał]</td></tr>
+<tr><td>nadać</td><td>nada .. </td><td>33</td><td>11</td><td>[1&nbsp;Nadanie][2&nbsp;Nadał][2&nbsp;nada][1&nbsp;nadali][1&nbsp;nadane][4&nbsp;nadania][2&nbsp;nadanie][2&nbsp;nadano][3&nbsp;nadany][1&nbsp;nadanym][1&nbsp;nadaną][1&nbsp;nadać][12&nbsp;nadał]</td></tr>
 <tr><td>nadejść</td><td>nad .. </td><td>5</td><td>4</td><td>[1&nbsp;Nadolany][1&nbsp;Nadszedł][1&nbsp;nadejścia][1&nbsp;nadejść][1&nbsp;nadszedł]</td></tr>
 <tr><td>nadmorski</td><td>nadmorski .. </td><td>2</td><td>2</td><td>[1&nbsp;Nadmorski][1&nbsp;nadmorskie]</td></tr>
 <tr><td>nadworny</td><td>nadworn .. </td><td>2</td><td>2</td><td>[1&nbsp;nadwornemu][1&nbsp;nadworny]</td></tr>
 <tr><td>nadzorować</td><td>nadzorowa .. </td><td>3</td><td>2</td><td>[1&nbsp;nadzorowanie][2&nbsp;nadzorował]</td></tr>
 <tr><td>nadzwyczajny</td><td>nadzwyczajn .. </td><td>8</td><td>3</td><td>[6&nbsp;Nadzwyczajnej][1&nbsp;Nadzwyczajny][1&nbsp;nadzwyczajnego]</td></tr>
 <tr><td>nadzór</td><td>nadz .. </td><td>5</td><td>2</td><td>[1&nbsp;Nadzoru][1&nbsp;Nadzór][1&nbsp;nadzoru][2&nbsp;nadzór]</td></tr>
-<tr><td>nagrać</td><td>nagra .. </td><td>20</td><td><a name='count11.6'><a href='#count11.7'><span class=red>11</span></a></td><td>[2&nbsp;Nagrania][1&nbsp;nagrana][1&nbsp;nagrane][1&nbsp;nagraniach][3&nbsp;nagraniami][1&nbsp;nagraniu][3&nbsp;nagrany][1&nbsp;nagranych][3&nbsp;nagrał][1&nbsp;nagrała][3&nbsp;nagrań]</td></tr>
+<tr><td>nagrać</td><td>nagra .. </td><td>20</td><td>11</td><td>[2&nbsp;Nagrania][1&nbsp;nagrana][1&nbsp;nagrane][1&nbsp;nagraniach][3&nbsp;nagraniami][1&nbsp;nagraniu][3&nbsp;nagrany][1&nbsp;nagranych][3&nbsp;nagrał][1&nbsp;nagrała][3&nbsp;nagrań]</td></tr>
 <tr><td>nagroda</td><td>nagr .. </td><td>37</td><td>4</td><td>[9&nbsp;Nagroda][5&nbsp;Nagrody][5&nbsp;Nagrodę][3&nbsp;nagroda][6&nbsp;nagrody][4&nbsp;nagrodę][5&nbsp;nagród]</td></tr>
 <tr><td>nagły</td><td>nagł .. </td><td>2</td><td>2</td><td>[1&nbsp;nagłe][1&nbsp;nagły]</td></tr>
 <tr><td>najazd</td><td>najazd .. </td><td>2</td><td>2</td><td>[1&nbsp;najazdu][1&nbsp;najazdów]</td></tr>
@@ -2040,7 +2046,7 @@
 <tr><td>narkotyk</td><td>narkotyk .. </td><td>3</td><td>2</td><td>[1&nbsp;narkotykami][2&nbsp;narkotyków]</td></tr>
 <tr><td>narkotykowy</td><td>narkotykow .. </td><td>3</td><td>2</td><td>[1&nbsp;narkotykowego][2&nbsp;narkotykowy]</td></tr>
 <tr><td>narod</td><td>narod .. </td><td>5</td><td>2</td><td>[1&nbsp;narodem][4&nbsp;narodu]</td></tr>
-<tr><td>narodowy</td><td>narodow .. </td><td>105</td><td><a name='count11.7'><a href='#count11.8'><span class=red>11</span></a></td><td>[1&nbsp;Narodowa][6&nbsp;Narodowe][21&nbsp;Narodowego][25&nbsp;Narodowej][2&nbsp;Narodowo][7&nbsp;Narodowy][1&nbsp;Narodowych][2&nbsp;Narodowym][1&nbsp;narodowa][3&nbsp;narodowe][12&nbsp;narodowego][12&nbsp;narodowej][1&nbsp;narodowemu][1&nbsp;narodowo][2&nbsp;narodowy][3&nbsp;narodowych][3&nbsp;narodowym][1&nbsp;narodowymi][1&nbsp;narodową]</td></tr>
+<tr><td>narodowy</td><td>narodow .. </td><td>105</td><td>11</td><td>[1&nbsp;Narodowa][6&nbsp;Narodowe][21&nbsp;Narodowego][25&nbsp;Narodowej][2&nbsp;Narodowo][7&nbsp;Narodowy][1&nbsp;Narodowych][2&nbsp;Narodowym][1&nbsp;narodowa][3&nbsp;narodowe][12&nbsp;narodowego][12&nbsp;narodowej][1&nbsp;narodowemu][1&nbsp;narodowo][2&nbsp;narodowy][3&nbsp;narodowych][3&nbsp;narodowym][1&nbsp;narodowymi][1&nbsp;narodową]</td></tr>
 <tr><td>narodzenie</td><td>narodzeni .. </td><td>3</td><td>2</td><td>[2&nbsp;Narodzenia][1&nbsp;Narodzenie]</td></tr>
 <tr><td>narodziny</td><td>narodzin .. </td><td>8</td><td>2</td><td>[3&nbsp;Narodziny][3&nbsp;narodzin][2&nbsp;narodziny]</td></tr>
 <tr><td>narożnik</td><td>narożnik .. </td><td>2</td><td>2</td><td>[1&nbsp;narożnikami][1&nbsp;narożniku]</td></tr>
@@ -2084,7 +2090,7 @@
 <tr><td>nazwa</td><td>nazw .. </td><td>49</td><td>3</td><td>[12&nbsp;Nazwa][1&nbsp;Nazwy][1&nbsp;nazw][19&nbsp;nazwa][16&nbsp;nazwy]</td></tr>
 <tr><td>nazwać</td><td>nazw .. </td><td>82</td><td>8</td><td>[2&nbsp;Nazwę][6&nbsp;nazwana][4&nbsp;nazwano][3&nbsp;nazwany][1&nbsp;nazwaną][1&nbsp;nazwał][13&nbsp;nazwie][20&nbsp;nazwą][32&nbsp;nazwę]</td></tr>
 <tr><td>nazwisko</td><td>nazwisk .. </td><td>20</td><td>5</td><td>[3&nbsp;nazwisk][7&nbsp;nazwiska][3&nbsp;nazwiskiem][4&nbsp;nazwisko][3&nbsp;nazwisku]</td></tr>
-<tr><td>nazywać</td><td>nazywa .. </td><td>31</td><td><a name='count11.8'><a href='#count11.9'><span class=red>11</span></a></td><td>[1&nbsp;Nazywają][1&nbsp;Nazywany][6&nbsp;nazywa][5&nbsp;nazywana][3&nbsp;nazywane][2&nbsp;nazywanej][4&nbsp;nazywano][5&nbsp;nazywany][1&nbsp;nazywanych][1&nbsp;nazywaną][1&nbsp;nazywał][1&nbsp;nazywała]</td></tr>
+<tr><td>nazywać</td><td>nazywa .. </td><td>31</td><td>11</td><td>[1&nbsp;Nazywają][1&nbsp;Nazywany][6&nbsp;nazywa][5&nbsp;nazywana][3&nbsp;nazywane][2&nbsp;nazywanej][4&nbsp;nazywano][5&nbsp;nazywany][1&nbsp;nazywanych][1&nbsp;nazywaną][1&nbsp;nazywał][1&nbsp;nazywała]</td></tr>
 <tr><td>naśladujący</td><td>naśladujący .. </td><td>2</td><td>2</td><td>[1&nbsp;naśladujących][1&nbsp;naśladującym]</td></tr>
 <tr><td>negatywny</td><td>negatywn .. </td><td>4</td><td>2</td><td>[1&nbsp;negatywnego][3&nbsp;negatywnie]</td></tr>
 <tr><td>negro</td><td>negr .. </td><td>3</td><td>2</td><td>[1&nbsp;Negra][1&nbsp;Negro][1&nbsp;negra]</td></tr>
@@ -2110,7 +2116,7 @@
 <tr><td>nielegalny</td><td>nielegaln .. </td><td>6</td><td>3</td><td>[2&nbsp;nielegalne][2&nbsp;nielegalnego][2&nbsp;nielegalnie]</td></tr>
 <tr><td>niemic</td><td>niemc .. </td><td>28</td><td>2</td><td>[1&nbsp;Niemca][27&nbsp;Niemcy]</td></tr>
 <tr><td>niemiec</td><td>niem .. </td><td>41</td><td>6</td><td>[6&nbsp;Niemcami][2&nbsp;Niemcem][11&nbsp;Niemców][19&nbsp;Niemiec][2&nbsp;Niemka][1&nbsp;Niemką]</td></tr>
-<tr><td>niemiecki</td><td>niemiec .. </td><td>131</td><td><a name='count11.9'><a href='#count11.10'><span class=red>11</span></a></td><td>[2&nbsp;Niemiecka][4&nbsp;Niemiecki][1&nbsp;Niemieckich][2&nbsp;Niemieckiej][1&nbsp;niemieccy][13&nbsp;niemiecka][50&nbsp;niemiecki][8&nbsp;niemieckich][4&nbsp;niemieckie][15&nbsp;niemieckiego][14&nbsp;niemieckiej][9&nbsp;niemieckim][3&nbsp;niemieckimi][1&nbsp;niemiecko][4&nbsp;niemiecką]</td></tr>
+<tr><td>niemiecki</td><td>niemiec .. </td><td>131</td><td>11</td><td>[2&nbsp;Niemiecka][4&nbsp;Niemiecki][1&nbsp;Niemieckich][2&nbsp;Niemieckiej][1&nbsp;niemieccy][13&nbsp;niemiecka][50&nbsp;niemiecki][8&nbsp;niemieckich][4&nbsp;niemieckie][15&nbsp;niemieckiego][14&nbsp;niemieckiej][9&nbsp;niemieckim][3&nbsp;niemieckimi][1&nbsp;niemiecko][4&nbsp;niemiecką]</td></tr>
 <tr><td>niemożliwy</td><td>niemożliw .. </td><td>4</td><td>3</td><td>[2&nbsp;niemożliwa][1&nbsp;niemożliwe][1&nbsp;niemożliwych]</td></tr>
 <tr><td>niemunicypalny</td><td>niemunicypaln .. </td><td>3</td><td>2</td><td>[1&nbsp;niemunicypalne][2&nbsp;niemunicypalny]</td></tr>
 <tr><td>niemyski</td><td>niemyski .. </td><td>2</td><td>2</td><td>[1&nbsp;Niemyski][1&nbsp;Niemyskim]</td></tr>
@@ -2181,7 +2187,7 @@
 <tr><td>obchodzić</td><td>obchodz .. </td><td>5</td><td>3</td><td>[1&nbsp;obchodzone][2&nbsp;obchodzono][2&nbsp;obchodzą]</td></tr>
 <tr><td>obcy</td><td>obc .. </td><td>5</td><td>2</td><td>[3&nbsp;Obcego][1&nbsp;Obcych][1&nbsp;obcego]</td></tr>
 <tr><td>obecność</td><td>obecnoś :: </td><td>5</td><td>3</td><td>[1&nbsp;nieobecność][3&nbsp;obecności][1&nbsp;obecnością]</td></tr>
-<tr><td>obecny</td><td>obecn .. </td><td>77</td><td><a name='count10.10'><a href='#count10.11'><span class=red>10</span></a></td><td>[4&nbsp;Obecna][1&nbsp;Obecne][1&nbsp;Obecni][15&nbsp;Obecnie][7&nbsp;Obecny][1&nbsp;Obecną][1&nbsp;obecna][1&nbsp;obecne][2&nbsp;obecnego][5&nbsp;obecnej][1&nbsp;obecni][33&nbsp;obecnie][2&nbsp;obecny][1&nbsp;obecnych][1&nbsp;obecnym][1&nbsp;obecną]</td></tr>
+<tr><td>obecny</td><td>obecn .. </td><td>77</td><td>10</td><td>[4&nbsp;Obecna][1&nbsp;Obecne][1&nbsp;Obecni][15&nbsp;Obecnie][7&nbsp;Obecny][1&nbsp;Obecną][1&nbsp;obecna][1&nbsp;obecne][2&nbsp;obecnego][5&nbsp;obecnej][1&nbsp;obecni][33&nbsp;obecnie][2&nbsp;obecny][1&nbsp;obecnych][1&nbsp;obecnym][1&nbsp;obecną]</td></tr>
 <tr><td>obejmować</td><td>obejm .. </td><td>19</td><td>6</td><td>[2&nbsp;Obejmuje][1&nbsp;obejmować][2&nbsp;obejmował][1&nbsp;obejmowała][1&nbsp;obejmowały][11&nbsp;obejmuje][1&nbsp;obejmują]</td></tr>
 <tr><td>obejmujący</td><td>obejmując .. </td><td>5</td><td>3</td><td>[2&nbsp;obejmujące][2&nbsp;obejmujących][1&nbsp;obejmującą]</td></tr>
 <tr><td>obejrzeć</td><td>obejrze .. </td><td>2</td><td>2</td><td>[1&nbsp;obejrzeniu][1&nbsp;obejrzeć]</td></tr>
@@ -2230,7 +2236,7 @@
 <tr><td>ochotniczy</td><td>ochotnicz .. </td><td>3</td><td>2</td><td>[1&nbsp;Ochotnicze][2&nbsp;ochotniczo]</td></tr>
 <tr><td>ochotnik</td><td>ochotnik .. </td><td>3</td><td>2</td><td>[2&nbsp;ochotnik][1&nbsp;ochotnika]</td></tr>
 <tr><td>ochrona</td><td>ochron .. </td><td>16</td><td>3</td><td>[1&nbsp;Ochronie][6&nbsp;Ochrony][1&nbsp;ochronie][5&nbsp;ochrony][3&nbsp;ochroną]</td></tr>
-<tr><td>oczekiwać</td><td>oczek .. </td><td>11</td><td><a name='count11.10'><a href='#count11.11'><span class=red>11</span></a></td><td>[1&nbsp;oczekiwali][1&nbsp;oczekiwana][1&nbsp;oczekiwanego][1&nbsp;oczekiwanej][1&nbsp;oczekiwania][1&nbsp;oczekiwaniami][1&nbsp;oczekiwaniom][1&nbsp;oczekiwaniu][1&nbsp;oczekiwany][1&nbsp;oczekiwał][1&nbsp;oczekuję]</td></tr>
+<tr><td>oczekiwać</td><td>oczek .. </td><td>11</td><td>11</td><td>[1&nbsp;oczekiwali][1&nbsp;oczekiwana][1&nbsp;oczekiwanego][1&nbsp;oczekiwanej][1&nbsp;oczekiwania][1&nbsp;oczekiwaniami][1&nbsp;oczekiwaniom][1&nbsp;oczekiwaniu][1&nbsp;oczekiwany][1&nbsp;oczekiwał][1&nbsp;oczekuję]</td></tr>
 <tr><td>odbierać</td><td>odbiera .. a</td><td>2</td><td>2</td><td>[1&nbsp;odbiera][1&nbsp;odbierania]</td></tr>
 <tr><td>odbić</td><td>odbił .. </td><td>3</td><td>2</td><td>[1&nbsp;odbił][2&nbsp;odbiła]</td></tr>
 <tr><td>odbr</td><td>odbior .. </td><td>2</td><td>2</td><td>[1&nbsp;odbiorem][1&nbsp;odbioru]</td></tr>
@@ -2346,8 +2352,8 @@
 <tr><td>okres</td><td>okres .. </td><td>74</td><td>4</td><td>[2&nbsp;Okres][1&nbsp;Okresie][10&nbsp;okres][1&nbsp;okresem][47&nbsp;okresie][13&nbsp;okresu]</td></tr>
 <tr><td>okresowy</td><td>okresow .. </td><td>2</td><td>2</td><td>[1&nbsp;okresowego][1&nbsp;okresowym]</td></tr>
 <tr><td>określający</td><td>określając .. </td><td>3</td><td>3</td><td>[1&nbsp;określająca][1&nbsp;określającego][1&nbsp;określający]</td></tr>
-<tr><td>określać</td><td>określa .. </td><td>16</td><td><a name='count11.11'><a href='#count11.12'><span class=red>11</span></a></td><td>[4&nbsp;określa][1&nbsp;określają][2&nbsp;określana][1&nbsp;określane][1&nbsp;określanej][1&nbsp;określanie][1&nbsp;określano][1&nbsp;określany][1&nbsp;określaną][1&nbsp;określać][2&nbsp;określał]</td></tr>
-<tr><td>określić</td><td>określ .. </td><td>25</td><td><a name='count14.1'><a href='#count14.2'><span class=red>14</span></a></td><td>[1&nbsp;Określenie][4&nbsp;określenia][2&nbsp;określenie][1&nbsp;określeniu][1&nbsp;określeń][3&nbsp;określić][1&nbsp;określił][1&nbsp;określona][3&nbsp;określone][1&nbsp;określonej][1&nbsp;określono][1&nbsp;określony][1&nbsp;określonych][3&nbsp;określonym][1&nbsp;określoną]</td></tr>
+<tr><td>określać</td><td>określa .. </td><td>16</td><td>11</td><td>[4&nbsp;określa][1&nbsp;określają][2&nbsp;określana][1&nbsp;określane][1&nbsp;określanej][1&nbsp;określanie][1&nbsp;określano][1&nbsp;określany][1&nbsp;określaną][1&nbsp;określać][2&nbsp;określał]</td></tr>
+<tr><td>określić</td><td>określ .. </td><td>25</td><td>14</td><td>[1&nbsp;Określenie][4&nbsp;określenia][2&nbsp;określenie][1&nbsp;określeniu][1&nbsp;określeń][3&nbsp;określić][1&nbsp;określił][1&nbsp;określona][3&nbsp;określone][1&nbsp;określonej][1&nbsp;określono][1&nbsp;określony][1&nbsp;określonych][3&nbsp;określonym][1&nbsp;określoną]</td></tr>
 <tr><td>okrążyć</td><td>okrąże .. </td><td>22</td><td>5</td><td>[3&nbsp;okrążenia][2&nbsp;okrążeniach][3&nbsp;okrążenie][11&nbsp;okrążeniu][3&nbsp;okrążeń]</td></tr>
 <tr><td>okręgowy</td><td>okręgow .. </td><td>6</td><td>4</td><td>[1&nbsp;Okręgowe][1&nbsp;Okręgowego][1&nbsp;Okręgowej][2&nbsp;okręgowej][1&nbsp;okręgowy]</td></tr>
 <tr><td>okręt</td><td>okrę .. </td><td>15</td><td>4</td><td>[3&nbsp;Okręty][1&nbsp;Okrętów][1&nbsp;okręcie][1&nbsp;okrętu][1&nbsp;okręty][8&nbsp;okrętów]</td></tr>
@@ -2397,7 +2403,7 @@
 <tr><td>opracować</td><td>opracowa .. </td><td>17</td><td>8</td><td>[1&nbsp;Opracowano][1&nbsp;Opracowała][1&nbsp;opracowali][1&nbsp;opracowana][5&nbsp;opracowanie][1&nbsp;opracowano][1&nbsp;opracowany][3&nbsp;opracował][2&nbsp;opracowała][1&nbsp;opracowało]</td></tr>
 <tr><td>oprawa</td><td>opraw .. </td><td>8</td><td>4</td><td>[2&nbsp;Oprawa][2&nbsp;oprawy][1&nbsp;oprawą][3&nbsp;oprawę]</td></tr>
 <tr><td>optyczny</td><td>optyczn .. </td><td>4</td><td>3</td><td>[1&nbsp;optyczne][1&nbsp;optyczny][2&nbsp;optycznym]</td></tr>
-<tr><td>opublikować</td><td>opublikowa .. </td><td>20</td><td><a name='count10.11'><a href='#count10.12'><span class=red>10</span></a></td><td>[1&nbsp;Opublikował][1&nbsp;Opublikowała][1&nbsp;opublikowali][2&nbsp;opublikowana][3&nbsp;opublikowane][1&nbsp;opublikowanego][1&nbsp;opublikowanej][1&nbsp;opublikowanie][2&nbsp;opublikowano][1&nbsp;opublikowanych][5&nbsp;opublikował][1&nbsp;opublikowała]</td></tr>
+<tr><td>opublikować</td><td>opublikowa .. </td><td>20</td><td>10</td><td>[1&nbsp;Opublikował][1&nbsp;Opublikowała][1&nbsp;opublikowali][2&nbsp;opublikowana][3&nbsp;opublikowane][1&nbsp;opublikowanego][1&nbsp;opublikowanej][1&nbsp;opublikowanie][2&nbsp;opublikowano][1&nbsp;opublikowanych][5&nbsp;opublikował][1&nbsp;opublikowała]</td></tr>
 <tr><td>opuścić</td><td>opu .. </td><td>21</td><td>6</td><td>[1&nbsp;opuszczenia][1&nbsp;opuszczenie][2&nbsp;opuszczeniu][14&nbsp;opuścił][2&nbsp;opuściła][1&nbsp;opuściło]</td></tr>
 <tr><td>opór</td><td>op .. </td><td>3</td><td>2</td><td>[1&nbsp;oporów][2&nbsp;opór]</td></tr>
 <tr><td>opóźnić</td><td>opóźni .. </td><td>3</td><td>3</td><td>[1&nbsp;opóźnieniem][1&nbsp;opóźniona][1&nbsp;opóźnił]</td></tr>
@@ -2409,7 +2415,7 @@
 <tr><td>organizacyjny</td><td>organizacyjn .. </td><td>9</td><td>7</td><td>[1&nbsp;Organizacyjnego][1&nbsp;organizacyjna][1&nbsp;organizacyjne][2&nbsp;organizacyjnej][2&nbsp;organizacyjnych][1&nbsp;organizacyjnym][1&nbsp;organizacyjnymi]</td></tr>
 <tr><td>organizator</td><td>organizator .. </td><td>9</td><td>5</td><td>[1&nbsp;Organizator][1&nbsp;Organizatorami][2&nbsp;organizator][1&nbsp;organizatorem][1&nbsp;organizatorka][3&nbsp;organizatorów]</td></tr>
 <tr><td>organizm</td><td>organizm .. </td><td>7</td><td>2</td><td>[2&nbsp;organizmie][5&nbsp;organizmu]</td></tr>
-<tr><td>organizować</td><td>organiz .. </td><td>20</td><td><a name='count12.2'><a href='#count12.3'><span class=red>12</span></a></td><td>[1&nbsp;Organizował][1&nbsp;Organizuje][1&nbsp;organizowali][1&nbsp;organizowane][1&nbsp;organizowanego][2&nbsp;organizowania][2&nbsp;organizowano][1&nbsp;organizowanych][3&nbsp;organizowanym][1&nbsp;organizowaną][1&nbsp;organizować][4&nbsp;organizował][1&nbsp;organizowała]</td></tr>
+<tr><td>organizować</td><td>organiz .. </td><td>20</td><td>12</td><td>[1&nbsp;Organizował][1&nbsp;Organizuje][1&nbsp;organizowali][1&nbsp;organizowane][1&nbsp;organizowanego][2&nbsp;organizowania][2&nbsp;organizowano][1&nbsp;organizowanych][3&nbsp;organizowanym][1&nbsp;organizowaną][1&nbsp;organizować][4&nbsp;organizował][1&nbsp;organizowała]</td></tr>
 <tr><td>orientalny</td><td>orientaln .. </td><td>2</td><td>2</td><td>[1&nbsp;Orientalnej][1&nbsp;orientalnych]</td></tr>
 <tr><td>orientować</td><td>orientowan .. </td><td>3</td><td>2</td><td>[2&nbsp;orientowana][1&nbsp;orientowany]</td></tr>
 <tr><td>orkiestra</td><td>orkiestr .. </td><td>6</td><td>3</td><td>[1&nbsp;Orkiestry][2&nbsp;orkiestr][1&nbsp;orkiestrach][2&nbsp;orkiestry]</td></tr>
@@ -2446,7 +2452,7 @@
 <tr><td>otaczać</td><td>otaczają .. </td><td>2</td><td>2</td><td>[1&nbsp;otaczają][1&nbsp;otaczający]</td></tr>
 <tr><td>otoczenie</td><td>otoczeni .. </td><td>6</td><td>3</td><td>[1&nbsp;otoczenia][1&nbsp;otoczenie][4&nbsp;otoczeniu]</td></tr>
 <tr><td>otoczyć</td><td>otocz .. </td><td>4</td><td>4</td><td>[1&nbsp;otoczono][1&nbsp;otoczonymi][1&nbsp;otoczyć][1&nbsp;otoczył]</td></tr>
-<tr><td>otrzymać</td><td>otrzyma .. </td><td>70</td><td><a name='count13.1'><a href='#count13.2'><span class=red>13</span></a></td><td>[1&nbsp;Otrzymanie][5&nbsp;Otrzymał][3&nbsp;Otrzymała][1&nbsp;Otrzymały][2&nbsp;otrzymali][1&nbsp;otrzymane][1&nbsp;otrzymania][2&nbsp;otrzymaniu][1&nbsp;otrzymano][1&nbsp;otrzymany][1&nbsp;otrzymasz][1&nbsp;otrzymać][33&nbsp;otrzymał][13&nbsp;otrzymała][3&nbsp;otrzymało][1&nbsp;otrzymały]</td></tr>
+<tr><td>otrzymać</td><td>otrzyma .. </td><td>70</td><td>13</td><td>[1&nbsp;Otrzymanie][5&nbsp;Otrzymał][3&nbsp;Otrzymała][1&nbsp;Otrzymały][2&nbsp;otrzymali][1&nbsp;otrzymane][1&nbsp;otrzymania][2&nbsp;otrzymaniu][1&nbsp;otrzymano][1&nbsp;otrzymany][1&nbsp;otrzymasz][1&nbsp;otrzymać][33&nbsp;otrzymał][13&nbsp;otrzymała][3&nbsp;otrzymało][1&nbsp;otrzymały]</td></tr>
 <tr><td>otrzymujący</td><td>otrzymując .. </td><td>7</td><td>3</td><td>[4&nbsp;otrzymując][1&nbsp;otrzymujący][2&nbsp;otrzymujących]</td></tr>
 <tr><td>otrzymywać</td><td>otrzym .. </td><td>7</td><td>6</td><td>[2&nbsp;otrzymujemy][1&nbsp;otrzymywali][1&nbsp;otrzymywane][1&nbsp;otrzymywał][1&nbsp;otrzymywała][1&nbsp;otrzymywało]</td></tr>
 <tr><td>otwaerzeć</td><td>otwar .. </td><td>9</td><td>2</td><td>[1&nbsp;Otwarto][1&nbsp;otwarciu][7&nbsp;otwarto]</td></tr>
@@ -2546,7 +2552,7 @@
 <tr><td>pewny</td><td>pew .. </td><td>22</td><td>7</td><td>[6&nbsp;pewien][7&nbsp;pewne][2&nbsp;pewnego][1&nbsp;pewnej][1&nbsp;pewnych][2&nbsp;pewnym][3&nbsp;pewną]</td></tr>
 <tr><td>peć</td><td>p .. </td><td>4</td><td>2</td><td>[1&nbsp;Peng][3&nbsp;Pogoń]</td></tr>
 <tr><td>pełna</td><td>peł .. </td><td>12</td><td>4</td><td>[2&nbsp;Pełna][1&nbsp;Pełny][2&nbsp;pełen][3&nbsp;pełna][2&nbsp;pełny][2&nbsp;pełną]</td></tr>
-<tr><td>pełnić</td><td>pełni .. </td><td>60</td><td><a name='count12.3'><a href='#count12.4'><span class=red>12</span></a></td><td>[2&nbsp;Pełni][1&nbsp;Pełnił][14&nbsp;pełni][1&nbsp;pełnieniu][2&nbsp;pełnili][1&nbsp;pełnione][1&nbsp;pełnią][2&nbsp;pełniąc][5&nbsp;pełniący][1&nbsp;pełnić][23&nbsp;pełnił][3&nbsp;pełniła][1&nbsp;pełniło][3&nbsp;pełniły]</td></tr>
+<tr><td>pełnić</td><td>pełni .. </td><td>60</td><td>12</td><td>[2&nbsp;Pełni][1&nbsp;Pełnił][14&nbsp;pełni][1&nbsp;pełnieniu][2&nbsp;pełnili][1&nbsp;pełnione][1&nbsp;pełnią][2&nbsp;pełniąc][5&nbsp;pełniący][1&nbsp;pełnić][23&nbsp;pełnił][3&nbsp;pełniła][1&nbsp;pełniło][3&nbsp;pełniły]</td></tr>
 <tr><td>pianista</td><td>pianist .. </td><td>8</td><td>3</td><td>[1&nbsp;Pianisty][4&nbsp;pianista][1&nbsp;pianisty][2&nbsp;pianistą]</td></tr>
 <tr><td>piasecki</td><td>piaseckie .. </td><td>2</td><td>2</td><td>[1&nbsp;Piaseckiego][1&nbsp;Piaseckiej]</td></tr>
 <tr><td>piasek</td><td>piask .. </td><td>3</td><td>2</td><td>[2&nbsp;Piaski][1&nbsp;piaskach]</td></tr>
@@ -2619,7 +2625,7 @@
 <tr><td>pobrać</td><td>pobra .. </td><td>4</td><td>3</td><td>[2&nbsp;pobrali][1&nbsp;pobrania][1&nbsp;pobrać]</td></tr>
 <tr><td>pobyt</td><td>poby .. </td><td>13</td><td>3</td><td>[1&nbsp;Pobyt][2&nbsp;pobycie][1&nbsp;pobyt][9&nbsp;pobytu]</td></tr>
 <tr><td>pobór</td><td>pobor .. </td><td>2</td><td>2</td><td>[1&nbsp;poborowi][1&nbsp;poboru]</td></tr>
-<tr><td>pochodzić</td><td>pochodz .. </td><td>64</td><td><a name='count10.12'><a href='#count10.13'><span class=red>10</span></a></td><td>[5&nbsp;Pochodził][35&nbsp;pochodzenia][2&nbsp;pochodzenie][2&nbsp;pochodzeniu][1&nbsp;pochodzili][1&nbsp;pochodził][1&nbsp;pochodziła][1&nbsp;pochodziło][1&nbsp;pochodziły][9&nbsp;pochodzą][6&nbsp;pochodzący]</td></tr>
+<tr><td>pochodzić</td><td>pochodz .. </td><td>64</td><td>10</td><td>[5&nbsp;Pochodził][35&nbsp;pochodzenia][2&nbsp;pochodzenie][2&nbsp;pochodzeniu][1&nbsp;pochodzili][1&nbsp;pochodził][1&nbsp;pochodziła][1&nbsp;pochodziło][1&nbsp;pochodziły][9&nbsp;pochodzą][6&nbsp;pochodzący]</td></tr>
 <tr><td>pochodzący</td><td>pochodząc .. </td><td>14</td><td>6</td><td>[1&nbsp;pochodząca][2&nbsp;pochodzące][2&nbsp;pochodzącej][5&nbsp;pochodzących][3&nbsp;pochodzącym][1&nbsp;pochodzącą]</td></tr>
 <tr><td>pochować</td><td>pochowan .. </td><td>11</td><td>6</td><td>[1&nbsp;Pochowany][2&nbsp;pochowana][2&nbsp;pochowane][1&nbsp;pochowani][1&nbsp;pochowano][3&nbsp;pochowany][1&nbsp;pochowanych]</td></tr>
 <tr><td>pochwała</td><td>pochwał .. </td><td>2</td><td>2</td><td>[1&nbsp;pochwały][1&nbsp;pochwałę]</td></tr>
@@ -2728,7 +2734,7 @@
 <tr><td>poloneza</td><td>polonez .. </td><td>2</td><td>2</td><td>[1&nbsp;Poloneza][1&nbsp;Polonezie]</td></tr>
 <tr><td>polować</td><td>pol .. </td><td>4</td><td>4</td><td>[1&nbsp;Polowaniu][1&nbsp;polowania][1&nbsp;polowań][1&nbsp;polują]</td></tr>
 <tr><td>polowy</td><td>polowy .. </td><td>2</td><td>2</td><td>[1&nbsp;Polowy][1&nbsp;polowych]</td></tr>
-<tr><td>polski</td><td>pols .. </td><td>503</td><td><a name='count11.12'><a href='#count11.13'><span class=red>11</span></a></td><td>[1&nbsp;Polscy][18&nbsp;Polska][102&nbsp;Polski][13&nbsp;Polskich][10&nbsp;Polskie][53&nbsp;Polskiego][31&nbsp;Polskiej][2&nbsp;Polskim][4&nbsp;Polsko][2&nbsp;Polską][3&nbsp;polscy][32&nbsp;polska][132&nbsp;polski][20&nbsp;polskich][13&nbsp;polskie][21&nbsp;polskiego][18&nbsp;polskiej][8&nbsp;polskim][1&nbsp;polskimi][10&nbsp;polsko][9&nbsp;polską]</td></tr>
+<tr><td>polski</td><td>pols .. </td><td>503</td><td>11</td><td>[1&nbsp;Polscy][18&nbsp;Polska][102&nbsp;Polski][13&nbsp;Polskich][10&nbsp;Polskie][53&nbsp;Polskiego][31&nbsp;Polskiej][2&nbsp;Polskim][4&nbsp;Polsko][2&nbsp;Polską][3&nbsp;polscy][32&nbsp;polska][132&nbsp;polski][20&nbsp;polskich][13&nbsp;polskie][21&nbsp;polskiego][18&nbsp;polskiej][8&nbsp;polskim][1&nbsp;polskimi][10&nbsp;polsko][9&nbsp;polską]</td></tr>
 <tr><td>polujący</td><td>polując .. </td><td>2</td><td>2</td><td>[1&nbsp;polująca][1&nbsp;polujących]</td></tr>
 <tr><td>pomagać</td><td>pomaga .. </td><td>5</td><td>4</td><td>[1&nbsp;Pomagali][1&nbsp;pomagając][1&nbsp;pomagać][2&nbsp;pomagał]</td></tr>
 <tr><td>pomarańczowy</td><td>pomarańczow .. </td><td>3</td><td>3</td><td>[1&nbsp;pomarańczowe][1&nbsp;pomarańczowego][1&nbsp;pomarańczowych]</td></tr>
@@ -2760,7 +2766,7 @@
 <tr><td>poprzedzić</td><td>poprzedz .. </td><td>2</td><td>2</td><td>[1&nbsp;Poprzedził][1&nbsp;poprzedzone]</td></tr>
 <tr><td>populacja</td><td>populacj .. </td><td>29</td><td>5</td><td>[2&nbsp;Populacja][1&nbsp;Populacje][6&nbsp;populacja][1&nbsp;populacje][16&nbsp;populacji][1&nbsp;populacją][2&nbsp;populację]</td></tr>
 <tr><td>popularność</td><td>popularnoś :: </td><td>21</td><td>4</td><td>[1&nbsp;Popularność][1&nbsp;niepopularności][5&nbsp;popularności][2&nbsp;popularnością][12&nbsp;popularność]</td></tr>
-<tr><td>popularny</td><td>popularn :: </td><td>32</td><td><a name='count11.13'><a href='#count11.14'><span class=red>11</span></a></td><td>[1&nbsp;Popularna][1&nbsp;Popularnym][3&nbsp;najpopularniejszych][1&nbsp;najpopularniejszym][5&nbsp;popularna][3&nbsp;popularne][2&nbsp;popularnego][6&nbsp;popularnej][1&nbsp;popularnemu][1&nbsp;popularnie][2&nbsp;popularny][6&nbsp;popularną]</td></tr>
+<tr><td>popularny</td><td>popularn :: </td><td>32</td><td>11</td><td>[1&nbsp;Popularna][1&nbsp;Popularnym][3&nbsp;najpopularniejszych][1&nbsp;najpopularniejszym][5&nbsp;popularna][3&nbsp;popularne][2&nbsp;popularnego][6&nbsp;popularnej][1&nbsp;popularnemu][1&nbsp;popularnie][2&nbsp;popularny][6&nbsp;popularną]</td></tr>
 <tr><td>poradnik</td><td>poradnik .. </td><td>3</td><td>2</td><td>[2&nbsp;Poradnik][1&nbsp;poradnika]</td></tr>
 <tr><td>poradzić</td><td>poradz .. </td><td>3</td><td>3</td><td>[1&nbsp;poradzenia][1&nbsp;poradzić][1&nbsp;poradził]</td></tr>
 <tr><td>poranny</td><td>porann .. </td><td>3</td><td>3</td><td>[1&nbsp;poranne][1&nbsp;porannego][1&nbsp;poranny]</td></tr>
@@ -2913,7 +2919,7 @@
 <tr><td>producent</td><td>producen .. </td><td>19</td><td>7</td><td>[1&nbsp;Producent][1&nbsp;producenci][7&nbsp;producent][5&nbsp;producenta][1&nbsp;producentami][2&nbsp;producentem][1&nbsp;producentowi][1&nbsp;producentów]</td></tr>
 <tr><td>produkcja</td><td>produkcj .. </td><td>42</td><td>4</td><td>[6&nbsp;Produkcja][2&nbsp;produkcja][24&nbsp;produkcji][1&nbsp;produkcją][9&nbsp;produkcję]</td></tr>
 <tr><td>produkcyjny</td><td>produkcyjn .. </td><td>5</td><td>4</td><td>[1&nbsp;produkcyjna][1&nbsp;produkcyjnego][2&nbsp;produkcyjnej][1&nbsp;produkcyjnych]</td></tr>
-<tr><td>produkować</td><td>produk .. </td><td>31</td><td><a name='count10.13'><a href='#count10.14'><span class=red>10</span></a></td><td>[1&nbsp;Produkowane][2&nbsp;produkowana][3&nbsp;produkowane][2&nbsp;produkowanego][1&nbsp;produkowania][13&nbsp;produkowany][1&nbsp;produkowanych][1&nbsp;produkował][3&nbsp;produkowała][1&nbsp;produkowało][3&nbsp;produkuje]</td></tr>
+<tr><td>produkować</td><td>produk .. </td><td>31</td><td>10</td><td>[1&nbsp;Produkowane][2&nbsp;produkowana][3&nbsp;produkowane][2&nbsp;produkowanego][1&nbsp;produkowania][13&nbsp;produkowany][1&nbsp;produkowanych][1&nbsp;produkował][3&nbsp;produkowała][1&nbsp;produkowało][3&nbsp;produkuje]</td></tr>
 <tr><td>produkt</td><td>produkt .. </td><td>5</td><td>2</td><td>[1&nbsp;produkt][4&nbsp;produktem]</td></tr>
 <tr><td>produkujący</td><td>produkując .. </td><td>5</td><td>4</td><td>[2&nbsp;produkując][1&nbsp;produkująca][1&nbsp;produkującej][1&nbsp;produkujących]</td></tr>
 <tr><td>profesjonalny</td><td>profesjonaln .. </td><td>4</td><td>3</td><td>[2&nbsp;profesjonalnej][1&nbsp;profesjonalnym][1&nbsp;profesjonalną]</td></tr>
@@ -2947,7 +2953,7 @@
 <tr><td>proton</td><td>proton .. </td><td>5</td><td>3</td><td>[1&nbsp;PRotony][2&nbsp;protonu][2&nbsp;protonów]</td></tr>
 <tr><td>prototyp</td><td>prototyp .. </td><td>6</td><td>3</td><td>[3&nbsp;prototyp][2&nbsp;prototypy][1&nbsp;prototypów]</td></tr>
 <tr><td>prototypowy</td><td>prototypow .. </td><td>3</td><td>3</td><td>[1&nbsp;Prototypowo][1&nbsp;Prototypowy][1&nbsp;prototypowa]</td></tr>
-<tr><td>prowadzić</td><td>prowadz .. </td><td>71</td><td><a name='count16.1'><a href='#count16.2'><span class=red>16</span></a></td><td>[1&nbsp;Prowadzi][2&nbsp;Prowadził][1&nbsp;Prowadzone][2&nbsp;Prowadzą][5&nbsp;prowadzenie][2&nbsp;prowadzeniem][1&nbsp;prowadzeniu][13&nbsp;prowadzi][1&nbsp;prowadzili][7&nbsp;prowadzić][16&nbsp;prowadził][2&nbsp;prowadziła][1&nbsp;prowadzona][3&nbsp;prowadzone][2&nbsp;prowadzonej][2&nbsp;prowadzono][1&nbsp;prowadzony][1&nbsp;prowadzonych][1&nbsp;prowadzonym][7&nbsp;prowadzą]</td></tr>
+<tr><td>prowadzić</td><td>prowadz .. </td><td>71</td><td>16</td><td>[1&nbsp;Prowadzi][2&nbsp;Prowadził][1&nbsp;Prowadzone][2&nbsp;Prowadzą][5&nbsp;prowadzenie][2&nbsp;prowadzeniem][1&nbsp;prowadzeniu][13&nbsp;prowadzi][1&nbsp;prowadzili][7&nbsp;prowadzić][16&nbsp;prowadził][2&nbsp;prowadziła][1&nbsp;prowadzona][3&nbsp;prowadzone][2&nbsp;prowadzonej][2&nbsp;prowadzono][1&nbsp;prowadzony][1&nbsp;prowadzonych][1&nbsp;prowadzonym][7&nbsp;prowadzą]</td></tr>
 <tr><td>prowadzący</td><td>prowadząc .. </td><td>8</td><td>4</td><td>[1&nbsp;prowadząc][3&nbsp;prowadząca][3&nbsp;prowadzący][1&nbsp;prowadzącą]</td></tr>
 <tr><td>prowincja</td><td>prowincj .. </td><td>37</td><td>3</td><td>[3&nbsp;Prowincja][2&nbsp;Prowincji][5&nbsp;prowincja][23&nbsp;prowincji][4&nbsp;prowincję]</td></tr>
 <tr><td>proza</td><td>proz .. </td><td>7</td><td>3</td><td>[1&nbsp;proza][5&nbsp;prozy][1&nbsp;prozę]</td></tr>
@@ -2982,7 +2988,7 @@
 <tr><td>przedpremierowy</td><td>przedpremierow .. </td><td>2</td><td>2</td><td>[1&nbsp;przedpremierowego][1&nbsp;przedpremierowy]</td></tr>
 <tr><td>przedsiębiorstwo</td><td>przedsiębiorstw .. </td><td>18</td><td>4</td><td>[3&nbsp;Przedsiębiorstwo][2&nbsp;przedsiębiorstwa][1&nbsp;przedsiębiorstwem][11&nbsp;przedsiębiorstwo][1&nbsp;przedsiębiorstwu]</td></tr>
 <tr><td>przedstawiający</td><td>przedstawiając .. </td><td>8</td><td>4</td><td>[2&nbsp;przedstawiająca][3&nbsp;przedstawiające][1&nbsp;przedstawiającej][2&nbsp;przedstawiającymi]</td></tr>
-<tr><td>przedstawiać</td><td>przedstawia .. </td><td>19</td><td><a name='count10.14'><a href='#count10.15'><span class=red>10</span></a></td><td>[1&nbsp;Przedstawiany][9&nbsp;przedstawia][1&nbsp;przedstawiają][1&nbsp;przedstawiana][1&nbsp;przedstawianego][1&nbsp;przedstawiani][1&nbsp;przedstawiania][1&nbsp;przedstawianą][1&nbsp;przedstawiać][2&nbsp;przedstawiał]</td></tr>
+<tr><td>przedstawiać</td><td>przedstawia .. </td><td>19</td><td>10</td><td>[1&nbsp;Przedstawiany][9&nbsp;przedstawia][1&nbsp;przedstawiają][1&nbsp;przedstawiana][1&nbsp;przedstawianego][1&nbsp;przedstawiani][1&nbsp;przedstawiania][1&nbsp;przedstawianą][1&nbsp;przedstawiać][2&nbsp;przedstawiał]</td></tr>
 <tr><td>przedstawiciel</td><td>przedstawiciel .. </td><td>30</td><td>6</td><td>[2&nbsp;Przedstawiciele][5&nbsp;przedstawiciel][5&nbsp;przedstawiciela][3&nbsp;przedstawicielami][3&nbsp;przedstawiciele][6&nbsp;przedstawicielem][6&nbsp;przedstawicieli]</td></tr>
 <tr><td>przedstawienie</td><td>przedstawieni .. </td><td>4</td><td>2</td><td>[1&nbsp;Przedstawienia][1&nbsp;Przedstawienie][2&nbsp;przedstawienia]</td></tr>
 <tr><td>przedstawić</td><td>przedstawi .. </td><td>10</td><td>5</td><td>[1&nbsp;przedstawione][1&nbsp;przedstawionej][1&nbsp;przedstawiono][2&nbsp;przedstawiony][5&nbsp;przedstawił]</td></tr>
@@ -2993,7 +2999,7 @@
 <tr><td>przejechać</td><td>przejecha .. </td><td>2</td><td>2</td><td>[1&nbsp;przejechaniu][1&nbsp;przejechał]</td></tr>
 <tr><td>przejąć</td><td>przej .. </td><td>12</td><td>5</td><td>[1&nbsp;Przejął][1&nbsp;przejąć][5&nbsp;przejął][1&nbsp;przejęli][3&nbsp;przejęła][1&nbsp;przejęło]</td></tr>
 <tr><td>przejściowy</td><td>przejściow .. </td><td>10</td><td>6</td><td>[1&nbsp;przejściowe][3&nbsp;przejściowego][2&nbsp;przejściowo][1&nbsp;przejściowy][2&nbsp;przejściowych][1&nbsp;przejściową]</td></tr>
-<tr><td>przejść</td><td>prze .. </td><td>42</td><td><a name='count10.15'><a href='#count10.16'><span class=red>10</span></a></td><td>[3&nbsp;Przejście][1&nbsp;przejdziemy][8&nbsp;przejścia][1&nbsp;przejście][1&nbsp;przejściem][3&nbsp;przejściu][2&nbsp;przejść][17&nbsp;przeszedł][3&nbsp;przeszła][2&nbsp;przeszło][1&nbsp;przeszły]</td></tr>
+<tr><td>przejść</td><td>prze .. </td><td>42</td><td>10</td><td>[3&nbsp;Przejście][1&nbsp;przejdziemy][8&nbsp;przejścia][1&nbsp;przejście][1&nbsp;przejściem][3&nbsp;przejściu][2&nbsp;przejść][17&nbsp;przeszedł][3&nbsp;przeszła][2&nbsp;przeszło][1&nbsp;przeszły]</td></tr>
 <tr><td>przekaz</td><td>przekaz .. </td><td>3</td><td>2</td><td>[1&nbsp;Przekaz][1&nbsp;przekaz][1&nbsp;przekazów]</td></tr>
 <tr><td>przekazać</td><td>przekaza .. </td><td>12</td><td>6</td><td>[1&nbsp;przekazana][2&nbsp;przekazane][1&nbsp;przekazania][1&nbsp;przekazano][2&nbsp;przekazany][5&nbsp;przekazał]</td></tr>
 <tr><td>przekonać</td><td>przekona .. </td><td>5</td><td>3</td><td>[1&nbsp;przekonany][3&nbsp;przekonać][1&nbsp;przekonał]</td></tr>
@@ -3019,7 +3025,7 @@
 <tr><td>przepisowy</td><td>przepisow .. </td><td>3</td><td>3</td><td>[1&nbsp;przepisowego][1&nbsp;przepisowym][1&nbsp;przepisową]</td></tr>
 <tr><td>przeprawa</td><td>przepraw .. </td><td>2</td><td>2</td><td>[1&nbsp;przeprawy][1&nbsp;przeprawę]</td></tr>
 <tr><td>przeprowadzać</td><td>przeprowadza .. </td><td>12</td><td>6</td><td>[6&nbsp;przeprowadza][2&nbsp;przeprowadzają][1&nbsp;przeprowadzana][1&nbsp;przeprowadzanej][1&nbsp;przeprowadzano][1&nbsp;przeprowadzać]</td></tr>
-<tr><td>przeprowadzić</td><td>przeprowadz .. </td><td>23</td><td><a name='count13.2'><a href='#count13.3'><span class=red>13</span></a></td><td>[2&nbsp;Przeprowadzone][1&nbsp;przeprowadzenia][1&nbsp;przeprowadzenie][1&nbsp;przeprowadzeniu][1&nbsp;przeprowadzili][3&nbsp;przeprowadzić][1&nbsp;przeprowadził][3&nbsp;przeprowadziła][2&nbsp;przeprowadzona][1&nbsp;przeprowadzone][1&nbsp;przeprowadzonego][4&nbsp;przeprowadzono][1&nbsp;przeprowadzony][1&nbsp;przeprowadzonych]</td></tr>
+<tr><td>przeprowadzić</td><td>przeprowadz .. </td><td>23</td><td>13</td><td>[2&nbsp;Przeprowadzone][1&nbsp;przeprowadzenia][1&nbsp;przeprowadzenie][1&nbsp;przeprowadzeniu][1&nbsp;przeprowadzili][3&nbsp;przeprowadzić][1&nbsp;przeprowadził][3&nbsp;przeprowadziła][2&nbsp;przeprowadzona][1&nbsp;przeprowadzone][1&nbsp;przeprowadzonego][4&nbsp;przeprowadzono][1&nbsp;przeprowadzony][1&nbsp;przeprowadzonych]</td></tr>
 <tr><td>przepływający</td><td>przepływając .. </td><td>3</td><td>2</td><td>[2&nbsp;przepływająca][1&nbsp;przepływającego]</td></tr>
 <tr><td>przerazić</td><td>przerażon .. </td><td>3</td><td>2</td><td>[2&nbsp;przerażona][1&nbsp;przerażony]</td></tr>
 <tr><td>przerwa</td><td>przerw .. </td><td>9</td><td>4</td><td>[1&nbsp;przerwa][3&nbsp;przerwami][2&nbsp;przerwie][3&nbsp;przerwą]</td></tr>
@@ -3164,7 +3170,7 @@
 <tr><td>radomski</td><td>radomsk .. </td><td>5</td><td>3</td><td>[1&nbsp;Radomskiej][2&nbsp;Radomsko][1&nbsp;radomskiego][1&nbsp;radomskiej]</td></tr>
 <tr><td>radomszczańskiei</td><td>radomszczański .. </td><td>5</td><td>2</td><td>[1&nbsp;radomszczańskiego][4&nbsp;radomszczańskim]</td></tr>
 <tr><td>radykalny</td><td>radykalne .. </td><td>3</td><td>2</td><td>[2&nbsp;Radykalnego][1&nbsp;radykalnej]</td></tr>
-<tr><td>radziecki</td><td>radzieck .. </td><td>58</td><td><a name='count10.16'><a href='#count10.17'><span class=red>10</span></a></td><td>[2&nbsp;Radziecka][3&nbsp;Radziecki][1&nbsp;Radzieckich][8&nbsp;Radzieckiego][9&nbsp;Radzieckiej][1&nbsp;Radzieckiemu][5&nbsp;Radzieckim][4&nbsp;Radziecką][3&nbsp;radziecka][7&nbsp;radziecki][4&nbsp;radzieckich][1&nbsp;radzieckie][1&nbsp;radzieckiego][5&nbsp;radzieckiej][1&nbsp;radzieckim][3&nbsp;radziecko]</td></tr>
+<tr><td>radziecki</td><td>radzieck .. </td><td>58</td><td>10</td><td>[2&nbsp;Radziecka][3&nbsp;Radziecki][1&nbsp;Radzieckich][8&nbsp;Radzieckiego][9&nbsp;Radzieckiej][1&nbsp;Radzieckiemu][5&nbsp;Radzieckim][4&nbsp;Radziecką][3&nbsp;radziecka][7&nbsp;radziecki][4&nbsp;radzieckich][1&nbsp;radzieckie][1&nbsp;radzieckiego][5&nbsp;radzieckiej][1&nbsp;radzieckim][3&nbsp;radziecko]</td></tr>
 <tr><td>radziwiłł</td><td>radziwiłł .. </td><td>2</td><td>2</td><td>[1&nbsp;Radziwiłł][1&nbsp;Radziwiłła]</td></tr>
 <tr><td>raj</td><td>raj .. </td><td>3</td><td>2</td><td>[2&nbsp;Raj][1&nbsp;Raju]</td></tr>
 <tr><td>rakieta</td><td>rakiet .. </td><td>3</td><td>3</td><td>[1&nbsp;rakiet][1&nbsp;rakietą][1&nbsp;rakietę]</td></tr>
@@ -3282,7 +3288,7 @@
 <tr><td>romans</td><td>romans .. </td><td>3</td><td>3</td><td>[1&nbsp;romans][1&nbsp;romansie][1&nbsp;romansów]</td></tr>
 <tr><td>romuald</td><td>romuald .. </td><td>2</td><td>2</td><td>[1&nbsp;Romuald][1&nbsp;Romualdem]</td></tr>
 <tr><td>rosjan</td><td>rosjan .. </td><td>10</td><td>2</td><td>[3&nbsp;Rosjan][7&nbsp;Rosjanie]</td></tr>
-<tr><td>rosyjski</td><td>rosyjs .. </td><td>93</td><td><a name='count10.17'><a href='#count10.18'><span class=red>10</span></a></td><td>[1&nbsp;Rosyjska][1&nbsp;Rosyjski][5&nbsp;Rosyjskiego][9&nbsp;Rosyjskiej][2&nbsp;Rosyjskim][1&nbsp;rosyjscy][11&nbsp;rosyjska][28&nbsp;rosyjski][4&nbsp;rosyjskich][2&nbsp;rosyjskie][9&nbsp;rosyjskiego][7&nbsp;rosyjskiej][6&nbsp;rosyjskim][6&nbsp;rosyjsko][1&nbsp;rosyjską]</td></tr>
+<tr><td>rosyjski</td><td>rosyjs .. </td><td>93</td><td>10</td><td>[1&nbsp;Rosyjska][1&nbsp;Rosyjski][5&nbsp;Rosyjskiego][9&nbsp;Rosyjskiej][2&nbsp;Rosyjskim][1&nbsp;rosyjscy][11&nbsp;rosyjska][28&nbsp;rosyjski][4&nbsp;rosyjskich][2&nbsp;rosyjskie][9&nbsp;rosyjskiego][7&nbsp;rosyjskiej][6&nbsp;rosyjskim][6&nbsp;rosyjsko][1&nbsp;rosyjską]</td></tr>
 <tr><td>rowerowy</td><td>rowerow .. </td><td>8</td><td>3</td><td>[2&nbsp;Rowerowy][1&nbsp;rowerowa][4&nbsp;rowerowy][1&nbsp;rowerowych]</td></tr>
 <tr><td>rozbiór</td><td>rozbi .. </td><td>3</td><td>2</td><td>[1&nbsp;rozbiorze][2&nbsp;rozbiórki]</td></tr>
 <tr><td>rozbić</td><td>rozbi .. </td><td>7</td><td>3</td><td>[2&nbsp;rozbicia][1&nbsp;rozbiciu][4&nbsp;rozbił]</td></tr>
@@ -3737,7 +3743,7 @@
 <tr><td>swoboda</td><td>swobod .. </td><td>2</td><td>2</td><td>[1&nbsp;swobody][1&nbsp;swobodę]</td></tr>
 <tr><td>swobodny</td><td>swobodn .. </td><td>4</td><td>2</td><td>[3&nbsp;swobodnie][1&nbsp;swobodny]</td></tr>
 <tr><td>swoisty</td><td>swoist .. </td><td>2</td><td>2</td><td>[1&nbsp;Swoistą][1&nbsp;swoistego]</td></tr>
-<tr><td>swój</td><td>sw .. </td><td>154</td><td><a name='count13.3'><a href='#count13.4'><span class=red>13</span></a></td><td>[3&nbsp;Swój][3&nbsp;swego][7&nbsp;swej][1&nbsp;swemu][16&nbsp;swoich][22&nbsp;swoim][22&nbsp;swojego][17&nbsp;swojej][1&nbsp;swojemu][30&nbsp;swoją][6&nbsp;swych][7&nbsp;swym][2&nbsp;swymi][17&nbsp;swój]</td></tr>
+<tr><td>swój</td><td>sw .. </td><td>154</td><td>13</td><td>[3&nbsp;Swój][3&nbsp;swego][7&nbsp;swej][1&nbsp;swemu][16&nbsp;swoich][22&nbsp;swoim][22&nbsp;swojego][17&nbsp;swojej][1&nbsp;swojemu][30&nbsp;swoją][6&nbsp;swych][7&nbsp;swym][2&nbsp;swymi][17&nbsp;swój]</td></tr>
 <tr><td>syberyjski</td><td>syberyjski .. </td><td>3</td><td>2</td><td>[1&nbsp;Syberyjski][1&nbsp;Syberyjskiego][1&nbsp;syberyjski]</td></tr>
 <tr><td>sygnalizować</td><td>sygnaliz .. e</td><td>2</td><td>2</td><td>[1&nbsp;sygnalizowane][1&nbsp;sygnalizuje]</td></tr>
 <tr><td>sygnał</td><td>sygnał .. </td><td>4</td><td>2</td><td>[1&nbsp;Sygnał][2&nbsp;sygnał][1&nbsp;sygnałem]</td></tr>
@@ -4012,7 +4018,7 @@
 <tr><td>tylny</td><td>tyln .. </td><td>6</td><td>5</td><td>[1&nbsp;tylna][1&nbsp;tylnej][1&nbsp;tylny][2&nbsp;tylnych][1&nbsp;tylnymi]</td></tr>
 <tr><td>tymczasowy</td><td>tymczasow .. </td><td>5</td><td>4</td><td>[1&nbsp;Tymczasowy][1&nbsp;tymczasowe][1&nbsp;tymczasowego][2&nbsp;tymczasowo]</td></tr>
 <tr><td>typ</td><td>typ .. </td><td>36</td><td>4</td><td>[9&nbsp;typ][1&nbsp;typem][25&nbsp;typu][1&nbsp;typów]</td></tr>
-<tr><td>typowy</td><td>typow .. </td><td>17</td><td><a name='count10.18'><a href='#count10.19'><span class=red>10</span></a></td><td>[1&nbsp;Typowy][1&nbsp;typowa][3&nbsp;typowe][1&nbsp;typowego][1&nbsp;typowej][3&nbsp;typowo][1&nbsp;typowy][3&nbsp;typowych][1&nbsp;typowym][1&nbsp;typowymi][1&nbsp;typową]</td></tr>
+<tr><td>typowy</td><td>typow .. </td><td>17</td><td>10</td><td>[1&nbsp;Typowy][1&nbsp;typowa][3&nbsp;typowe][1&nbsp;typowego][1&nbsp;typowej][3&nbsp;typowo][1&nbsp;typowy][3&nbsp;typowych][1&nbsp;typowym][1&nbsp;typowymi][1&nbsp;typową]</td></tr>
 <tr><td>tysiąc</td><td>tysiąc .. </td><td>2</td><td>2</td><td>[1&nbsp;tysiąc][1&nbsp;tysiącami]</td></tr>
 <tr><td>tysiący</td><td>tysiąc .. </td><td>3</td><td>2</td><td>[1&nbsp;tysiąca][2&nbsp;tysiące]</td></tr>
 <tr><td>tyszkiewicz</td><td>tyszkiewicz .. </td><td>12</td><td>2</td><td>[10&nbsp;Tyszkiewicz][2&nbsp;Tyszkiewiczów]</td></tr>
@@ -4046,7 +4052,7 @@
 <tr><td>udar</td><td>udar .. </td><td>5</td><td>2</td><td>[1&nbsp;Udar][1&nbsp;udar][3&nbsp;udaru]</td></tr>
 <tr><td>udawać</td><td>uda .. </td><td>6</td><td>2</td><td>[2&nbsp;Udaje][3&nbsp;udaje][1&nbsp;udawał]</td></tr>
 <tr><td>udać</td><td>uda .. </td><td>19</td><td>5</td><td>[2&nbsp;udanych][2&nbsp;udaną][1&nbsp;udać][4&nbsp;udał][10&nbsp;udało]</td></tr>
-<tr><td>uderzyć</td><td>uderz .. </td><td>18</td><td><a name='count10.19'><a href='#count10.20'><span class=red>10</span></a></td><td>[5&nbsp;uderzenia][2&nbsp;uderzenie][1&nbsp;uderzeniem][1&nbsp;uderzeniu][1&nbsp;uderzony][1&nbsp;uderzyć][4&nbsp;uderzył][1&nbsp;uderzyła][1&nbsp;uderzyło][1&nbsp;uderzyły]</td></tr>
+<tr><td>uderzyć</td><td>uderz .. </td><td>18</td><td>10</td><td>[5&nbsp;uderzenia][2&nbsp;uderzenie][1&nbsp;uderzeniem][1&nbsp;uderzeniu][1&nbsp;uderzony][1&nbsp;uderzyć][4&nbsp;uderzył][1&nbsp;uderzyła][1&nbsp;uderzyło][1&nbsp;uderzyły]</td></tr>
 <tr><td>udokumentować</td><td>udokumentowa .. </td><td>2</td><td>2</td><td>[1&nbsp;Udokumentował][1&nbsp;udokumentowanych]</td></tr>
 <tr><td>udowodnić</td><td>udowodni .. </td><td>3</td><td>2</td><td>[1&nbsp;Udowodnił][1&nbsp;udowodnione][1&nbsp;udowodnił]</td></tr>
 <tr><td>udział</td><td>udział .. </td><td>7</td><td>2</td><td>[6&nbsp;udziału][1&nbsp;udziałów]</td></tr>
@@ -4128,7 +4134,7 @@
 <tr><td>utrudnić</td><td>utrudnie .. </td><td>2</td><td>2</td><td>[1&nbsp;utrudnienia][1&nbsp;utrudnień]</td></tr>
 <tr><td>utrzymać</td><td>utrzyma .. </td><td>10</td><td>6</td><td>[1&nbsp;Utrzymanie][1&nbsp;Utrzymał][1&nbsp;utrzymania][3&nbsp;utrzymać][1&nbsp;utrzymał][1&nbsp;utrzymała][2&nbsp;utrzymały]</td></tr>
 <tr><td>utrzymywać</td><td>utrzymywa .. </td><td>9</td><td>7</td><td>[1&nbsp;utrzymywali][1&nbsp;utrzymywana][1&nbsp;utrzymywaniem][1&nbsp;utrzymywany][2&nbsp;utrzymywać][2&nbsp;utrzymywał][1&nbsp;utrzymywała]</td></tr>
-<tr><td>utworzyć</td><td>utworz .. </td><td>47</td><td><a name='count14.2'><a href='#count14.3'><span class=red>14</span></a></td><td>[1&nbsp;Utworzenie][1&nbsp;Utworzone][5&nbsp;utworzenia][2&nbsp;utworzenie][1&nbsp;utworzeniu][6&nbsp;utworzona][3&nbsp;utworzone][2&nbsp;utworzonego][2&nbsp;utworzonej][10&nbsp;utworzono][6&nbsp;utworzony][1&nbsp;utworzonym][2&nbsp;utworzyli][2&nbsp;utworzyć][1&nbsp;utworzył][2&nbsp;utworzyło]</td></tr>
+<tr><td>utworzyć</td><td>utworz .. </td><td>47</td><td>14</td><td>[1&nbsp;Utworzenie][1&nbsp;Utworzone][5&nbsp;utworzenia][2&nbsp;utworzenie][1&nbsp;utworzeniu][6&nbsp;utworzona][3&nbsp;utworzone][2&nbsp;utworzonego][2&nbsp;utworzonej][10&nbsp;utworzono][6&nbsp;utworzony][1&nbsp;utworzonym][2&nbsp;utworzyli][2&nbsp;utworzyć][1&nbsp;utworzył][2&nbsp;utworzyło]</td></tr>
 <tr><td>utwór</td><td>utw .. </td><td>53</td><td>8</td><td>[1&nbsp;Utworem][8&nbsp;Utwór][2&nbsp;utworach][1&nbsp;utworami][1&nbsp;utworem][5&nbsp;utworu][7&nbsp;utwory][2&nbsp;utworze][13&nbsp;utworów][13&nbsp;utwór]</td></tr>
 <tr><td>utytułować</td><td>utytułowany .. </td><td>3</td><td>2</td><td>[2&nbsp;utytułowanych][1&nbsp;utytułowanym]</td></tr>
 <tr><td>utąić</td><td>utraci .. </td><td>5</td><td>4</td><td>[1&nbsp;utracili][1&nbsp;utracił][2&nbsp;utraciła][1&nbsp;utraciło]</td></tr>
@@ -4146,7 +4152,7 @@
 <tr><td>uznawać</td><td>uzna .. </td><td>15</td><td>5</td><td>[2&nbsp;Uznaje][3&nbsp;uznaje][1&nbsp;uznawali][3&nbsp;uznawana][2&nbsp;uznawano][4&nbsp;uznawany]</td></tr>
 <tr><td>uznać</td><td>uzna .. </td><td>11</td><td>4</td><td>[6&nbsp;uznanie][3&nbsp;uznano][1&nbsp;uznało][1&nbsp;uznały]</td></tr>
 <tr><td>uzupełnić</td><td>uzupełni .. </td><td>6</td><td>5</td><td>[1&nbsp;Uzupełnienie][1&nbsp;Uzupełnieniem][1&nbsp;uzupełnienia][2&nbsp;uzupełnione][1&nbsp;uzupełnił]</td></tr>
-<tr><td>uzyskać</td><td>uzyska .. </td><td>44</td><td><a name='count10.20'><a href='#count10.21'><span class=red>10</span></a></td><td>[1&nbsp;Uzyskał][1&nbsp;uzyska][2&nbsp;uzyskali][2&nbsp;uzyskania][1&nbsp;uzyskanie][5&nbsp;uzyskaniu][1&nbsp;uzyskać][17&nbsp;uzyskał][12&nbsp;uzyskała][1&nbsp;uzyskało][1&nbsp;uzyskały]</td></tr>
+<tr><td>uzyskać</td><td>uzyska .. </td><td>44</td><td>10</td><td>[1&nbsp;Uzyskał][1&nbsp;uzyska][2&nbsp;uzyskali][2&nbsp;uzyskania][1&nbsp;uzyskanie][5&nbsp;uzyskaniu][1&nbsp;uzyskać][17&nbsp;uzyskał][12&nbsp;uzyskała][1&nbsp;uzyskało][1&nbsp;uzyskały]</td></tr>
 <tr><td>uzyskiwać</td><td>uzyskiwa .. </td><td>6</td><td>4</td><td>[1&nbsp;Uzyskiwał][1&nbsp;uzyskiwali][1&nbsp;uzyskiwaniem][1&nbsp;uzyskiwał][2&nbsp;uzyskiwała]</td></tr>
 <tr><td>ułatwiać</td><td>ułatwia .. </td><td>3</td><td>3</td><td>[1&nbsp;ułatwia][1&nbsp;ułatwiają][1&nbsp;ułatwiało]</td></tr>
 <tr><td>ułożyć</td><td>ułoż .. </td><td>4</td><td>4</td><td>[1&nbsp;ułożeni][1&nbsp;ułożony][1&nbsp;ułożonych][1&nbsp;ułożonymi]</td></tr>
@@ -4156,7 +4162,7 @@
 <tr><td>użytkownik</td><td>użytkownik .. </td><td>3</td><td>2</td><td>[1&nbsp;użytkownika][2&nbsp;użytkowników]</td></tr>
 <tr><td>użyty</td><td>użyt .. </td><td>16</td><td>5</td><td>[1&nbsp;Użyto][6&nbsp;użyta][1&nbsp;użyte][2&nbsp;użytego][2&nbsp;użyto][4&nbsp;użyty]</td></tr>
 <tr><td>używający</td><td>używając .. </td><td>2</td><td>2</td><td>[1&nbsp;Używając][1&nbsp;używający]</td></tr>
-<tr><td>używać</td><td>używa .. </td><td>34</td><td><a name='count11.14'><a href='#count11.15'><span class=red>11</span></a></td><td>[1&nbsp;używali][7&nbsp;używana][6&nbsp;używane][1&nbsp;używani][5&nbsp;używany][4&nbsp;używanych][1&nbsp;używanym][1&nbsp;używaną][2&nbsp;używać][5&nbsp;używał][1&nbsp;używały]</td></tr>
+<tr><td>używać</td><td>używa .. </td><td>34</td><td>11</td><td>[1&nbsp;używali][7&nbsp;używana][6&nbsp;używane][1&nbsp;używani][5&nbsp;używany][4&nbsp;używanych][1&nbsp;używanym][1&nbsp;używaną][2&nbsp;używać][5&nbsp;używał][1&nbsp;używały]</td></tr>
 <tr><td>użyć</td><td>uży .. </td><td>19</td><td>8</td><td>[1&nbsp;Użycie][1&nbsp;użycia][1&nbsp;użycie][4&nbsp;użyciem][6&nbsp;użyciu][3&nbsp;używa][1&nbsp;użyć][1&nbsp;użył][1&nbsp;użyła]</td></tr>
 <tr><td>v</td><td>v .. </td><td>31</td><td>2</td><td>[25&nbsp;V][1&nbsp;VMRO][5&nbsp;v]</td></tr>
 <tr><td>vale</td><td>vale .. e</td><td>3</td><td>2</td><td>[1&nbsp;Vale][2&nbsp;Valerie]</td></tr>
@@ -4197,7 +4203,7 @@
 <tr><td><a name='prob11'><a href='#prob12'><span class=red>wać</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>6</td><td>5</td><td>[1&nbsp;Wall][1&nbsp;farm][2&nbsp;kaszb][1&nbsp;wisi][1&nbsp;węży]</td></tr>
 <tr><td>wał</td><td>wał .. </td><td>4</td><td>2</td><td>[2&nbsp;Wału][1&nbsp;wału][1&nbsp;wałów]</td></tr>
 <tr><td>wałbrzyski</td><td>wałbrzyski .. </td><td>2</td><td>2</td><td>[1&nbsp;wałbrzyskiego][1&nbsp;wałbrzyskim]</td></tr>
-<tr><td>ważny</td><td>ważn :: </td><td>45</td><td><a name='count13.4'><a href='#count13.5'><span class=red>13</span></a></td><td>[3&nbsp;Najważniejsze][3&nbsp;Najważniejszym][3&nbsp;Najważniejszą][1&nbsp;Ważniejsze][2&nbsp;Ważną][2&nbsp;najważniejsze][1&nbsp;najważniejszej][4&nbsp;najważniejszych][1&nbsp;najważniejszym][1&nbsp;najważniejszą][10&nbsp;ważne][2&nbsp;ważniejszych][1&nbsp;ważniejszym][2&nbsp;ważny][1&nbsp;ważnych][7&nbsp;ważnym][1&nbsp;ważną]</td></tr>
+<tr><td>ważny</td><td>ważn :: </td><td>45</td><td>13</td><td>[3&nbsp;Najważniejsze][3&nbsp;Najważniejszym][3&nbsp;Najważniejszą][1&nbsp;Ważniejsze][2&nbsp;Ważną][2&nbsp;najważniejsze][1&nbsp;najważniejszej][4&nbsp;najważniejszych][1&nbsp;najważniejszym][1&nbsp;najważniejszą][10&nbsp;ważne][2&nbsp;ważniejszych][1&nbsp;ważniejszym][2&nbsp;ważny][1&nbsp;ważnych][7&nbsp;ważnym][1&nbsp;ważną]</td></tr>
 <tr><td>ważyć</td><td>waży .. </td><td>4</td><td>2</td><td>[2&nbsp;waży][2&nbsp;ważył]</td></tr>
 <tr><td>wchodzić</td><td>wchodz .. </td><td>17</td><td>7</td><td>[2&nbsp;Wchodził][2&nbsp;wchodzili][1&nbsp;wchodził][3&nbsp;wchodziła][1&nbsp;wchodziło][2&nbsp;wchodziły][5&nbsp;wchodzą][1&nbsp;wchodząc]</td></tr>
 <tr><td>wchodzący</td><td>wchodząc .. </td><td>7</td><td>4</td><td>[2&nbsp;wchodząca][1&nbsp;wchodzące][3&nbsp;wchodzących][1&nbsp;wchodzącymi]</td></tr>
@@ -4321,7 +4327,7 @@
 <tr><td>wprawny</td><td>wprawny .. </td><td>2</td><td>2</td><td>[1&nbsp;wprawnych][1&nbsp;wprawnym]</td></tr>
 <tr><td>wprowadzający</td><td>wprowadzając .. </td><td>3</td><td>3</td><td>[1&nbsp;Wprowadzająca][1&nbsp;wprowadzające][1&nbsp;wprowadzającą]</td></tr>
 <tr><td>wprowadzać</td><td>wprowadza .. </td><td>4</td><td>3</td><td>[2&nbsp;wprowadza][1&nbsp;wprowadzając][1&nbsp;wprowadzać]</td></tr>
-<tr><td>wprowadzić</td><td>wprowadz .. </td><td>30</td><td><a name='count12.4'><a href='#count12.5'><span class=red>12</span></a></td><td>[1&nbsp;Wprowadziła][1&nbsp;Wprowadzone][1&nbsp;wprowadzenia][5&nbsp;wprowadzenie][2&nbsp;wprowadzeniu][2&nbsp;wprowadzili][2&nbsp;wprowadzić][3&nbsp;wprowadził][3&nbsp;wprowadziła][1&nbsp;wprowadziły][1&nbsp;wprowadzona][2&nbsp;wprowadzone][5&nbsp;wprowadzono][1&nbsp;wprowadzony]</td></tr>
+<tr><td>wprowadzić</td><td>wprowadz .. </td><td>30</td><td>12</td><td>[1&nbsp;Wprowadziła][1&nbsp;Wprowadzone][1&nbsp;wprowadzenia][5&nbsp;wprowadzenie][2&nbsp;wprowadzeniu][2&nbsp;wprowadzili][2&nbsp;wprowadzić][3&nbsp;wprowadził][3&nbsp;wprowadziła][1&nbsp;wprowadziły][1&nbsp;wprowadzona][2&nbsp;wprowadzone][5&nbsp;wprowadzono][1&nbsp;wprowadzony]</td></tr>
 <tr><td>wpłynąć</td><td>wpłyn .. </td><td>3</td><td>3</td><td>[1&nbsp;wpłynąć][1&nbsp;wpłynęła][1&nbsp;wpłynęło]</td></tr>
 <tr><td>wpływ</td><td>wpływ .. </td><td>35</td><td>7</td><td>[1&nbsp;Wpływ][9&nbsp;wpływ][2&nbsp;wpływami][6&nbsp;wpływem][1&nbsp;wpływom][3&nbsp;wpływu][9&nbsp;wpływy][4&nbsp;wpływów]</td></tr>
 <tr><td>wpływać</td><td>wpływa .. </td><td>2</td><td>2</td><td>[1&nbsp;Wpływał][1&nbsp;wpływa]</td></tr>
@@ -4372,7 +4378,7 @@
 <tr><td>wyborczy</td><td>wyborcz .. </td><td>4</td><td>3</td><td>[1&nbsp;Wyborczej][1&nbsp;wyborczej][1&nbsp;wyborczy][1&nbsp;wyborczych]</td></tr>
 <tr><td>wyborg</td><td>wyborg .. </td><td>4</td><td>2</td><td>[3&nbsp;Wyborg][1&nbsp;Wyborgiem]</td></tr>
 <tr><td>wyborowy</td><td>wyborow .. </td><td>5</td><td>4</td><td>[1&nbsp;wyborowa][2&nbsp;wyborowe][1&nbsp;wyborowego][1&nbsp;wyborowy]</td></tr>
-<tr><td>wybrać</td><td>wybra .. </td><td>39</td><td><a name='count10.21'><a href='#count10.22'><span class=red>10</span></a></td><td>[1&nbsp;Wybrano][1&nbsp;wybrali][4&nbsp;wybrana][2&nbsp;wybrane][1&nbsp;wybranego][4&nbsp;wybrano][21&nbsp;wybrany][1&nbsp;wybranym][2&nbsp;wybrała][1&nbsp;wybrałem][1&nbsp;wybrało]</td></tr>
+<tr><td>wybrać</td><td>wybra .. </td><td>39</td><td>10</td><td>[1&nbsp;Wybrano][1&nbsp;wybrali][4&nbsp;wybrana][2&nbsp;wybrane][1&nbsp;wybranego][4&nbsp;wybrano][21&nbsp;wybrany][1&nbsp;wybranym][2&nbsp;wybrała][1&nbsp;wybrałem][1&nbsp;wybrało]</td></tr>
 <tr><td>wybrzeż</td><td>wybrzeż .. </td><td>3</td><td>2</td><td>[1&nbsp;Wybrzeżu][1&nbsp;wybrzeżach][1&nbsp;wybrzeżu]</td></tr>
 <tr><td>wybuch</td><td>wybuch .. </td><td>22</td><td>3</td><td>[1&nbsp;Wybuch][4&nbsp;wybuch][4&nbsp;wybuchem][13&nbsp;wybuchu]</td></tr>
 <tr><td>wybuchnąć</td><td>wybuchł .. </td><td>6</td><td>2</td><td>[4&nbsp;wybuchł][2&nbsp;wybuchło]</td></tr>
@@ -4397,7 +4403,7 @@
 <tr><td>wydawca</td><td>wydawc .. </td><td>9</td><td>4</td><td>[5&nbsp;wydawca][1&nbsp;wydawcy][2&nbsp;wydawców][1&nbsp;wydawcą]</td></tr>
 <tr><td>wydawnictwo</td><td>wydawnictw .. </td><td>52</td><td>5</td><td>[3&nbsp;Wydawnictwa][37&nbsp;Wydawnictwo][4&nbsp;wydawnictwa][2&nbsp;wydawnictwach][1&nbsp;wydawnictwem][2&nbsp;wydawnictwie][3&nbsp;wydawnictwo]</td></tr>
 <tr><td>wydawniczy</td><td>wydawnicz .. </td><td>17</td><td>5</td><td>[10&nbsp;Wydawnicza][2&nbsp;Wydawnicze][2&nbsp;Wydawniczej][1&nbsp;Wydawniczo][1&nbsp;Wydawniczy][1&nbsp;wydawniczy]</td></tr>
-<tr><td>wydać</td><td>wyda .. </td><td>66</td><td><a name='count11.15'><a href='#count11.16'><span class=red>11</span></a></td><td>[2&nbsp;Wydanie][1&nbsp;Wydano][1&nbsp;Wydał][1&nbsp;wydali][14&nbsp;wydania][9&nbsp;wydanie][1&nbsp;wydaniem][8&nbsp;wydaniu][6&nbsp;wydano][1&nbsp;wydać][18&nbsp;wydał][2&nbsp;wydała][1&nbsp;wydało][1&nbsp;wydań]</td></tr>
+<tr><td>wydać</td><td>wyda .. </td><td>66</td><td>11</td><td>[2&nbsp;Wydanie][1&nbsp;Wydano][1&nbsp;Wydał][1&nbsp;wydali][14&nbsp;wydania][9&nbsp;wydanie][1&nbsp;wydaniem][8&nbsp;wydaniu][6&nbsp;wydano][1&nbsp;wydać][18&nbsp;wydał][2&nbsp;wydała][1&nbsp;wydało][1&nbsp;wydań]</td></tr>
 <tr><td>wydobywać</td><td>wydobywa .. </td><td>2</td><td>2</td><td>[1&nbsp;Wydobywa][1&nbsp;wydobywano]</td></tr>
 <tr><td>wydolność</td><td>niewydolnoś .. </td><td>2</td><td>2</td><td>[1&nbsp;niewydolności][1&nbsp;niewydolność]</td></tr>
 <tr><td>wydrukować</td><td>wydrukowan .. </td><td>4</td><td>3</td><td>[1&nbsp;Wydrukowanie][1&nbsp;wydrukowana][1&nbsp;wydrukowanie][1&nbsp;wydrukowano]</td></tr>
@@ -4423,7 +4429,7 @@
 <tr><td>wykluczyć</td><td>wykluczy .. </td><td>3</td><td>2</td><td>[2&nbsp;wykluczyć][1&nbsp;wykluczyła]</td></tr>
 <tr><td>wykonawca</td><td>wykonawc .. </td><td>10</td><td>5</td><td>[3&nbsp;wykonawca][2&nbsp;wykonawcami][2&nbsp;wykonawcy][1&nbsp;wykonawców][2&nbsp;wykonawcą]</td></tr>
 <tr><td>wykonawczy</td><td>wykonawcz .. </td><td>8</td><td>3</td><td>[6&nbsp;Wykonawczego][1&nbsp;wykonawczy][1&nbsp;wykonawczym]</td></tr>
-<tr><td>wykonać</td><td>wykona .. </td><td>36</td><td><a name='count14.3'><a href='#count14.4'><span class=red>14</span></a></td><td>[1&nbsp;Wykonanie][1&nbsp;Wykonano][1&nbsp;Wykonany][1&nbsp;wykonają][1&nbsp;wykonali][1&nbsp;wykonana][9&nbsp;wykonane][1&nbsp;wykonanej][2&nbsp;wykonania][2&nbsp;wykonanie][3&nbsp;wykonany][1&nbsp;wykonanymi][2&nbsp;wykonaną][3&nbsp;wykonać][6&nbsp;wykonał][1&nbsp;wykonała]</td></tr>
+<tr><td>wykonać</td><td>wykona .. </td><td>36</td><td>14</td><td>[1&nbsp;Wykonanie][1&nbsp;Wykonano][1&nbsp;Wykonany][1&nbsp;wykonają][1&nbsp;wykonali][1&nbsp;wykonana][9&nbsp;wykonane][1&nbsp;wykonanej][2&nbsp;wykonania][2&nbsp;wykonanie][3&nbsp;wykonany][1&nbsp;wykonanymi][2&nbsp;wykonaną][3&nbsp;wykonać][6&nbsp;wykonał][1&nbsp;wykonała]</td></tr>
 <tr><td>wykonować</td><td>wykonuje .. </td><td>11</td><td>2</td><td>[1&nbsp;Wykonuje][9&nbsp;wykonuje][1&nbsp;wykonujemy]</td></tr>
 <tr><td>wykonywany</td><td>wykonywan .. </td><td>9</td><td>4</td><td>[5&nbsp;wykonywane][2&nbsp;wykonywanej][1&nbsp;wykonywany][1&nbsp;wykonywanych]</td></tr>
 <tr><td>wykonywać</td><td>wykonywa .. </td><td>3</td><td>2</td><td>[1&nbsp;wykonywanie][2&nbsp;wykonywał]</td></tr>
@@ -4570,7 +4576,7 @@
 <tr><td>właściwy</td><td>właściw .. </td><td>4</td><td>2</td><td>[3&nbsp;właściwe][1&nbsp;właściwymi]</td></tr>
 <tr><td>włoch</td><td>włoch .. </td><td>16</td><td>3</td><td>[13&nbsp;Włoch][2&nbsp;Włochem][1&nbsp;Włochy]</td></tr>
 <tr><td>włodzimierz</td><td>włodzimierz .. </td><td>11</td><td>3</td><td>[4&nbsp;Włodzimierz][6&nbsp;Włodzimierza][1&nbsp;Włodzimierzów]</td></tr>
-<tr><td>włoski</td><td>włosk .. </td><td>56</td><td><a name='count10.22'><a href='#count10.23'><span class=red>10</span></a></td><td>[4&nbsp;włoska][33&nbsp;włoski][2&nbsp;włoskich][3&nbsp;włoskie][9&nbsp;włoskiego][1&nbsp;włoskiej][1&nbsp;włoskiemu][1&nbsp;włoskim][1&nbsp;włoskimi][1&nbsp;włosko]</td></tr>
+<tr><td>włoski</td><td>włosk .. </td><td>56</td><td>10</td><td>[4&nbsp;włoska][33&nbsp;włoski][2&nbsp;włoskich][3&nbsp;włoskie][9&nbsp;włoskiego][1&nbsp;włoskiej][1&nbsp;włoskiemu][1&nbsp;włoskim][1&nbsp;włoskimi][1&nbsp;włosko]</td></tr>
 <tr><td>włośnianka</td><td>włośnian .. </td><td>3</td><td>2</td><td>[1&nbsp;Włośnianka][1&nbsp;włośnianek][1&nbsp;włośnianka]</td></tr>
 <tr><td>włókniarz</td><td>włókniarz .. </td><td>2</td><td>2</td><td>[1&nbsp;Włókniarza][1&nbsp;Włókniarzem]</td></tr>
 <tr><td>włóknisty</td><td>włóknist .. </td><td>2</td><td>2</td><td>[1&nbsp;włókniste][1&nbsp;włóknisty]</td></tr>
@@ -4595,7 +4601,7 @@
 <tr><td>zachodni</td><td>zachodni .. </td><td>61</td><td>8</td><td>[4&nbsp;Zachodni][2&nbsp;Zachodnia][2&nbsp;Zachodnich][2&nbsp;Zachodnie][3&nbsp;Zachodniego][2&nbsp;Zachodniej][2&nbsp;Zachodnim][2&nbsp;Zachodnią][4&nbsp;zachodni][2&nbsp;zachodnia][3&nbsp;zachodnich][4&nbsp;zachodnie][2&nbsp;zachodniego][20&nbsp;zachodniej][6&nbsp;zachodnim][1&nbsp;zachodnią]</td></tr>
 <tr><td>zachodniopomorski</td><td>zachodniopomorski .. </td><td>7</td><td>3</td><td>[1&nbsp;zachodniopomorski][2&nbsp;zachodniopomorskiego][4&nbsp;zachodniopomorskim]</td></tr>
 <tr><td>zachodzić</td><td>zachodz .. </td><td>2</td><td>2</td><td>[1&nbsp;zachodzenia][1&nbsp;zachodzi]</td></tr>
-<tr><td>zachować</td><td>zachowa .. </td><td>21</td><td><a name='count10.23'><a href='#count10.24'><span class=red>10</span></a></td><td>[1&nbsp;Zachował][1&nbsp;Zachowało][1&nbsp;zachowane][2&nbsp;zachowania][3&nbsp;zachowanie][2&nbsp;zachowany][1&nbsp;zachowanych][1&nbsp;zachować][1&nbsp;zachował][2&nbsp;zachowała][1&nbsp;zachowało][5&nbsp;zachowały]</td></tr>
+<tr><td>zachować</td><td>zachowa .. </td><td>21</td><td>10</td><td>[1&nbsp;Zachował][1&nbsp;Zachowało][1&nbsp;zachowane][2&nbsp;zachowania][3&nbsp;zachowanie][2&nbsp;zachowany][1&nbsp;zachowanych][1&nbsp;zachować][1&nbsp;zachował][2&nbsp;zachowała][1&nbsp;zachowało][5&nbsp;zachowały]</td></tr>
 <tr><td>zachowywać</td><td>zachow .. </td><td>3</td><td>3</td><td>[1&nbsp;zachowują][1&nbsp;zachowywania][1&nbsp;zachowywał]</td></tr>
 <tr><td>zachód</td><td>zach .. </td><td>41</td><td>4</td><td>[2&nbsp;Zachodu][2&nbsp;Zachodzie][1&nbsp;Zachód][4&nbsp;zachodu][2&nbsp;zachody][8&nbsp;zachodzie][22&nbsp;zachód]</td></tr>
 <tr><td>zachęta</td><td>zachę .. </td><td>6</td><td>4</td><td>[1&nbsp;Zachęcie][2&nbsp;Zachęta][2&nbsp;Zachętą][1&nbsp;zachętach]</td></tr>
@@ -4621,14 +4627,14 @@
 <tr><td>zairski</td><td>zairski .. </td><td>4</td><td>2</td><td>[3&nbsp;zairski][1&nbsp;zairskiego]</td></tr>
 <tr><td>zajmować</td><td>zajm .. </td><td>38</td><td>6</td><td>[1&nbsp;Zajmowali][3&nbsp;Zajmował][1&nbsp;Zajmowała][16&nbsp;zajmował][1&nbsp;zajmowała][4&nbsp;zajmowały][8&nbsp;zajmuje][4&nbsp;zajmują]</td></tr>
 <tr><td>zajmujący</td><td>zajmując .. </td><td>7</td><td>4</td><td>[3&nbsp;zajmująca][1&nbsp;zajmującego][2&nbsp;zajmujących][1&nbsp;zajmującym]</td></tr>
-<tr><td>zająć</td><td>zaj .. </td><td>70</td><td><a name='count11.16'><a href='#count11.17'><span class=red>11</span></a></td><td>[1&nbsp;Zajął][2&nbsp;Zajęła][2&nbsp;zająć][37&nbsp;zajął][3&nbsp;zajęcia][1&nbsp;zajęciami][1&nbsp;zajęcie][2&nbsp;zajęciu][5&nbsp;zajęli][4&nbsp;zajęta][1&nbsp;zajęte][2&nbsp;zajęty][9&nbsp;zajęła]</td></tr>
+<tr><td>zająć</td><td>zaj .. </td><td>70</td><td>11</td><td>[1&nbsp;Zajął][2&nbsp;Zajęła][2&nbsp;zająć][37&nbsp;zajął][3&nbsp;zajęcia][1&nbsp;zajęciami][1&nbsp;zajęcie][2&nbsp;zajęciu][5&nbsp;zajęli][4&nbsp;zajęta][1&nbsp;zajęte][2&nbsp;zajęty][9&nbsp;zajęła]</td></tr>
 <tr><td>zakazać</td><td>zakaza .. </td><td>5</td><td>4</td><td>[1&nbsp;zakazana][2&nbsp;zakazane][1&nbsp;zakazany][1&nbsp;zakazać]</td></tr>
 <tr><td>zakon</td><td>zakon .. </td><td>6</td><td>3</td><td>[2&nbsp;Zakonu][1&nbsp;zakon][2&nbsp;zakonu][1&nbsp;zakonów]</td></tr>
 <tr><td>zakonnica</td><td>zakonnic .. </td><td>6</td><td>3</td><td>[1&nbsp;Zakonnice][4&nbsp;zakonnica][1&nbsp;zakonnicy]</td></tr>
 <tr><td>zakonny</td><td>zakonn .. </td><td>6</td><td>4</td><td>[2&nbsp;zakonne][1&nbsp;zakonnych][1&nbsp;zakonnym][2&nbsp;zakonną]</td></tr>
 <tr><td>zakopać</td><td>zakopa .. </td><td>4</td><td>3</td><td>[1&nbsp;Zakopane][1&nbsp;Zakopanego][1&nbsp;zakopane][1&nbsp;zakopał]</td></tr>
 <tr><td>zakończony</td><td>zakończon .. </td><td>10</td><td>3</td><td>[2&nbsp;zakończona][5&nbsp;zakończone][3&nbsp;zakończonej]</td></tr>
-<tr><td>zakończyć</td><td>zakończ .. </td><td>44</td><td><a name='count10.24'><a href='#count10.25'><span class=red>10</span></a></td><td>[1&nbsp;Zakończyli][1&nbsp;Zakończyła][2&nbsp;zakończenia][2&nbsp;zakończenie][13&nbsp;zakończeniu][1&nbsp;zakończy][3&nbsp;zakończyć][14&nbsp;zakończył][5&nbsp;zakończyła][1&nbsp;zakończyło][1&nbsp;zakończyły]</td></tr>
+<tr><td>zakończyć</td><td>zakończ .. </td><td>44</td><td>10</td><td>[1&nbsp;Zakończyli][1&nbsp;Zakończyła][2&nbsp;zakończenia][2&nbsp;zakończenie][13&nbsp;zakończeniu][1&nbsp;zakończy][3&nbsp;zakończyć][14&nbsp;zakończył][5&nbsp;zakończyła][1&nbsp;zakończyło][1&nbsp;zakończyły]</td></tr>
 <tr><td>zakres</td><td>zakres .. </td><td>15</td><td>3</td><td>[1&nbsp;Zakres][5&nbsp;zakres][6&nbsp;zakresie][3&nbsp;zakresu]</td></tr>
 <tr><td>zakręt</td><td>zakręt .. </td><td>5</td><td>3</td><td>[2&nbsp;zakrętu][2&nbsp;zakręty][1&nbsp;zakrętów]</td></tr>
 <tr><td>zaksłać</td><td>zakupion .. </td><td>2</td><td>2</td><td>[1&nbsp;zakupiona][1&nbsp;zakupione]</td></tr>
@@ -4729,7 +4735,7 @@
 <tr><td>zawierać</td><td>zawiera .. </td><td>26</td><td>7</td><td>[3&nbsp;Zawiera][1&nbsp;Zawierając][15&nbsp;zawiera][1&nbsp;zawierają][2&nbsp;zawierający][1&nbsp;zawierać][2&nbsp;zawierał][1&nbsp;zawierała]</td></tr>
 <tr><td>zawiesić</td><td>zawies .. </td><td>9</td><td>7</td><td>[1&nbsp;zawiesiła][2&nbsp;zawieszenia][1&nbsp;zawieszenie][1&nbsp;zawieszona][1&nbsp;zawieszone][1&nbsp;zawieszono][2&nbsp;zawieszony]</td></tr>
 <tr><td>zawiązać</td><td>zawiąza .. </td><td>2</td><td>2</td><td>[1&nbsp;zawiązanej][1&nbsp;zawiązał]</td></tr>
-<tr><td>zawodnik</td><td>zawodni .. </td><td>46</td><td><a name='count10.25'><a href='#count10.26'><span class=red>10</span></a></td><td>[2&nbsp;Zawodnicy][1&nbsp;Zawodniczka][2&nbsp;Zawodnik][1&nbsp;zawodnicy][2&nbsp;zawodniczka][1&nbsp;zawodniczkami][3&nbsp;zawodniczki][1&nbsp;zawodniczką][12&nbsp;zawodnik][5&nbsp;zawodnika][2&nbsp;zawodnikami][10&nbsp;zawodnikiem][4&nbsp;zawodników]</td></tr>
+<tr><td>zawodnik</td><td>zawodni .. </td><td>46</td><td>10</td><td>[2&nbsp;Zawodnicy][1&nbsp;Zawodniczka][2&nbsp;Zawodnik][1&nbsp;zawodnicy][2&nbsp;zawodniczka][1&nbsp;zawodniczkami][3&nbsp;zawodniczki][1&nbsp;zawodniczką][12&nbsp;zawodnik][5&nbsp;zawodnika][2&nbsp;zawodnikami][10&nbsp;zawodnikiem][4&nbsp;zawodników]</td></tr>
 <tr><td>zawodowy</td><td>zawodow .. </td><td>31</td><td>8</td><td>[1&nbsp;Zawodowego][3&nbsp;Zawodowych][2&nbsp;zawodowa][3&nbsp;zawodowe][2&nbsp;zawodowego][5&nbsp;zawodowej][4&nbsp;zawodowo][4&nbsp;zawodowy][3&nbsp;zawodowych][4&nbsp;zawodową]</td></tr>
 <tr><td>zawód</td><td>zaw .. </td><td>39</td><td>5</td><td>[1&nbsp;Zawodu][7&nbsp;Zawody][1&nbsp;Zawód][12&nbsp;zawodach][3&nbsp;zawodu][7&nbsp;zawody][7&nbsp;zawodów][1&nbsp;zawód]</td></tr>
 <tr><td>zawór</td><td>zaw .. </td><td>2</td><td>2</td><td>[1&nbsp;zawory][1&nbsp;zawór]</td></tr>
@@ -4747,7 +4753,7 @@
 <tr><td>zbiornik</td><td>zbiornik .. </td><td>4</td><td>3</td><td>[1&nbsp;zbiornik][2&nbsp;zbiornika][1&nbsp;zbiorniku]</td></tr>
 <tr><td>zbiorowisko</td><td>zbiorowisk .. </td><td>10</td><td>3</td><td>[3&nbsp;Zbiorowiska][1&nbsp;Zbiorowisko][4&nbsp;zbiorowisk][2&nbsp;zbiorowiska]</td></tr>
 <tr><td>zbiorowy</td><td>zbiorowy .. </td><td>2</td><td>2</td><td>[1&nbsp;zbiorowy][1&nbsp;zbiorowych]</td></tr>
-<tr><td>zbiór</td><td>zbi .. </td><td>15</td><td><a name='count10.26'><a href='#count10.27'><span class=red>10</span></a></td><td>[1&nbsp;Zbiór][2&nbsp;zbiorach][1&nbsp;zbioru][2&nbsp;zbiory][1&nbsp;zbiorze][2&nbsp;zbiorów][1&nbsp;zbiór][1&nbsp;zbiórce][1&nbsp;zbiórka][1&nbsp;zbiórkach][2&nbsp;zbiórki]</td></tr>
+<tr><td>zbiór</td><td>zbi .. </td><td>15</td><td>10</td><td>[1&nbsp;Zbiór][2&nbsp;zbiorach][1&nbsp;zbioru][2&nbsp;zbiory][1&nbsp;zbiorze][2&nbsp;zbiorów][1&nbsp;zbiór][1&nbsp;zbiórce][1&nbsp;zbiórka][1&nbsp;zbiórkach][2&nbsp;zbiórki]</td></tr>
 <tr><td>zbliżający</td><td>zbliżając .. </td><td>2</td><td>2</td><td>[1&nbsp;zbliżającej][1&nbsp;zbliżających]</td></tr>
 <tr><td>zbliżać</td><td>zbliż .. </td><td>10</td><td>8</td><td>[1&nbsp;Zbliżone][1&nbsp;zbliżaniu][2&nbsp;zbliżała][1&nbsp;zbliżona][1&nbsp;zbliżone][1&nbsp;zbliżonego][1&nbsp;zbliżonej][1&nbsp;zbliżonym][1&nbsp;zbliżoną]</td></tr>
 <tr><td>zbrojeniowy</td><td>zbrojeniowe .. </td><td>2</td><td>2</td><td>[1&nbsp;zbrojeniowe][1&nbsp;zbrojeniowego]</td></tr>
@@ -4825,7 +4831,7 @@
 <tr><td>zlokalizować</td><td>zlokalizowa .. </td><td>14</td><td>6</td><td>[3&nbsp;zlokalizowana][2&nbsp;zlokalizowane][1&nbsp;zlokalizowano][3&nbsp;zlokalizowany][4&nbsp;zlokalizowanych][1&nbsp;zlokalizować]</td></tr>
 <tr><td>zmarły</td><td>zmar .. </td><td>17</td><td>5</td><td>[3&nbsp;Zmarła][2&nbsp;zmarli][3&nbsp;zmarła][1&nbsp;zmarłego][2&nbsp;zmarły][6&nbsp;zmarłych]</td></tr>
 <tr><td>zmian</td><td>zmian .. </td><td>11</td><td>3</td><td>[6&nbsp;zmian][4&nbsp;zmianach][1&nbsp;zmianom]</td></tr>
-<tr><td>zmienić</td><td>zmieni .. </td><td>30</td><td><a name='count12.5'><a href='#count12.6'><span class=red>12</span></a></td><td>[1&nbsp;zmieni][1&nbsp;zmienili][1&nbsp;zmieniona][1&nbsp;zmienione][1&nbsp;zmienionej][10&nbsp;zmieniono][1&nbsp;zmienionym][2&nbsp;zmienić][6&nbsp;zmienił][2&nbsp;zmieniła][3&nbsp;zmieniło][1&nbsp;zmieniły]</td></tr>
+<tr><td>zmienić</td><td>zmieni .. </td><td>30</td><td>12</td><td>[1&nbsp;zmieni][1&nbsp;zmienili][1&nbsp;zmieniona][1&nbsp;zmienione][1&nbsp;zmienionej][10&nbsp;zmieniono][1&nbsp;zmienionym][2&nbsp;zmienić][6&nbsp;zmienił][2&nbsp;zmieniła][3&nbsp;zmieniło][1&nbsp;zmieniły]</td></tr>
 <tr><td>zmienny</td><td>zmienn .. </td><td>3</td><td>3</td><td>[1&nbsp;zmiennej][1&nbsp;zmiennych][1&nbsp;zmiennym]</td></tr>
 <tr><td>zmierzający</td><td>zmierzając .. </td><td>4</td><td>3</td><td>[2&nbsp;zmierzające][1&nbsp;zmierzającej][1&nbsp;zmierzających]</td></tr>
 <tr><td>zmniejszyć</td><td>zmniejsz .. </td><td>2</td><td>2</td><td>[1&nbsp;zmniejszono][1&nbsp;zmniejszyła]</td></tr>
@@ -4854,7 +4860,7 @@
 <tr><td>zobaczyć</td><td>zobaczy .. </td><td>6</td><td>2</td><td>[5&nbsp;zobaczyć][1&nbsp;zobaczyła]</td></tr>
 <tr><td>zofia</td><td>zofi .. </td><td>5</td><td>2</td><td>[3&nbsp;Zofia][2&nbsp;Zofii]</td></tr>
 <tr><td>zoperować</td><td>zoperowa .. </td><td>2</td><td>2</td><td>[1&nbsp;zoperowanie][1&nbsp;zoperował]</td></tr>
-<tr><td>zorganizować</td><td>zorganizowa .. </td><td>18</td><td><a name='count12.6'><a href='#count12.7'><span class=red>12</span></a></td><td>[1&nbsp;Zorganizowano][1&nbsp;zorganizowana][1&nbsp;zorganizowane][1&nbsp;zorganizowanego][1&nbsp;zorganizowanej][1&nbsp;zorganizowania][1&nbsp;zorganizowaniu][3&nbsp;zorganizowano][1&nbsp;zorganizowany][2&nbsp;zorganizowanych][2&nbsp;zorganizowaną][1&nbsp;zorganizować][2&nbsp;zorganizował]</td></tr>
+<tr><td>zorganizować</td><td>zorganizowa .. </td><td>18</td><td>12</td><td>[1&nbsp;Zorganizowano][1&nbsp;zorganizowana][1&nbsp;zorganizowane][1&nbsp;zorganizowanego][1&nbsp;zorganizowanej][1&nbsp;zorganizowania][1&nbsp;zorganizowaniu][3&nbsp;zorganizowano][1&nbsp;zorganizowany][2&nbsp;zorganizowanych][2&nbsp;zorganizowaną][1&nbsp;zorganizować][2&nbsp;zorganizował]</td></tr>
 <tr><td>zostać</td><td>zosta .. </td><td>551</td><td>8</td><td>[21&nbsp;Został][11&nbsp;Została][3&nbsp;Zostały][19&nbsp;zostali][3&nbsp;zostaną][8&nbsp;zostać][273&nbsp;został][128&nbsp;została][40&nbsp;zostało][1&nbsp;zostałoby][44&nbsp;zostały]</td></tr>
 <tr><td>zrealizowany</td><td>zrealizowan .. </td><td>3</td><td>2</td><td>[1&nbsp;zrealizowanego][2&nbsp;zrealizowany]</td></tr>
 <tr><td>zrealizować</td><td>zrealizowan .. </td><td>2</td><td>2</td><td>[1&nbsp;zrealizowanie][1&nbsp;zrealizowaną]</td></tr>
@@ -4905,7 +4911,7 @@
 <tr><td>złączyć</td><td>złącz .. </td><td>2</td><td>2</td><td>[1&nbsp;złączone][1&nbsp;złączyła]</td></tr>
 <tr><td>ósmy</td><td>ósm .. </td><td>5</td><td>4</td><td>[1&nbsp;Ósmy][1&nbsp;ósme][1&nbsp;ósmej][2&nbsp;ósmym]</td></tr>
 <tr><td>ówczesny</td><td>ówczesn .. </td><td>12</td><td>4</td><td>[3&nbsp;ówczesnego][3&nbsp;ówczesnej][4&nbsp;ówczesnych][2&nbsp;ówczesnym]</td></tr>
-<tr><td><a name='prob14'><a href='#prob15'><span class=red>ąć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>27</td><td><a name='count15.1'><a href='#count15.2'><span class=red>15</span></a></td><td>[3&nbsp;Bessy][1&nbsp;Boyce][1&nbsp;Coat][2&nbsp;Crusoe][1&nbsp;Gushue][2&nbsp;Joyce][8&nbsp;League][1&nbsp;Monroe][1&nbsp;Morgue][1&nbsp;Statue][1&nbsp;Virtue][1&nbsp;basque][1&nbsp;dawek][2&nbsp;mangue][1&nbsp;époque]</td></tr>
+<tr><td><a name='prob14'><a href='#prob15'><span class=red>ąć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>27</td><td>15</td><td>[3&nbsp;Bessy][1&nbsp;Boyce][1&nbsp;Coat][2&nbsp;Crusoe][1&nbsp;Gushue][2&nbsp;Joyce][8&nbsp;League][1&nbsp;Monroe][1&nbsp;Morgue][1&nbsp;Statue][1&nbsp;Virtue][1&nbsp;basque][1&nbsp;dawek][2&nbsp;mangue][1&nbsp;époque]</td></tr>
 <tr><td><a name='prob15'><a href='#prob16'><span class=red>ć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>184</td><td><a name='count49.1'><a href='#count49.2'><span class=red>49</span></a></td><td>[1&nbsp;1031][1&nbsp;1231][1&nbsp;1431][2&nbsp;1731][23&nbsp;1931][1&nbsp;Audyt][1&nbsp;Bauby][17&nbsp;Blizzard][1&nbsp;Brydż][3&nbsp;Button][1&nbsp;CIWS][8&nbsp;Detroit][1&nbsp;Gaio][4&nbsp;Girl][1&nbsp;Glenda][1&nbsp;Hosei][2&nbsp;JC31][1&nbsp;Jews][1&nbsp;Konoe][11&nbsp;Londyn][1&nbsp;Metz][3&nbsp;News][1&nbsp;Newy][1&nbsp;Noam][1&nbsp;Pearl][3&nbsp;Praha][1&nbsp;Prosper][1&nbsp;Reich][3&nbsp;Reim][1&nbsp;Revue][3&nbsp;Ryan][1&nbsp;Shingle][1&nbsp;Słota][1&nbsp;Toque][1&nbsp;Wheel][2&nbsp;Wybrzeża][2&nbsp;Wyraz][21&nbsp;XVIII][1&nbsp;baon][1&nbsp;baque][3&nbsp;bazy][1&nbsp;brydż][35&nbsp;celu][1&nbsp;dziób][1&nbsp;ficou][1&nbsp;output][2&nbsp;progi][1&nbsp;slot][2&nbsp;szosą][2&nbsp;wybrzeża][2&nbsp;wyraz][1&nbsp;zakręcie]</td></tr>
 <tr><td>ćwiczenie</td><td>ćwiczeni .. </td><td>3</td><td>2</td><td>[1&nbsp;Ćwiczenie][1&nbsp;ćwiczenia][1&nbsp;ćwiczenie]</td></tr>
 <tr><td>ćwierćfinałowy</td><td>ćwierćfinałowy .. </td><td>2</td><td>2</td><td>[1&nbsp;ćwierćfinałowych][1&nbsp;ćwierćfinałowym]</td></tr>
@@ -5010,16 +5016,45 @@
 <tr><td>żółty</td><td>żółt .. </td><td>17</td><td>8</td><td>[2&nbsp;żółta][3&nbsp;żółte][2&nbsp;żółtego][1&nbsp;żółto][5&nbsp;żółty][1&nbsp;żółtych][2&nbsp;żółtym][1&nbsp;żółtymi]</td></tr>
 <tr><td>żądać</td><td>żąda .. </td><td>2</td><td>2</td><td>[1&nbsp;Żąda][1&nbsp;żądaniom]</td></tr>
 </table>
-<a name='prob16'>
+<br><a name='prob16'> [Total of 15 potential problem stems]<br>
+
+<a name='samplesForReview'><h3>Samples for Speaker Review <a href=#TOC class=TOC>[TOC]</a></h3>
+<b>Random Stemming Groups</b> (10)<br><blockquote style='border-left:1px solid grey; padding-left:1em'>
+* dobór: [1 Doboru][3 doborem][4 doboru]<br>
+* limitować: [2 limitowana][1 limitowanych][1 limitowaną]<br>
+* niepożądany: [3 niepożądane][1 niepożądanymi]<br>
+* określić: [1 Określenie][4 określenia][2 określenie][1 określeniu][1 określeń][3 określić][1 określił][1 określona][3 określone][1 określonej][1 określono][1 określony][1 określonych][3 określonym][1 określoną]<br>
+* powietrzny: [1 Powietrznych][1 powietrzna][2 powietrzne][1 powietrznej][2 powietrznych][1 powietrzną]<br>
+* chirurgia: [2 chirurgii][1 chirurgię]<br>
+* firma: [3 Firma][12 firma][9 firmy][4 firmą][8 firmę]<br>
+* lewy: [4 lewego][17 lewej][4 lewym]<br>
+* ująć: [1 ująć][2 ujęcia][3 ujęciach][1 ujęciu][1 ujętej]<br>
+* seligmanna: [1 Seligmann][2 Seligmanna]<br>
+</blockquote>
+<b>Largest Stemming Groups</b> (1 of 1)<br><blockquote style='border-left:1px solid grey; padding-left:1em'>
+* ć: [1 1031][1 1231][1 1431][2 1731][23 1931][1 Audyt][1 Bauby][17 Blizzard][1 Brydż][3 Button][1 CIWS][8 Detroit][1 Gaio][4 Girl][1 Glenda][1 Hosei][2 JC31][1 Jews][1 Konoe][11 Londyn][1 Metz][3 News][1 Newy][1 Noam][1 Pearl][3 Praha][1 Prosper][1 Reich][3 Reim][1 Revue][3 Ryan][1 Shingle][1 Słota][1 Toque][1 Wheel][2 Wybrzeża][2 Wyraz][21 XVIII][1 baon][1 baque][3 bazy][1 brydż][35 celu][1 dziób][1 ficou][1 output][2 progi][1 slot][2 szosą][2 wybrzeża][2 wyraz][1 zakręcie]<br>
+</blockquote>
+<b>Potential Problem Stemming Groups</b> (10 of 15)<br><blockquote style='border-left:1px solid grey; padding-left:1em'>
+* c: [26 C][7 County][1 Pieter]<br>
+* dobrze: [9 dobrze][3 lepiej][1 najlepiej]<br>
+* eć: [17 Brno][2 Enemy][1 Kozioł][1 Patty][1 Wright][1 Zaraz][1 epopei][4 napisany][1 pobity][4 prawdę][24 samby][4 szuwar][1 zaraz]<br>
+* iwać: [2 Crew][1 Stefa]<br>
+* ić: [1 Depo][3 Kest][1 Tima][2 ikoną][1 iloraz][1 meczem]<br>
+* nąć: [4 Iwatani][1 musicae]<br>
+* ować: [1 Biblie][2 Koszyc][1 Ligę][2 firmie][1 ligę]<br>
+* ty: [1 Ty][1 ciebie][2 ty]<br>
+* y: [2 Y][1 nowsze][14 y]<br>
+* yć: [1 Blatz][1 Fritz][1 Mootz][1 Peas][1 Rioja][1 Title][1 dworku]<br>
+</blockquote>
 
 <a name='commonPrefixes'><h3>Common Prefix Alternations <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>1x1 count</th><th>group count</th><th>alt 1</th><th>alt 2</th></tr>
+<table class='vtop'><tr><th>1x1 count</th><th>group count</th><th>alt 1</th><th>alt 2</th></tr>
 <tr><td>7</td><td>3</td><td></td><td>naj</td></tr>
 <tr><td>9</td><td></td><td></td><td>nie</td></tr>
 </table>
 
 <a name='commonSuffixes'><h3>Common Suffix Alternations <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>1x1 count</th><th>group count</th><th>alt 1</th><th>alt 2</th><th>known</th></tr>
+<table class='vtop'><tr><th>1x1 count</th><th>group count</th><th>alt 1</th><th>alt 2</th><th>known</th></tr>
 <tr><td>543</td><td>371</td><td></td><td>a</td><td>*</td></tr>
 <tr><td>508</td><td>363</td><td>a</td><td>y</td><td>*</td></tr>
 <tr><td>472</td><td>326</td><td>a</td><td>e</td><td>*</td></tr>
@@ -5273,53 +5308,53 @@
 </table>
 
 <a name='typeCountFreqTable'><h3>Case-Insensitive Type Group Counts <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>count</th><th>freq</th></tr>
-<tr><td>1</td><td>20662</td></tr>
-<tr><td>2</td><td>2544</td></tr>
-<tr><td>3</td><td>1049</td></tr>
+<table class='vtop'><tr><th>count</th><th>freq</th></tr>
+<tr><td>1</td><td>20,662</td></tr>
+<tr><td>2</td><td>2,544</td></tr>
+<tr><td>3</td><td>1,049</td></tr>
 <tr><td>4</td><td>545</td></tr>
 <tr><td>5</td><td>325</td></tr>
 <tr><td>6</td><td>210</td></tr>
 <tr><td>7</td><td>127</td></tr>
 <tr><td>8</td><td>56</td></tr>
 <tr><td>9</td><td>39</td></tr>
-<tr><td><a name='count10.27'><a href='#count10.1'>10</a></td><td>26</td></tr>
-<tr><td><a name='count11.17'><a href='#count11.1'>11</a></td><td>16</td></tr>
-<tr><td><a name='count12.7'><a href='#count12.1'>12</a></td><td>6</td></tr>
-<tr><td><a name='count13.5'><a href='#count13.1'>13</a></td><td>4</td></tr>
-<tr><td><a name='count14.4'><a href='#count14.1'>14</a></td><td>3</td></tr>
-<tr><td><a name='count15.2'><a href='#count15.1'>15</a></td><td>1</td></tr>
-<tr><td><a name='count16.2'><a href='#count16.1'>16</a></td><td>1</td></tr>
-<tr><td><a name='count17.2'><a href='#count17.1'>17</a></td><td>1</td></tr>
+<tr><td>10</td><td>26</td></tr>
+<tr><td>11</td><td>16</td></tr>
+<tr><td>12</td><td>6</td></tr>
+<tr><td>13</td><td>4</td></tr>
+<tr><td>14</td><td>3</td></tr>
+<tr><td>15</td><td>1</td></tr>
+<tr><td>16</td><td>1</td></tr>
+<tr><td>17</td><td>1</td></tr>
 <tr><td><a name='count49.2'><a href='#count49.1'>49</a></td><td>1</td></tr>
 </table>
 
 <a name='tokenCountFreqTable'><h3>Stemmed Tokens Generated per Input Token <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>count</th><th>freq</th><th>example input tokens</th></tr>
-<tr><td>1</td><td>39392</td><td>5,2 &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Charakterystycznym</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Crusoe</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Eerste</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kolby</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>pseud</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>widoczna</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wydarzenia</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zgromadzeń</span> &nbsp; &bull; &nbsp; <span class=cyr title='Cyrillic script'>Сергей</span></td></tr>
+<table class='vtop'><tr><th>count</th><th>freq</th><th>example input tokens</th></tr>
+<tr><td>1</td><td>39,392</td><td><span class=ltn title='Latin script'>College</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Montesa</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Motors</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Stolicą</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Vyšná</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>najwolniejszym</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>powinowactwem</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>samego</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wilgotnej</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>świerszcze</span></td></tr>
 </table>
 
 <a name='typeLengthFreqTable'><h3>Final Type Lengths <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>length</th><th>type freq</th><th>token count</th><th>examples</th></tr>
-<tr><td>1</td><td>87</td><td>2926</td><td>g &nbsp; &bull; &nbsp; w &nbsp; &bull; &nbsp; ρ &nbsp; &bull; &nbsp; з &nbsp; &bull; &nbsp; 出 &nbsp; &bull; &nbsp; 彦 &nbsp; &bull; &nbsp; 有 &nbsp; &bull; &nbsp; 瑪 &nbsp; &bull; &nbsp; 茹 &nbsp; &bull; &nbsp; 齊</td></tr>
-<tr><td>2</td><td>384</td><td>4970</td><td>02 &nbsp; &bull; &nbsp; 98 &nbsp; &bull; &nbsp; c2 &nbsp; &bull; &nbsp; ic &nbsp; &bull; &nbsp; it &nbsp; &bull; &nbsp; lo &nbsp; &bull; &nbsp; pu &nbsp; &bull; &nbsp; ré &nbsp; &bull; &nbsp; vc &nbsp; &bull; &nbsp; vs</td></tr>
-<tr><td>3</td><td>1581</td><td>7334</td><td>128 &nbsp; &bull; &nbsp; 376 &nbsp; &bull; &nbsp; ant &nbsp; &bull; &nbsp; ass &nbsp; &bull; &nbsp; bat &nbsp; &bull; &nbsp; efr &nbsp; &bull; &nbsp; gal &nbsp; &bull; &nbsp; len &nbsp; &bull; &nbsp; s45 &nbsp; &bull; &nbsp; sli</td></tr>
-<tr><td>4</td><td>2368</td><td>13208</td><td>1566 &nbsp; &bull; &nbsp; 1912 &nbsp; &bull; &nbsp; 3300 &nbsp; &bull; &nbsp; arto &nbsp; &bull; &nbsp; boży &nbsp; &bull; &nbsp; maur &nbsp; &bull; &nbsp; page &nbsp; &bull; &nbsp; raka &nbsp; &bull; &nbsp; ryxa &nbsp; &bull; &nbsp; zawć</td></tr>
-<tr><td>5</td><td>2926</td><td>12858</td><td>durán &nbsp; &bull; &nbsp; files &nbsp; &bull; &nbsp; gorsz &nbsp; &bull; &nbsp; greka &nbsp; &bull; &nbsp; indie &nbsp; &bull; &nbsp; josef &nbsp; &bull; &nbsp; pałac &nbsp; &bull; &nbsp; ulica &nbsp; &bull; &nbsp; wisły &nbsp; &bull; &nbsp; woleć</td></tr>
-<tr><td>6</td><td>3454</td><td>14792</td><td>beylin &nbsp; &bull; &nbsp; collin &nbsp; &bull; &nbsp; flames &nbsp; &bull; &nbsp; henkel &nbsp; &bull; &nbsp; hänsel &nbsp; &bull; &nbsp; kinazy &nbsp; &bull; &nbsp; kurtis &nbsp; &bull; &nbsp; piętak &nbsp; &bull; &nbsp; wawela &nbsp; &bull; &nbsp; wzięty</td></tr>
-<tr><td>7</td><td>3457</td><td>13010</td><td>hopfera &nbsp; &bull; &nbsp; imitati &nbsp; &bull; &nbsp; nacieka &nbsp; &bull; &nbsp; obiecać &nbsp; &bull; &nbsp; pakieta &nbsp; &bull; &nbsp; paryski &nbsp; &bull; &nbsp; rachuby &nbsp; &bull; &nbsp; ustalać &nbsp; &bull; &nbsp; winburg &nbsp; &bull; &nbsp; ʒuɐˈkı̃</td></tr>
-<tr><td>8</td><td>3300</td><td>11318</td><td>cannibal &nbsp; &bull; &nbsp; cytadela &nbsp; &bull; &nbsp; dyrygent &nbsp; &bull; &nbsp; fernando &nbsp; &bull; &nbsp; grodziec &nbsp; &bull; &nbsp; porywacz &nbsp; &bull; &nbsp; sakralny &nbsp; &bull; &nbsp; socjalny &nbsp; &bull; &nbsp; swastyka &nbsp; &bull; &nbsp; zielonym</td></tr>
-<tr><td>9</td><td>2689</td><td>9175</td><td>boysbandć &nbsp; &bull; &nbsp; elections &nbsp; &bull; &nbsp; kreczmara &nbsp; &bull; &nbsp; plebiscyt &nbsp; &bull; &nbsp; połudwień &nbsp; &bull; &nbsp; ratajczyk &nbsp; &bull; &nbsp; rockowiey &nbsp; &bull; &nbsp; stanforda &nbsp; &bull; &nbsp; suffectus &nbsp; &bull; &nbsp; zginaczyć</td></tr>
-<tr><td>10</td><td>2001</td><td>5829</td><td>furnariiać &nbsp; &bull; &nbsp; haussmanna &nbsp; &bull; &nbsp; hessisches &nbsp; &bull; &nbsp; merriamsić &nbsp; &bull; &nbsp; naśladowca &nbsp; &bull; &nbsp; przebaczyć &nbsp; &bull; &nbsp; scottishić &nbsp; &bull; &nbsp; tamburello &nbsp; &bull; &nbsp; wychładzać &nbsp; &bull; &nbsp; zapomniany</td></tr>
-<tr><td>11</td><td>1417</td><td>4418</td><td>dwujęzyczny &nbsp; &bull; &nbsp; egzemplarze &nbsp; &bull; &nbsp; elektronika &nbsp; &bull; &nbsp; nacjonalizm &nbsp; &bull; &nbsp; nowodworski &nbsp; &bull; &nbsp; obezwładnić &nbsp; &bull; &nbsp; przedszkola &nbsp; &bull; &nbsp; szczepaniak &nbsp; &bull; &nbsp; tolteridyna &nbsp; &bull; &nbsp; zdzielnicki</td></tr>
-<tr><td>12</td><td>809</td><td>1864</td><td>energetyczny &nbsp; &bull; &nbsp; fortepianowy &nbsp; &bull; &nbsp; koniecpolski &nbsp; &bull; &nbsp; motocyklista &nbsp; &bull; &nbsp; oddzielający &nbsp; &bull; &nbsp; poszkodowany &nbsp; &bull; &nbsp; prześladować &nbsp; &bull; &nbsp; realistyczny &nbsp; &bull; &nbsp; samozaparcie &nbsp; &bull; &nbsp; wolszlegiera</td></tr>
-<tr><td>13</td><td>505</td><td>1177</td><td>asphodeloides &nbsp; &bull; &nbsp; częstochowski &nbsp; &bull; &nbsp; informatyczny &nbsp; &bull; &nbsp; itftennis.com &nbsp; &bull; &nbsp; miniaturzysta &nbsp; &bull; &nbsp; przetłumaczyć &nbsp; &bull; &nbsp; sklasyfikować &nbsp; &bull; &nbsp; statistisches &nbsp; &bull; &nbsp; szerokotorowy &nbsp; &bull; &nbsp; współredaktor</td></tr>
-<tr><td>14</td><td>278</td><td>642</td><td>eurohockey.net &nbsp; &bull; &nbsp; najsłynniejszy &nbsp; &bull; &nbsp; niskopodłogowy &nbsp; &bull; &nbsp; przedmuchiwacz &nbsp; &bull; &nbsp; przypuszczenie &nbsp; &bull; &nbsp; psiloboletinus &nbsp; &bull; &nbsp; rockandrollowy &nbsp; &bull; &nbsp; stanisławowski &nbsp; &bull; &nbsp; współzarządzać &nbsp; &bull; &nbsp; średniowieczny</td></tr>
-<tr><td>15</td><td>144</td><td>302</td><td>dystrybucjonizm &nbsp; &bull; &nbsp; eksperymentować &nbsp; &bull; &nbsp; greckokatolicki &nbsp; &bull; &nbsp; głównodowodzący &nbsp; &bull; &nbsp; hymenogastraceć &nbsp; &bull; &nbsp; petrozawodskiei &nbsp; &bull; &nbsp; ponadpodstawowy &nbsp; &bull; &nbsp; schiermonnikoog &nbsp; &bull; &nbsp; szczuroskocznik &nbsp; &bull; &nbsp; współzałozyciel</td></tr>
-<tr><td>16</td><td>95</td><td>174</td><td>autobiograficzny &nbsp; &bull; &nbsp; cytoplazmatyczny &nbsp; &bull; &nbsp; drobnoszlachecki &nbsp; &bull; &nbsp; najpopularniejse &nbsp; &bull; &nbsp; niesformalizować &nbsp; &bull; &nbsp; niewypowiedziany &nbsp; &bull; &nbsp; ogólnokształcący &nbsp; &bull; &nbsp; szesnastowieczny &nbsp; &bull; &nbsp; uniemożliwiający &nbsp; &bull; &nbsp; współorganizator</td></tr>
-<tr><td>17</td><td>48</td><td>89</td><td>alpha.bn.org.plić &nbsp; &bull; &nbsp; anestezjologiczny &nbsp; &bull; &nbsp; charakterystyczny &nbsp; &bull; &nbsp; francuskojęzyczny &nbsp; &bull; &nbsp; latynoamerykański &nbsp; &bull; &nbsp; niekonwencjonalny &nbsp; &bull; &nbsp; przeciwstawiający &nbsp; &bull; &nbsp; północnokoreański &nbsp; &bull; &nbsp; północnowęgierski &nbsp; &bull; &nbsp; trzykondygnacyjny</td></tr>
-<tr><td>18</td><td>36</td><td>45</td><td>atlaskolejowy.plić &nbsp; &bull; &nbsp; belgianfootball.by &nbsp; &bull; &nbsp; dziewięciusetlecie &nbsp; &bull; &nbsp; interkontynentalny &nbsp; &bull; &nbsp; moderntalking.plić &nbsp; &bull; &nbsp; neopozytywistyczny &nbsp; &bull; &nbsp; promieniotwórczość &nbsp; &bull; &nbsp; protomierzanowicki &nbsp; &bull; &nbsp; wiceprzewodniczący &nbsp; &bull; &nbsp; środkowoeuropejski</td></tr>
-<tr><td>19</td><td>18</td><td>27</td><td>autoimmmunologiczny &nbsp; &bull; &nbsp; cyclingarchives.com &nbsp; &bull; &nbsp; kategoria:wyposażen &nbsp; &bull; &nbsp; nationaltrail.co.uk &nbsp; &bull; &nbsp; północnoamerykański &nbsp; &bull; &nbsp; socjaldemokratyczny &nbsp; &bull; &nbsp; wschodniofrankijski &nbsp; &bull; &nbsp; współprzewodniczący &nbsp; &bull; &nbsp; zachodnioeuropejski &nbsp; &bull; &nbsp; średniodystansowiec</td></tr>
+<table class='vtop'><tr><th>length</th><th>type freq</th><th>token count</th><th>examples</th></tr>
+<tr><td>1</td><td>87</td><td>2,926</td><td>s &nbsp; &bull; &nbsp; 内 &nbsp; &bull; &nbsp; 区 &nbsp; &bull; &nbsp; 尔 &nbsp; &bull; &nbsp; 山 &nbsp; &bull; &nbsp; 彦 &nbsp; &bull; &nbsp; 教 &nbsp; &bull; &nbsp; 昌 &nbsp; &bull; &nbsp; 水 &nbsp; &bull; &nbsp; 牧</td></tr>
+<tr><td>2</td><td>384</td><td>4,970</td><td>08 &nbsp; &bull; &nbsp; 9a &nbsp; &bull; &nbsp; a1 &nbsp; &bull; &nbsp; cć &nbsp; &bull; &nbsp; gr &nbsp; &bull; &nbsp; in &nbsp; &bull; &nbsp; rh &nbsp; &bull; &nbsp; sn &nbsp; &bull; &nbsp; ue &nbsp; &bull; &nbsp; zm</td></tr>
+<tr><td>3</td><td>1,581</td><td>7,334</td><td>229 &nbsp; &bull; &nbsp; 849 &nbsp; &bull; &nbsp; baj &nbsp; &bull; &nbsp; ch5 &nbsp; &bull; &nbsp; did &nbsp; &bull; &nbsp; mão &nbsp; &bull; &nbsp; mạo &nbsp; &bull; &nbsp; non &nbsp; &bull; &nbsp; que &nbsp; &bull; &nbsp; sąć</td></tr>
+<tr><td>4</td><td>2,368</td><td>13,208</td><td>1390 &nbsp; &bull; &nbsp; 1428 &nbsp; &bull; &nbsp; amio &nbsp; &bull; &nbsp; blur &nbsp; &bull; &nbsp; czym &nbsp; &bull; &nbsp; pttk &nbsp; &bull; &nbsp; raeć &nbsp; &bull; &nbsp; trea &nbsp; &bull; &nbsp; vega &nbsp; &bull; &nbsp; wójt</td></tr>
+<tr><td>5</td><td>2,926</td><td>12,858</td><td>15,48 &nbsp; &bull; &nbsp; afisz &nbsp; &bull; &nbsp; alpha &nbsp; &bull; &nbsp; banki &nbsp; &bull; &nbsp; bimba &nbsp; &bull; &nbsp; dawid &nbsp; &bull; &nbsp; fault &nbsp; &bull; &nbsp; norwi &nbsp; &bull; &nbsp; shory &nbsp; &bull; &nbsp; łotwa</td></tr>
+<tr><td>6</td><td>3,454</td><td>14,792</td><td>atlant &nbsp; &bull; &nbsp; cidliy &nbsp; &bull; &nbsp; duecie &nbsp; &bull; &nbsp; espejo &nbsp; &bull; &nbsp; gwąkać &nbsp; &bull; &nbsp; honora &nbsp; &bull; &nbsp; patife &nbsp; &bull; &nbsp; powdić &nbsp; &bull; &nbsp; spółki &nbsp; &bull; &nbsp; znieść</td></tr>
+<tr><td>7</td><td>3,457</td><td>13,010</td><td>belwede &nbsp; &bull; &nbsp; bogacść &nbsp; &bull; &nbsp; donosić &nbsp; &bull; &nbsp; herosić &nbsp; &bull; &nbsp; osądzać &nbsp; &bull; &nbsp; pawłnąć &nbsp; &bull; &nbsp; wolbórz &nbsp; &bull; &nbsp; zakochć &nbsp; &bull; &nbsp; zwrotny &nbsp; &bull; &nbsp; зелёнка</td></tr>
+<tr><td>8</td><td>3,300</td><td>11,318</td><td>grzegorz &nbsp; &bull; &nbsp; gubernia &nbsp; &bull; &nbsp; honduras &nbsp; &bull; &nbsp; korupcja &nbsp; &bull; &nbsp; kutrzeba &nbsp; &bull; &nbsp; modżtaba &nbsp; &bull; &nbsp; morsztyn &nbsp; &bull; &nbsp; sterówka &nbsp; &bull; &nbsp; triangle &nbsp; &bull; &nbsp; vercetti</td></tr>
+<tr><td>9</td><td>2,689</td><td>9,175</td><td>assassina &nbsp; &bull; &nbsp; dobrosław &nbsp; &bull; &nbsp; dyskobola &nbsp; &bull; &nbsp; gamasuter &nbsp; &bull; &nbsp; konwulsja &nbsp; &bull; &nbsp; lifehousy &nbsp; &bull; &nbsp; neutrofil &nbsp; &bull; &nbsp; pokazywać &nbsp; &bull; &nbsp; skroniowy &nbsp; &bull; &nbsp; wodorotlk</td></tr>
+<tr><td>10</td><td>2,001</td><td>5,829</td><td>agnieszkać &nbsp; &bull; &nbsp; cohomology &nbsp; &bull; &nbsp; heraldyczć &nbsp; &bull; &nbsp; hexanemieć &nbsp; &bull; &nbsp; literatura &nbsp; &bull; &nbsp; narodowiec &nbsp; &bull; &nbsp; przytoczyć &nbsp; &bull; &nbsp; rozpruwacz &nbsp; &bull; &nbsp; strielenko &nbsp; &bull; &nbsp; zamieniony</td></tr>
+<tr><td>11</td><td>1,417</td><td>4,418</td><td>arystofanes &nbsp; &bull; &nbsp; bernardynek &nbsp; &bull; &nbsp; châteauroux &nbsp; &bull; &nbsp; dwustrefowy &nbsp; &bull; &nbsp; fantastyczć &nbsp; &bull; &nbsp; infliksimab &nbsp; &bull; &nbsp; przedszkola &nbsp; &bull; &nbsp; therouannes &nbsp; &bull; &nbsp; trojanowski &nbsp; &bull; &nbsp; umundurować</td></tr>
+<tr><td>12</td><td>809</td><td>1,864</td><td>consequences &nbsp; &bull; &nbsp; dalekosiężny &nbsp; &bull; &nbsp; gronostajowy &nbsp; &bull; &nbsp; jednowierczy &nbsp; &bull; &nbsp; klasyfikacja &nbsp; &bull; &nbsp; prawosławiać &nbsp; &bull; &nbsp; propantelina &nbsp; &bull; &nbsp; skontaktować &nbsp; &bull; &nbsp; tierieszkowy &nbsp; &bull; &nbsp; znieczulenie</td></tr>
+<tr><td>13</td><td>505</td><td>1,177</td><td>administrator &nbsp; &bull; &nbsp; madagaskarski &nbsp; &bull; &nbsp; niezaktywować &nbsp; &bull; &nbsp; ogólnokrajowy &nbsp; &bull; &nbsp; podstawiający &nbsp; &bull; &nbsp; przeniesioneć &nbsp; &bull; &nbsp; przetłumaczyć &nbsp; &bull; &nbsp; rdzawobrązowy &nbsp; &bull; &nbsp; sformalizować &nbsp; &bull; &nbsp; zleceniodawca</td></tr>
+<tr><td>14</td><td>278</td><td>642</td><td>chidlovski.net &nbsp; &bull; &nbsp; doprowadzający &nbsp; &bull; &nbsp; kontrowersyjny &nbsp; &bull; &nbsp; nadtlenoazotyn &nbsp; &bull; &nbsp; niemunicypalny &nbsp; &bull; &nbsp; przedterminowy &nbsp; &bull; &nbsp; przypominający &nbsp; &bull; &nbsp; stanisławowski &nbsp; &bull; &nbsp; technologiczny &nbsp; &bull; &nbsp; średniozamożny</td></tr>
+<tr><td>15</td><td>144</td><td>302</td><td>greckokatolicki &nbsp; &bull; &nbsp; hydrodynamiczny &nbsp; &bull; &nbsp; infinitezymalny &nbsp; &bull; &nbsp; niedopuszczalny &nbsp; &bull; &nbsp; przeciwdziałanć &nbsp; &bull; &nbsp; przypieczętować &nbsp; &bull; &nbsp; siedemdziesiąty &nbsp; &bull; &nbsp; specjalistyczny &nbsp; &bull; &nbsp; sprzymierzeniec &nbsp; &bull; &nbsp; zdezorganizować</td></tr>
+<tr><td>16</td><td>95</td><td>174</td><td>abdurachmanowicz &nbsp; &bull; &nbsp; najprawdopodobąć &nbsp; &bull; &nbsp; nasłonecznionych &nbsp; &bull; &nbsp; naziemnopączkowy &nbsp; &bull; &nbsp; parishonline.com &nbsp; &bull; &nbsp; podporządkowujić &nbsp; &bull; &nbsp; przedsiębiorstwo &nbsp; &bull; &nbsp; radomszczańskiei &nbsp; &bull; &nbsp; staroobrzędowiec &nbsp; &bull; &nbsp; wieloskładnikowy</td></tr>
+<tr><td>17</td><td>48</td><td>89</td><td>alpha.bn.org.plić &nbsp; &bull; &nbsp; antykomunistyczny &nbsp; &bull; &nbsp; bazakolejowa.plić &nbsp; &bull; &nbsp; ochsenrückenturmć &nbsp; &bull; &nbsp; południowouralski &nbsp; &bull; &nbsp; przeciwstawiający &nbsp; &bull; &nbsp; północnokoreański &nbsp; &bull; &nbsp; północnowęgierski &nbsp; &bull; &nbsp; trzykondygnacyjny &nbsp; &bull; &nbsp; zachodniopomorski</td></tr>
+<tr><td>18</td><td>36</td><td>45</td><td>antychrześcijański &nbsp; &bull; &nbsp; dziewięciusetlecie &nbsp; &bull; &nbsp; interkontynentalny &nbsp; &bull; &nbsp; kardiochirurgiczny &nbsp; &bull; &nbsp; moderntalking.plić &nbsp; &bull; &nbsp; nefrologia.mp.plić &nbsp; &bull; &nbsp; niekapitalistyczny &nbsp; &bull; &nbsp; promieniotwórczość &nbsp; &bull; &nbsp; trzydziestoosobowy &nbsp; &bull; &nbsp; wiceprzewodniczący</td></tr>
+<tr><td>19</td><td>18</td><td>27</td><td>buscabiografias.com &nbsp; &bull; &nbsp; cyclingarchives.com &nbsp; &bull; &nbsp; dziewiętnastokrotny &nbsp; &bull; &nbsp; nationaltrail.co.uk &nbsp; &bull; &nbsp; niepodległościowiey &nbsp; &bull; &nbsp; przedchrześcijański &nbsp; &bull; &nbsp; socjaldemokratyczny &nbsp; &bull; &nbsp; wschodniofrankijski &nbsp; &bull; &nbsp; zachodnioeuropejski &nbsp; &bull; &nbsp; średniodystansowiec</td></tr>
 <tr><td>20</td><td>5</td><td>7</td><td>dziewiętnastowieczny &nbsp; &bull; &nbsp; historycznoliteracki &nbsp; &bull; &nbsp; południowoafrykański &nbsp; &bull; &nbsp; projects.latimes.com &nbsp; &bull; &nbsp; skolopendrokształtny</td></tr>
 <tr><td>21</td><td>8</td><td>13</td><td>brązowawopomarańczowy &nbsp; &bull; &nbsp; dwudziestopięciolecie &nbsp; &bull; &nbsp; internacjonalistyczny &nbsp; &bull; &nbsp; legioner.kulichki.com &nbsp; &bull; &nbsp; multiinstrumentalista &nbsp; &bull; &nbsp; niebieskaeskadra.plić &nbsp; &bull; &nbsp; trainingswissenschaft &nbsp; &bull; &nbsp; wczesnośredniowieczny</td></tr>
 <tr><td>22</td><td>3</td><td>3</td><td>hipergammaglobulinemia &nbsp; &bull; &nbsp; hipergammaglobulinemię &nbsp; &bull; &nbsp; players.pointafter.com</td></tr>
@@ -5329,8 +5364,8 @@
 </table>
 
 <a name='tokenCategories'><h3>Token Samples by Category <a href=#TOC class=TOC>[TOC]</a></h3>
-Pre-analysis types/tokens: 39,392 / 104,185<br>
-Post-analysis types/tokens: 25,616 / 104,185<br>
+&bull; Pre-analysis types/tokens: 39,392 / 104,185<br>
+&bull; Post-analysis types/tokens: 25,616 / 104,185<br>
 <br>
 <div class=leftCatDiv>
 <b> Pre-analysis tokens by category</b>
@@ -5340,22 +5375,12 @@ Post-analysis types/tokens: 25,616 / 104,185<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i> other:</i> 34 types, 38 tokens (sample of 25)<br>
-<blockquote>11153<span class=ltn title='Latin script'>ha</span> &bull; 11<span class=ltn title='Latin script'>kW</span> &bull; 151<span class=ltn title='Latin script'>c</span> &bull; 1999<span class=ltn title='Latin script'>dh</span> &bull; 1<span class=cyr title='Cyrillic script'>М</span>8 &bull; 2007<span class=ltn title='Latin script'>bw</span> &bull; 38544<span class=ltn title='Latin script'>ha</span> &bull; 4<span class=ltn title='Latin script'>kB</span> &bull; 90<span class=ltn title='Latin script'>minut</span>.<span class=ltn title='Latin script'>pl</span> &bull; <span class=ltn title='Latin script'>C</span>5<span class=ltn title='Latin script'>a</span> &bull; <span class=ltn title='Latin script'>ch</span>5 &bull; <span class=ltn title='Latin script'>ch</span>9 &bull; <span class=ltn title='Latin script'>E</span>150<span class=ltn title='Latin script'>d</span> &bull; <span class=ltn title='Latin script'>E</span>30<span class=ltn title='Latin script'>Cork</span> &bull; <span class=ltn title='Latin script'>Formula</span>1 &bull; <span class=ltn title='Latin script'>gp</span>91 &bull; <span class=ltn title='Latin script'>H</span>_<span class=ltn title='Latin script'>aluze</span> &bull; <span class=ltn title='Latin script'>H</span>_<span class=ltn title='Latin script'>aluzi</span> &bull; <span class=ltn title='Latin script'>Hero</span>_<span class=ltn title='Latin script'>id</span> &bull; <span class=ltn title='Latin script'>IgG</span>1 &bull; <span class=ltn title='Latin script'>kwietnia</span>1892 &bull; <span class=ltn title='Latin script'>nazwa</span>_<span class=ltn title='Latin script'>usługi</span> &bull; <span class=ltn title='Latin script'>StG</span>44 &bull; <span class=ltn title='Latin script'>VT</span>628.0 &bull; <span class=ltn title='Latin script'>VT</span>628.2<br>
-</blockquote>
-</div>
-<div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i> other:</i> 152 types, 712 tokens (sample of 25)<br>
-<blockquote>071<span class=ltn title='Latin script'>ć</span> &bull; 101<span class=ltn title='Latin script'>c</span> &bull; 13<span class=ltn title='Latin script'>ć</span> &bull; 17<span class=ltn title='Latin script'>ć</span> &bull; 19<span class=ltn title='Latin script'>ć</span> &bull; 1<span class=ltn title='Latin script'>m</span>8 &bull; 2001<span class=ltn title='Latin script'>gc</span>000252 &bull; 2007<span class=ltn title='Latin script'>bw</span> &bull; 2760<span class=ltn title='Latin script'>ć</span> &bull; 359<span class=ltn title='Latin script'>mr</span> &bull; <span class=ltn title='Latin script'>al</span>7 &bull; <span class=ltn title='Latin script'>e</span>2<span class=ltn title='Latin script'>ć</span> &bull; <span class=ltn title='Latin script'>fa</span>45 &bull; <span class=ltn title='Latin script'>fb</span>62 &bull; <span class=ltn title='Latin script'>h</span>_<span class=ltn title='Latin script'>aluzi</span> &bull; <span class=ltn title='Latin script'>jh</span>21<span class=ltn title='Latin script'>c</span> &bull; <span class=ltn title='Latin script'>m</span>14 &bull; <span class=ltn title='Latin script'>m</span>1911<span class=ltn title='Latin script'>ć</span> &bull; <span class=ltn title='Latin script'>m</span>19<span class=ltn title='Latin script'>ć</span> &bull; <span class=ltn title='Latin script'>n</span>5<span class=ltn title='Latin script'>bf</span> &bull; <span class=ltn title='Latin script'>nazwa</span>_<span class=ltn title='Latin script'>usługa</span> &bull; <span class=ltn title='Latin script'>sl</span>2 &bull; <span class=ltn title='Latin script'>vt</span>125<span class=ltn title='Latin script'>c</span> &bull; <span class=ltn title='Latin script'>vt</span>515 &bull; <span class=ltn title='Latin script'>vt</span>628.4<br>
-</blockquote>
-</div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i> other, mixed-Latin-Cyrillic:</i> 3 types, 3 tokens<br>
+&nbsp;&nbsp;&nbsp;<i> mixed-Cyrillic-Latin:</i> 3 types, 3 tokens<br>
 <blockquote><span class=cyr title='Cyrillic script'>К</span><span class=ltn title='Latin script'>omitetu</span> &bull; <span class=cyr title='Cyrillic script'>Кос</span><span class=ltn title='Latin script'>i</span><span class=cyr title='Cyrillic script'>в</span> &bull; <span class=cyr title='Cyrillic script'>параф</span><span class=ltn title='Latin script'>i</span><span class=cyr title='Cyrillic script'>я</span><br>
 </blockquote>
 </div>
-<div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i> other, mixed-Latin-Cyrillic:</i> 3 types, 3 tokens<br>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i> mixed-Cyrillic-Latin:</i> 3 types, 3 tokens<br>
 <blockquote><span class=cyr title='Cyrillic script'>к</span><span class=ltn title='Latin script'>omitet</span> &bull; <span class=cyr title='Cyrillic script'>кос</span><span class=ltn title='Latin script'>i</span><span class=cyr title='Cyrillic script'>в</span> &bull; <span class=cyr title='Cyrillic script'>параф</span><span class=ltn title='Latin script'>i</span><span class=cyr title='Cyrillic script'>я</span><br>
 </blockquote>
 </div>
@@ -5373,12 +5398,22 @@ Post-analysis types/tokens: 25,616 / 104,185<br>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 106 types, 118 tokens (sample of 25)<br>
-<blockquote>Адраджэнне &bull; Александрович &bull; Андрей &bull; Андрэя &bull; Архітэктура &bull; Верховна &bull; Волга &bull; готыкі &bull; Добронравин &bull; зелёнка &bull; Иван &bull; К &bull; Ловчански &bull; Нарач &bull; организации &bull; паловы &bull; печера &bull; проход &bull; Рыжиков &bull; Сергій &bull; солдаты &bull; стороне &bull; України &bull; Шевцова &bull; Євсєєв<br>
+<blockquote>Адраджэнне &bull; Александрович &bull; Андрей &bull; Андрея &bull; Андрэя &bull; Апситис &bull; Архітэктура &bull; Бабак &bull; Беларусі &bull; Божией &bull; Дюбюк &bull; Евсеев &bull; З &bull; Иванович &bull; Иваново &bull; Кръстев &bull; Осипович &bull; Павлович &bull; Печерск &bull; Предатели &bull; Рада &bull; Российское &bull; сельское &bull; України &bull; Энцыклапедычны<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 106 types, 118 tokens (sample of 25)<br>
-<blockquote>апостала &bull; аркадійович &bull; библейское &bull; божией &bull; витоша &bull; волга &bull; гельфонд &bull; гори &bull; евгений &bull; ефим &bull; иванович &bull; иваново &bull; ильич &bull; лилия &bull; организации &bull; поселение &bull; рейха &bull; роман &bull; российское &bull; ст &bull; странник &bull; україни &bull; эклектыка &bull; энцыклапедычны &bull; євсєєв<br>
+<blockquote>александров &bull; андрей &bull; андрея &bull; библейское &bull; василь &bull; готыкі &bull; даведнік &bull; дюбюк &bull; евгений &bull; емельянов &bull; зелёнка &bull; иванович &bull; ильич &bull; костел &bull; кръстев &bull; лилия &bull; митрополит &bull; на &bull; общество &bull; российское &bull; рыжиков &bull; святога &bull; соснівка &bull; україни &bull; ясенски<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Cyrillic+numbers:</i> 1 types, 1 tokens<br>
+<blockquote>1М8<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Cyrillic+numbers:</i> 1 types, 1 tokens<br>
+<blockquote>1м8<br>
 </blockquote>
 </div>
 <br style='clear:both'>
@@ -5427,8 +5462,8 @@ Post-analysis types/tokens: 25,616 / 104,185<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>ID-like:</i> 104 types, 137 tokens (sample of 25)<br>
-<blockquote>1004QM &bull; 10DP &bull; 142M &bull; 2001GC000252 &bull; 231M &bull; 26CX &bull; 9MB &bull; A1 &bull; B173 &bull; C5 &bull; C96 &bull; CAMP2 &bull; D3256 &bull; E20 &bull; G3 &bull; JC31 &bull; M107 &bull; M19 &bull; M20 &bull; M62 &bull; NM149S &bull; NX1 &bull; P50 &bull; TVP1 &bull; VT125C<br>
+&nbsp;&nbsp;&nbsp;<i>ID-like:</i> 95 types, 124 tokens (sample of 25)<br>
+<blockquote>1004QM &bull; 1005FL &bull; 105F1 &bull; 10DP &bull; 15KM &bull; 296M &bull; 359MR &bull; A171101 &bull; A3 &bull; CAMP1 &bull; D3256 &bull; DK786 &bull; FA45 &bull; FB62 &bull; G3 &bull; GT300 &bull; JC29A &bull; KN250 &bull; M1 &bull; M10 &bull; N51F &bull; VT628 &bull; VT750C &bull; XENON10 &bull; XL125V<br>
 </blockquote>
 </div>
 <br style='clear:both'>
@@ -5475,12 +5510,12 @@ Post-analysis types/tokens: 25,616 / 104,185<br>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Ideographic:</i> 42 types, 48 tokens (sample of 25)<br>
-<blockquote>主 &bull; 井 &bull; 佳 &bull; 冲 &bull; 利 &bull; 原 &bull; 哈 &bull; 士 &bull; 天 &bull; 宇 &bull; 尔 &bull; 岩 &bull; 徹 &bull; 水 &bull; 江 &bull; 源 &bull; 牧 &bull; 玉 &bull; 瑪 &bull; 监 &bull; 茹 &bull; 裴 &bull; 騎 &bull; 齊 &bull; 齐<br>
+<blockquote>井 &bull; 内 &bull; 出 &bull; 利 &bull; 哈 &bull; 尔 &bull; 山 &bull; 彦 &bull; 徹 &bull; 教 &bull; 昌 &bull; 星 &bull; 有 &bull; 治 &bull; 源 &bull; 牧 &bull; 监 &bull; 石 &bull; 翔 &bull; 茹 &bull; 谷 &bull; 陈 &bull; 騎 &bull; 齊 &bull; 齐<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Ideographic:</i> 42 types, 48 tokens (sample of 25)<br>
-<blockquote>主 &bull; 内 &bull; 冲 &bull; 利 &bull; 区 &bull; 哈 &bull; 宇 &bull; 小 &bull; 尔 &bull; 教 &bull; 星 &bull; 有 &bull; 江 &bull; 治 &bull; 源 &bull; 牧 &bull; 玉 &bull; 瑪 &bull; 石 &bull; 翔 &bull; 茹 &bull; 谷 &bull; 騎 &bull; 齊 &bull; 龚<br>
+<blockquote>主 &bull; 井 &bull; 佳 &bull; 冲 &bull; 出 &bull; 区 &bull; 士 &bull; 小 &bull; 山 &bull; 彦 &bull; 教 &bull; 星 &bull; 有 &bull; 江 &bull; 牧 &bull; 玉 &bull; 瑪 &bull; 监 &bull; 石 &bull; 茹 &bull; 裴 &bull; 谷 &bull; 騎 &bull; 齊 &bull; 齐<br>
 </blockquote>
 </div>
 <br style='clear:both'>
@@ -5496,34 +5531,69 @@ Post-analysis types/tokens: 25,616 / 104,185<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Latin (Basic):</i> 24,831 types, 63,461 tokens (sample of 25)<br>
-<blockquote>aktorek &bull; Alpheus &bull; Andreas &bull; Crypton &bull; Diablica &bull; dialektami &bull; Dynama &bull; dziobowy &bull; Guys &bull; JJ &bull; Katie &bull; Kongo &bull; ligowe &bull; mohylewskiego &bull; naturalnego &bull; nieklasyfikowana &bull; niesamowite &bull; plantacje &bull; posiadacze &bull; Santanderze &bull; Sirpa &bull; Skotnickiego &bull; urazy &bull; wyborowa &bull; wywiadu<br>
+&nbsp;&nbsp;&nbsp;<i>Latin:</i> 37,491 types, 93,564 tokens (sample of 25)<br>
+<blockquote>adresem &bull; autonomicznej &bull; biegnie &bull; Cyrusową &bull; dzwonku &bull; interesów &bull; keiseki &bull; Konstantyna &bull; Kubę &bull; manifestują &bull; McBee &bull; Nowy &bull; Piwnicy &bull; ponieśli &bull; Potrero &bull; power &bull; Połtawie &bull; przybrzeżnej &bull; ptasia &bull; Socialist &bull; twierdza &bull; van &bull; wielkomorawskich &bull; zaadaptowaniu &bull; zgrupowaniem<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Latin (Basic):</i> 15,137 types, 58,534 tokens (sample of 25)<br>
-<blockquote>ali &bull; bacona &bull; fabrica &bull; faumuina &bull; frankfurta &bull; ghost &bull; hidal &bull; innes &bull; jedyna &bull; jeniec &bull; kretynga &bull; lis &bull; morvan &bull; niepoprawny &bull; seryjny &bull; sol &bull; sprawo &bull; stworzenie &bull; tassel &bull; theodor &bull; toto &bull; trybutarny &bull; wilgotniejszy &bull; wojskami &bull; zarembia<br>
+&nbsp;&nbsp;&nbsp;<i>Latin:</i> 23,778 types, 93,606 tokens (sample of 25)<br>
+<blockquote>czarodziejski &bull; dygot &bull; długon &bull; edwor &bull; gigantomania &bull; kinowy &bull; maastrichta &bull; marchal &bull; mello &bull; podzać &bull; rómmel &bull; różeny &bull; salowy &bull; sprinterka &bull; styczniowy &bull; tlenowy &bull; warowy &bull; wenecja &bull; wikariat &bull; wszechświata &bull; zajmujący &bull; zależeć &bull; zapoczątkować &bull; zasada &bull; średn<br>
 </blockquote>
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin (Extended):</i> 12,598 types, 29,901 tokens (sample of 25)<br>
-<blockquote>awansowało &bull; bombę &bull; brzegów &bull; ewakuować &bull; Lechosław &bull; Maltańskich &bull; Miejscowości &bull; mrówek &bull; Niegdyś &bull; obrazujących &bull; oderwaną &bull; określenie &bull; oskarżany &bull; oznaczający &bull; Ołtarz &bull; podkopała &bull; podstawiając &bull; pogański &bull; populację &bull; prowadzą &bull; Rozgrywkę &bull; Studentów &bull; sułtana &bull; Wańkowicz &bull; wielmożów<br>
+&nbsp;&nbsp;&nbsp;<i>Latin+numbers:</i> 28 types, 31 tokens (sample of 25)<br>
+<blockquote>11kW &bull; 151c &bull; 1999dh &bull; 2007bw &bull; 2n &bull; 38544ha &bull; 4kB &bull; 5v &bull; 90minut.pl &bull; bus12 &bull; C5a &bull; ch5 &bull; ch9 &bull; d0460f8c &bull; E30Cork &bull; formula1 &bull; gp91 &bull; IgG1 &bull; kwietnia1892 &bull; pp930 &bull; StG44 &bull; toronto2015 &bull; VT628.0 &bull; VT628.2 &bull; VT628.4<br>
 </blockquote>
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin (Extended):</i> 8,577 types, 34,866 tokens (sample of 25)<br>
-<blockquote>alć &bull; bruçaj &bull; budućnost &bull; ciepliński &bull; gregoriański &bull; groupesć &bull; keść &bull; kurów &bull; lasweć &bull; ogrywać &bull; pián &bull; począć &bull; poświęcić &bull; promieniotwórczy &bull; przypadać &bull; rewać &bull; ropniąć &bull; spokać &bull; sypiać &bull; tóriwać &bull; władysławy &bull; zdjąć &bull; zdobyczyć &bull; złu &bull; żywioło<br>
+&nbsp;&nbsp;&nbsp;<i>Latin+numbers:</i> 142 types, 700 tokens (sample of 25)<br>
+<blockquote>105ć &bull; 11kwo &bull; 15ć &bull; 17ć &bull; 1999dh &bull; 2760ć &bull; 29c &bull; 2n &bull; 38544ha &bull; 71ć &bull; a1 &bull; c2 &bull; d0460f8c &bull; f12 &bull; m1 &bull; m107 &bull; m12 &bull; m1898 &bull; m1918 &bull; m62 &bull; n51f &bull; n5bf &bull; u1 &bull; vt515 &bull; vt600c<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin, colon-sep:</i> 2 types, 2 tokens<br>
+<blockquote>kategoria:Wyposażenie &bull; skład:Andrejs<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin, colon-sep:</i> 2 types, 2 tokens<br>
+<blockquote>kategoria:wyposażen &bull; skład:andrejs<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin, comma-sep+numbers:</i> 4 types, 5 tokens<br>
+<blockquote>29,ć &bull; 4,ć &bull; 50,ć &bull; 58,ć<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin, underscore-sep:</i> 4 types, 4 tokens<br>
+<blockquote>H_aluze &bull; H_aluzi &bull; Hero_id &bull; nazwa_usługi<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin, underscore-sep:</i> 4 types, 4 tokens<br>
+<blockquote>h_aluze &bull; h_aluzi &bull; hero_idy &bull; nazwa_usługa<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin, underscore-sep+numbers:</i> 1 types, 2 tokens<br>
+<blockquote>2003_PB2002<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin, underscore-sep+numbers:</i> 1 types, 2 tokens<br>
+<blockquote>2003_pb2002<br>
 </blockquote>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>acronym-like:</i> 10 types, 46 tokens<br>
-<blockquote>a.s &bull; j.a &bull; j.w &bull; n.e &bull; n.p.m &bull; o.o &bull; p.n.e &bull; S.c &bull; s.c &bull; t.r<br>
+<blockquote>a.s &bull; j.a &bull; j.w &bull; n.e &bull; n.p.m &bull; o.o &bull; p.n.e &bull; s.c &bull; S.c &bull; t.r<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>acronym-like:</i> 34 types, 78 tokens (sample of 25)<br>
-<blockquote>a.s &bull; c.a.b &bull; e.a.r.t.h &bull; f.c &bull; g.a &bull; g.r &bull; j.a &bull; j.r.r &bull; j.w &bull; l.a &bull; m.m &bull; m.o.d &bull; n.p.m &bull; o.m &bull; o.o &bull; p.e &bull; p.j &bull; r.t &bull; s.a &bull; s.c &bull; t.j &bull; t.r &bull; t.r.i.p &bull; u.s &bull; z.s.r.r<br>
+<blockquote>a.s &bull; c.a.b &bull; d.r.i &bull; e.a.r.t.h &bull; g.a &bull; g.r &bull; j.r.r &bull; j.s &bull; j.w &bull; m.o.d &bull; n.e &bull; n.p.m &bull; o.m &bull; o.n.a &bull; o.o &bull; p.j &bull; r.t &bull; s.c &bull; s.o.d &bull; t.d &bull; t.p &bull; t.r &bull; t.r.i.p &bull; u.s &bull; z.s.r.r<br>
 </blockquote>
 </div>
 <br style='clear:both'>
@@ -5534,13 +5604,72 @@ Post-analysis types/tokens: 25,616 / 104,185<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>chemical formula:</i> 9 types, 13 tokens<br>
+<blockquote>C2 &bull; C5 &bull; F1 &bull; F12 &bull; K9 &bull; N5BF &bull; S4 &bull; U1 &bull; V8<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>decimals:</i> 39 types, 43 tokens (sample of 25)<br>
+<blockquote>10.00 &bull; 10.1029 &bull; 10.5 &bull; 11.0 &bull; 12.00 &bull; 14.00 &bull; 15.00 &bull; 16.00 &bull; 17.00 &bull; 18.00 &bull; 2.3 &bull; 21.08 &bull; 215.000 &bull; 241.65 &bull; 28.06 &bull; 3.000 &bull; 30.000 &bull; 4.00 &bull; 4.2 &bull; 40.000 &bull; 50.39 &bull; 53.7 &bull; 628.0 &bull; 65.5 &bull; 9.00<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>decimals:</i> 39 types, 43 tokens (sample of 25)<br>
+<blockquote>0.1 &bull; 10.00 &bull; 10.1029 &bull; 10.5 &bull; 12.000 &bull; 14.00 &bull; 15.00 &bull; 16.00 &bull; 2.0 &bull; 2.3 &bull; 20.00 &bull; 21.08 &bull; 215.000 &bull; 241.65 &bull; 3.000 &bull; 3.5 &bull; 30.000 &bull; 4.00 &bull; 4.2 &bull; 43.19 &bull; 53.7 &bull; 628.0 &bull; 7.00 &bull; 8.00 &bull; 9.00<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>file types:</i> 5 types, 5 tokens<br>
+<blockquote>hero.asp &bull; index.html &bull; index.shtml &bull; Pechersk.html &bull; traktat.html<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>file types:</i> 4 types, 4 tokens<br>
+<blockquote>index.html &bull; index.shtml &bull; pechersk.html &bull; traktat.html<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>integers:</i> 1,193 types, 9,747 tokens (sample of 25)<br>
+<blockquote>062 &bull; 1001 &bull; 1106 &bull; 120 &bull; 1429 &bull; 1471 &bull; 1568 &bull; 1612 &bull; 1666 &bull; 1696 &bull; 1700 &bull; 1702 &bull; 1771 &bull; 1810 &bull; 1846 &bull; 1872 &bull; 1930 &bull; 1962 &bull; 2002 &bull; 336 &bull; 61 &bull; 748 &bull; 7757 &bull; 87050 &bull; 927244<br>
+</blockquote>
+</div>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>integers:</i> 1,127 types, 9,175 tokens (sample of 25)<br>
+<blockquote>1109 &bull; 1246 &bull; 142 &bull; 1455 &bull; 1620 &bull; 1744 &bull; 183 &bull; 1895 &bull; 1943 &bull; 1956 &bull; 1968 &bull; 210 &bull; 231 &bull; 2336 &bull; 360 &bull; 432 &bull; 512 &bull; 628 &bull; 629 &bull; 74 &bull; 8322401760 &bull; 86320 &bull; 88049 &bull; 97 &bull; 9781562223670<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>integers, comma-sep:</i> 179 types, 210 tokens (sample of 25)<br>
+<blockquote>0,19 &bull; 12,4 &bull; 15,66 &bull; 17,1 &bull; 17,30 &bull; 18,6 &bull; 18,8 &bull; 2,3 &bull; 2,54 &bull; 2,9 &bull; 21,5 &bull; 21,9 &bull; 3,9 &bull; 30,08 &bull; 35,7 &bull; 5,7 &bull; 50,61 &bull; 51,2 &bull; 6,7 &bull; 64,70 &bull; 682,3 &bull; 79,14 &bull; 8,4 &bull; 86,6 &bull; 87,6<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>integers, comma-sep:</i> 168 types, 197 tokens (sample of 25)<br>
+<blockquote>0,09 &bull; 114,8 &bull; 12,08 &bull; 12,7 &bull; 1227,985 &bull; 2,2 &bull; 2,73 &bull; 2,93 &bull; 21,9 &bull; 24,77 &bull; 29,14 &bull; 3,12 &bull; 5,8 &bull; 51,2 &bull; 58,8 &bull; 6,7 &bull; 62,5 &bull; 64,4 &bull; 64,70 &bull; 71,95 &bull; 77,5 &bull; 8,4 &bull; 83,2 &bull; 9,1 &bull; 91,3<br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>integers, period-sep:</i> 7 types, 7 tokens<br>
+<blockquote>1.09.1980 &bull; 18.09.1939 &bull; 23.09.2011 &bull; 24.06.2008 &bull; 3.1.4 &bull; 6.09.1971 &bull; 9.04.1979<br>
+</blockquote>
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>integers, period-sep:</i> 5 types, 5 tokens<br>
+<blockquote>1.09.1980 &bull; 18.09.1939 &bull; 24.06.2008 &bull; 3.1.4 &bull; 9.04.1979<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>measurements:</i> 18 types, 24 tokens<br>
 <blockquote>100m &bull; 124cm &bull; 125cm &bull; 155x &bull; 18m &bull; 1972a &bull; 1972b &bull; 1x &bull; 2.32m &bull; 20m &bull; 2km &bull; 2x &bull; 300km &bull; 3x &bull; 40x50 &bull; 4m &bull; 50m &bull; 6x42<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>measurements:</i> 28 types, 38 tokens (sample of 25)<br>
-<blockquote>100m &bull; 124cm &bull; 125cm &bull; 146m &bull; 155x &bull; 15km &bull; 18m &bull; 1972a &bull; 1972b &bull; 1x &bull; 2.32m &bull; 20m &bull; 217m &bull; 231m &bull; 2km &bull; 2x &bull; 300km &bull; 398m &bull; 3d &bull; 3x &bull; 40x50 &bull; 4m &bull; 50m &bull; 51d &bull; 9a<br>
+<blockquote>100m &bull; 124cm &bull; 125cm &bull; 142m &bull; 146m &bull; 155x &bull; 15km &bull; 18m &bull; 1972a &bull; 1x &bull; 2.32m &bull; 217m &bull; 231m &bull; 296m &bull; 2km &bull; 2x &bull; 300km &bull; 3d &bull; 3x &bull; 40x50 &bull; 4m &bull; 50m &bull; 51d &bull; 6x42 &bull; 9a<br>
 </blockquote>
 </div>
 <br style='clear:both'>
@@ -5551,105 +5680,36 @@ Post-analysis types/tokens: 25,616 / 104,185<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>numbers lists, comma-sep:</i> 179 types, 210 tokens (sample of 25)<br>
-<blockquote>0,09 &bull; 0,1 &bull; 0,26 &bull; 1,68 &bull; 10,3 &bull; 10,64 &bull; 11,66 &bull; 15,40 &bull; 16,1 &bull; 19,19 &bull; 2,07 &bull; 2,4,7,9,10,12 &bull; 2,89 &bull; 21,9 &bull; 24,40 &bull; 28,4 &bull; 3,85 &bull; 3,90 &bull; 34,42 &bull; 35,7 &bull; 5,2 &bull; 5,9 &bull; 6,7 &bull; 682,3 &bull; 94,7<br>
-</blockquote>
-</div>
-<div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>numbers lists, comma-sep:</i> 168 types, 197 tokens (sample of 25)<br>
-<blockquote>0,8 &bull; 10,95 &bull; 114,8 &bull; 1149,3 &bull; 15,48 &bull; 18,8 &bull; 19,19 &bull; 2,93 &bull; 207,9 &bull; 23,2 &bull; 24,40 &bull; 242,27 &bull; 25,8 &bull; 34,42 &bull; 4,95 &bull; 43,6 &bull; 5,4 &bull; 58,8 &bull; 6,62 &bull; 6,7 &bull; 6,8 &bull; 62,5 &bull; 64,70 &bull; 9,1 &bull; 90,23<br>
-</blockquote>
-</div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>numbers, decimals:</i> 39 types, 43 tokens (sample of 25)<br>
-<blockquote>0.1 &bull; 10.00 &bull; 10.1029 &bull; 10.5 &bull; 11.0 &bull; 12.00 &bull; 14.00 &bull; 15.000 &bull; 2.0 &bull; 2.3 &bull; 20.00 &bull; 21.08 &bull; 215.000 &bull; 22.3 &bull; 25.000 &bull; 28.99 &bull; 3.000 &bull; 4.00 &bull; 4.2 &bull; 40.000 &bull; 50.39 &bull; 53.7 &bull; 628.0 &bull; 8.00 &bull; 80.000<br>
-</blockquote>
-</div>
-<div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>numbers, decimals:</i> 39 types, 43 tokens (sample of 25)<br>
-<blockquote>0.1 &bull; 10.00 &bull; 12.00 &bull; 14.00 &bull; 15.00 &bull; 15.000 &bull; 16.00 &bull; 17.00 &bull; 20.00 &bull; 21.08 &bull; 215.000 &bull; 22.3 &bull; 241.65 &bull; 25.000 &bull; 28.06 &bull; 28.99 &bull; 3.5 &bull; 30.000 &bull; 4.3 &bull; 43.19 &bull; 50.39 &bull; 65.5 &bull; 8.00 &bull; 80.000 &bull; 9.00<br>
-</blockquote>
-</div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>numbers, integers:</i> 1,193 types, 9,747 tokens (sample of 25)<br>
-<blockquote>1266 &bull; 133 &bull; 1527 &bull; 1654 &bull; 175 &bull; 1849 &bull; 1894 &bull; 1949 &bull; 1971 &bull; 1999 &bull; 2015 &bull; 2017 &bull; 2500 &bull; 375 &bull; 4000 &bull; 40114 &bull; 485 &bull; 552 &bull; 56 &bull; 7436 &bull; 8000 &bull; 81 &bull; 901 &bull; 910 &bull; 934696860<br>
-</blockquote>
-</div>
-<div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>numbers, integers:</i> 1,127 types, 9,175 tokens (sample of 25)<br>
-<blockquote>078 &bull; 102 &bull; 106 &bull; 115 &bull; 1712 &bull; 1737 &bull; 1747 &bull; 183 &bull; 1904 &bull; 1992 &bull; 2350 &bull; 237 &bull; 2466 &bull; 2926 &bull; 333 &bull; 409 &bull; 421 &bull; 45 &bull; 490 &bull; 491 &bull; 566 &bull; 629 &bull; 750 &bull; 7740 &bull; 991<br>
-</blockquote>
-</div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>numbers, ordinals:</i> 3 types, 4 tokens<br>
-<blockquote>10th &bull; 2nd &bull; 6th<br>
-</blockquote>
-</div>
-<div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>numbers, ordinals:</i> 3 types, 4 tokens<br>
-<blockquote>10th &bull; 2nd &bull; 6th<br>
-</blockquote>
-</div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>numbers, period-sep:</i> 7 types, 7 tokens<br>
-<blockquote>1.09.1980 &bull; 18.09.1939 &bull; 23.09.2011 &bull; 24.06.2008 &bull; 3.1.4 &bull; 6.09.1971 &bull; 9.04.1979<br>
-</blockquote>
-</div>
-<div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>numbers, period-sep:</i> 5 types, 5 tokens<br>
-<blockquote>1.09.1980 &bull; 18.09.1939 &bull; 24.06.2008 &bull; 3.1.4 &bull; 9.04.1979<br>
-</blockquote>
-</div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>numbers, with commas:</i> 15 types, 17 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>numbers with commas:</i> 15 types, 17 tokens<br>
 <blockquote>0,137 &bull; 10,000 &bull; 10,127 &bull; 103,203 &bull; 17,801 &bull; 2,262 &bull; 23,196 &bull; 23,988 &bull; 24,000 &bull; 30,000 &bull; 500,000 &bull; 53,750 &bull; 75,000 &bull; 865,744 &bull; 98,701<br>
 </blockquote>
 </div>
-<div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>numbers, with commas:</i> 13 types, 15 tokens<br>
+<div class='rightCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>numbers with commas:</i> 13 types, 15 tokens<br>
 <blockquote>0,137 &bull; 10,000 &bull; 10,127 &bull; 103,203 &bull; 2,262 &bull; 23,196 &bull; 23,988 &bull; 24,000 &bull; 30,000 &bull; 500,000 &bull; 53,750 &bull; 75,000 &bull; 865,744<br>
 </blockquote>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>web domains:</i> 58 types, 78 tokens (sample of 25)<br>
-<blockquote>bahamstrack.com &bull; Battle.net &bull; BDFutbol.com &bull; chidlovski.net &bull; cqranking.com &bull; Discogs.com &bull; Eliteprospects.com &bull; En.wikipedia.org &bull; Fila.com &bull; formula1monaco.com &bull; hierarchy.org &bull; iaaf.org &bull; legioner.kulichki.com &bull; leipzig.de &bull; nationaltrail.co.uk &bull; nbadraft.net &bull; Reference.com &bull; rotoworld.com &bull; scout.com &bull; sportresult.com &bull; usbasket.com &bull; WIKISKY.ORG &bull; wimbledon.com &bull; www.tug.org &bull; www.warheroes.ru<br>
+&nbsp;&nbsp;&nbsp;<i>ordinals:</i> 3 types, 4 tokens<br>
+<blockquote>10th &bull; 2nd &bull; 6th<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>web domains:</i> 56 types, 77 tokens (sample of 25)<br>
-<blockquote>battle.net &bull; draftexpress.com &bull; eliteprospects.com &bull; eurohockey.net &bull; fila.com &bull; formula1monaco.com &bull; iaaf.org &bull; itsrugby.co.uk &bull; nationaltrail.co.uk &bull; nba.com &bull; nbadraft.net &bull; projects.latimes.com &bull; radzima.org &bull; reference.com &bull; rotoworld.com &bull; scout.com &bull; swimrankings.net &bull; teams.com &bull; tilastopaja.org &bull; uefa.com &bull; usbasket.com &bull; wikisky.org &bull; www.tug.org &bull; www.warheroes.ru &bull; www.wicklowway.com<br>
+&nbsp;&nbsp;&nbsp;<i>ordinals:</i> 3 types, 4 tokens<br>
+<blockquote>10th &bull; 2nd &bull; 6th<br>
 </blockquote>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>words, colon-sep, extended:</i> 2 types, 2 tokens<br>
-<blockquote>kategoria:Wyposażenie &bull; skład:Andrejs<br>
+&nbsp;&nbsp;&nbsp;<i>web domains:</i> 73 types, 95 tokens (sample of 25)<br>
+<blockquote>chidlovski.net &bull; cqranking.com &bull; Discogs.com &bull; enard.org.ar &bull; Foeldeak.com &bull; foxsports.com.au &bull; Gcatholic.org &bull; hierarchy.org &bull; iaaf.org &bull; itftennis.com &bull; itsrugby.co.uk &bull; Judoinside.com &bull; NBA.com &bull; nbadraft.net &bull; players.pointafter.com &bull; Reference.com &bull; Reference.info &bull; rotoworld.com &bull; swimrankings.net &bull; teams.com &bull; tilastopaja.org &bull; transphoto.ru &bull; waratahs.com.au &bull; worldfootball.net &bull; www.fallingrain.com<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>words, colon-sep, extended:</i> 2 types, 2 tokens<br>
-<blockquote>kategoria:wyposażen &bull; skład:andrejs<br>
-</blockquote>
-</div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>words, period-sep:</i> 75 types, 217 tokens (sample of 25)<br>
-<blockquote>adonai.pl &bull; alpha.bn.org.pl &bull; bazakolejowa.pl &bull; bsdb.be &bull; cerkiew.pl &bull; Ch.Kroeger &bull; edu.gn &bull; ffnatation.fr &bull; globus.tut.by &bull; Iat.uni &bull; index.html &bull; index.shtml &bull; IrishTrails.ie &bull; kodokan.pl &bull; lnb.fr &bull; Moderntalking.pl &bull; niebieskaeskadra.pl &bull; org.gn &bull; pw.Matki &bull; shakhterstat.by.ru &bull; tanuki.pl &bull; tzw.Baszta &bull; ul.Cegielnianej &bull; warszawa.getto.pl &bull; www.system<br>
-</blockquote>
-</div>
-<div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>words, period-sep:</i> 53 types, 167 tokens (sample of 25)<br>
-<blockquote>assn.gr.jp &bull; belgianfootball.by &bull; catholic.by &bull; ch.kroeger &bull; com.gn &bull; edu.gn &bull; globus.tut.by &bull; gov.gn &bull; iat.uni &bull; index.html &bull; kosice.sk &bull; legabasket.it &bull; lnb.fr &bull; m.in &bull; net.gn &bull; org.gn &bull; pechersk.html &bull; reference.infa &bull; rusteam.permian.ru &bull; statistieken.nl &bull; traktat.html &bull; tzw.baszta &bull; ul.cegielniany &bull; www.sports &bull; www.suiseki<br>
-</blockquote>
-</div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>words, period-sep, extended:</i> 7 types, 7 tokens<br>
-<blockquote>Métr.ex &bull; red.Stanisława &bull; tys.osób &bull; św.Jana &bull; św.Józefa &bull; św.Rocha &bull; św.Wawrzyńca<br>
-</blockquote>
-</div>
-<div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>words, period-sep, extended:</i> 29 types, 59 tokens (sample of 25)<br>
-<blockquote>adonai.plić &bull; alpha.bn.org.plić &bull; astronomia.plić &bull; atlaskolejowy.plić &bull; bazakolejowa.plić &bull; culture.plić &bull; fdb.plić &bull; filmpolski.plić &bull; kodokan.plić &bull; lewicowo.plić &bull; moderntalking.plić &bull; muzyka.wp.plić &bull; métr.ex &bull; niebieskaeskadra.plić &bull; podatkowego.plić &bull; red.stanisław &bull; senat.plić &bull; stopklatka.plić &bull; tanuki.plić &bull; teatr.plić &bull; tys.osób &bull; warszawa.getto.plić &bull; św.jan &bull; św.józef &bull; św.roch<br>
+&nbsp;&nbsp;&nbsp;<i>web domains:</i> 70 types, 93 tokens (sample of 25)<br>
+<blockquote>battle.net &bull; eliteprospects.com &bull; enard.org.ar &bull; espnscrum.com &bull; formula1monaco.com &bull; foxsports.com &bull; foxsports.com.au &bull; gcatholic.org &bull; grwar.ru &bull; hierarchy.org &bull; iaaf.org &bull; judoinside.com &bull; legioner.kulichki.com &bull; leipzig.de &bull; lnb.fr &bull; nba.com &bull; rotoworld.com &bull; rugby.com.au &bull; sportresult.com &bull; sports.org &bull; swimrankings.net &bull; waratahs.com.au &bull; wikisky.org &bull; worldfootball.net &bull; www.warheroes.ru<br>
 </blockquote>
 </div>
 <br style='clear:both'>
+<br>

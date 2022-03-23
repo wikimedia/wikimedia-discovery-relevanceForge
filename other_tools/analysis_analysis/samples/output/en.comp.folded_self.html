@@ -1,14 +1,16 @@
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
     body { font-family:Helvetica; font-size:115%; }
-    th, td { text-align:left; vertical-align: top; border: 1px solid black; dir:auto;
-        padding:2px; }
+    th, td { text-align:left; border: 1px solid black; dir:auto;
+        padding:2px 3px; }
     table { border-collapse: collapse; }
+    .vtop tr td, .vtop tr th { vertical-align:top; }
+    .vcent tr td, .vcent tr td { vertical-align:center }
     tr:nth-child(even) { background: #f8f8f8; }
     tr.key td:nth-of-type(3n+1) { text-align:center; }
     .red { color: red; font-weight: bold; }
     .hang { padding-left: 2em ; text-indent: -2em; }
-    .invis { color:#57c6eb; }
+    .invis { color:#57c6eb; cursor: help; }
     .leftCatDiv, .rightCatDiv { width:47%; border:1px solid grey; padding:1%;
         word-wrap:break-word; vertical-align: top; margin-bottom: -1px; }
     .leftCatDiv { float:left; clear:left; }
@@ -17,11 +19,14 @@
     .TOC { font-size:60%; }
     .diff { background-color:#ffffe8; }
     .bigNum { color:blue }
-    .cyr { color:#f00 }
-    .ltn { color:#070 }
-    .grk { color:#00f }
-    .cyr, .ltn, .grk, .invis { cursor: help; }
+	.ltn { color:#007700 }
+	.ben { color:#107896 }
+	.cyr { color:#ff0000 }
+	.dev { color:#e68d2e }
+	.grk { color:#0000ff }
+	.ltn, .ben, .cyr, .dev, .grk { cursor: help; }
 </style>
+
 <b>Processing samples/output/en.counts.folded.txt as 'new'.</b><br>
 <br>
 <b>Total new tokens: </b>116,241<br>
@@ -33,6 +38,7 @@
 <a name='TOC'><h3>Table of Contents</h3>
 <a href='#stemmingResults'>Stemming Results</a><br>
 &nbsp;&nbsp;&nbsp;<a href="#prob1">Potential Problem Stems</a><br>
+<a href='#samplesForReview'>Samples for Speaker Review</a><br>
 <a href='#commonPrefixes'>Common Prefix Alternations</a><br>
 <a href='#commonSuffixes'>Common Suffix Alternations</a><br>
 <a href='#typeCountFreqTable'>Case-Insensitive Type Group Counts</a><br>
@@ -41,12 +47,12 @@
 <a href='#tokenCategories'>Token Samples by Category</a><br>
 
 <h3>Invisibles and Script Colors <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>symbol</th><th>invisible chars</th><th>&nbsp;</th><th>symbol</th><th>invisible chars</th><th>&nbsp;</th><th>color</th><th>script</th></tr>
-<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td></tr>
-<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, FEFF, 00A0)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>⅟</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td>कあ가កกیא</td><td>unlabelled</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td></tr>
+<table class='vcent'><tr><th>symbol</th><th>invisible chars</th><th></th><th>symbol</th><th>invisible chars</th><th></th><th>color</th><th>script</th><th></th><th>color</th><th>script</th></tr>
+<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=ben title='Bengali script'>বাংলা</span></td><td>Bengali</td><td></td><td>あ가កกᎹیא</td><td>unlabelled</td></tr>
+<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>⅟</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=dev title='Devanagari script'>देवनागरी</span></td><td>Devanagari</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
+<tr class='key'><td></td><td></td><td></td><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, 202F, FEFF, 00A0)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
 </table>
 
 <a name='stemmingResults'><h3>Stemming Results (groups only) <a href=#TOC class=TOC>[TOC]</a></h3>
@@ -54,7 +60,7 @@
 :: indicates affix-stripped matches<br>
 -- indicates affix-stripped and folded matches<br>
 <br>
-<table><tr><th>stem</th><th>common</th><th>group total</th><th>distinct types</th><th>types (counts)</th></tr>
+<table class='vtop'><tr><th>stem</th><th>common</th><th>group total</th><th>distinct types</th><th>types (counts)</th></tr>
 <tr><td>a</td><td>a -- a</td><td>5</td><td>3</td><td>[3&nbsp;à][1&nbsp;å][1&nbsp;ā]</td></tr>
 <tr><td>aaa</td><td>aaa .. </td><td>2</td><td>2</td><td>[1&nbsp;AAA][1&nbsp;AAAS]</td></tr>
 <tr><td>ab</td><td> .. b</td><td>4</td><td>2</td><td>[2&nbsp;AB][1&nbsp;ab][1&nbsp;āb]</td></tr>
@@ -2768,15 +2774,40 @@
 <tr><td>ישראלית</td><td>י .. ית</td><td>2</td><td>2</td><td>[1&nbsp;יִשְׂרְאֵלִית][1&nbsp;ישראלית]</td></tr>
 <tr><td>לירה</td><td>ל .. ה</td><td>3</td><td>2</td><td>[1&nbsp;לִירָה][2&nbsp;לירה]</td></tr>
 </table>
-<a name='prob8'>
+<br><a name='prob8'> [Total of 7 potential problem stems]<br>
+
+<a name='samplesForReview'><h3>Samples for Speaker Review <a href=#TOC class=TOC>[TOC]</a></h3>
+<b>Random Stemming Groups</b> (10)<br><blockquote style='border-left:1px solid grey; padding-left:1em'>
+* club: [25 Club][1 Clubbed][1 Clubes][5 Clubs][62 club][16 clubs]<br>
+* mandate: [3 Mandate][2 mandated]<br>
+* prize: [5 Prize][2 prize][5 prizes]<br>
+* portion: [8 portion][1 portions]<br>
+* struggle: [4 struggle][3 struggled]<br>
+* destroy: [1 destroy][5 destroyed][2 destroying][1 destroys]<br>
+* rogaine: [1 ROGAINE][3 Rogaining][1 rogaine][1 rogaines][1 rogaining]<br>
+* victory: [3 victories][20 victory]<br>
+* creole: [3 Creole][3 Créole]<br>
+* pier: [19 Pier][2 Piers][10 pier][1 piers]<br>
+</blockquote>
+<b>Largest Stemming Groups</b> (0 of 0)<br><blockquote style='border-left:1px solid grey; padding-left:1em'>
+</blockquote>
+<b>Potential Problem Stemming Groups</b> (7 of 7)<br><blockquote style='border-left:1px solid grey; padding-left:1em'>
+* d: [48 D][16 d][1 ḍ]<br>
+* dutch: [3 Dutch][5 Holland]<br>
+* g: [23 G][35 g][1 ɢ]<br>
+* philippines: [1 Filipino][1 PHilippines][15 Philippines]<br>
+* re: [3 Re][26 re][1 ʁɛ̃]<br>
+* t: [29 T][32 t][1 ṭ]<br>
+* vila: [3 Vila][1 ˈvilɐ]<br>
+</blockquote>
 
 <a name='commonPrefixes'><h3>Common Prefix Alternations <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>1x1 count</th><th>group count</th><th>alt 1</th><th>alt 2</th></tr>
+<table class='vtop'><tr><th>1x1 count</th><th>group count</th><th>alt 1</th><th>alt 2</th></tr>
 </table>
 
 <a name='commonSuffixes'><h3>Common Suffix Alternations <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>1x1 count</th><th>group count</th><th>alt 1</th><th>alt 2</th><th>known</th></tr>
-<tr><td>1628</td><td>1492</td><td></td><td>s</td><td>*</td></tr>
+<table class='vtop'><tr><th>1x1 count</th><th>group count</th><th>alt 1</th><th>alt 2</th><th>known</th></tr>
+<tr><td>1,628</td><td>1,492</td><td></td><td>s</td><td>*</td></tr>
 <tr><td>359</td><td>357</td><td></td><td>ed</td><td>*</td></tr>
 <tr><td>310</td><td>294</td><td>ed</td><td>ing</td><td>*</td></tr>
 <tr><td>262</td><td>250</td><td></td><td>ing</td><td>*</td></tr>
@@ -2949,9 +2980,9 @@
 </table>
 
 <a name='typeCountFreqTable'><h3>Case-Insensitive Type Group Counts <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>count</th><th>freq</th></tr>
-<tr><td>1</td><td>14580</td></tr>
-<tr><td>2</td><td>2007</td></tr>
+<table class='vtop'><tr><th>count</th><th>freq</th></tr>
+<tr><td>1</td><td>14,580</td></tr>
+<tr><td>2</td><td>2,007</td></tr>
 <tr><td>3</td><td>487</td></tr>
 <tr><td>4</td><td>184</td></tr>
 <tr><td>5</td><td>29</td></tr>
@@ -2959,28 +2990,28 @@
 </table>
 
 <a name='tokenCountFreqTable'><h3>Stemmed Tokens Generated per Input Token <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>count</th><th>freq</th><th>example input tokens</th></tr>
-<tr><td>1</td><td>23813</td><td><span class=ltn title='Latin script'>Blender</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Columbus</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Embraer</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Guadeloupe</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Swift</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>allegation</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>heed</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>mistreated</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>triumph</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>winks</span></td></tr>
+<table class='vtop'><tr><th>count</th><th>freq</th><th>example input tokens</th></tr>
+<tr><td>1</td><td>23,813</td><td><span class=ltn title='Latin script'>Chrysas</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Crossing</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Government</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Magnus</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Norates</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Sayers</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>TELECARIBE</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>clerk</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>illnesses</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>inherited</span></td></tr>
 </table>
 
 <a name='typeLengthFreqTable'><h3>Final Type Lengths <a href=#TOC class=TOC>[TOC]</a></h3>
-<table><tr><th>length</th><th>type freq</th><th>token count</th><th>examples</th></tr>
-<tr><td>1</td><td>133</td><td>4483</td><td>b &nbsp; &bull; &nbsp; ε &nbsp; &bull; &nbsp; ω &nbsp; &bull; &nbsp; 化 &nbsp; &bull; &nbsp; 文 &nbsp; &bull; &nbsp; 曲 &nbsp; &bull; &nbsp; 育 &nbsp; &bull; &nbsp; 起 &nbsp; &bull; &nbsp; 面 &nbsp; &bull; &nbsp; 龍</td></tr>
-<tr><td>2</td><td>339</td><td>5821</td><td>11 &nbsp; &bull; &nbsp; 26 &nbsp; &bull; &nbsp; 40 &nbsp; &bull; &nbsp; 50 &nbsp; &bull; &nbsp; ce &nbsp; &bull; &nbsp; il &nbsp; &bull; &nbsp; mi &nbsp; &bull; &nbsp; mp &nbsp; &bull; &nbsp; se &nbsp; &bull; &nbsp; wb</td></tr>
-<tr><td>3</td><td>1271</td><td>10997</td><td>205 &nbsp; &bull; &nbsp; 595 &nbsp; &bull; &nbsp; 763 &nbsp; &bull; &nbsp; 871 &nbsp; &bull; &nbsp; axl &nbsp; &bull; &nbsp; ena &nbsp; &bull; &nbsp; pat &nbsp; &bull; &nbsp; pss &nbsp; &bull; &nbsp; ran &nbsp; &bull; &nbsp; rib</td></tr>
-<tr><td>4</td><td>2062</td><td>22288</td><td>1917 &nbsp; &bull; &nbsp; 1936 &nbsp; &bull; &nbsp; 1946 &nbsp; &bull; &nbsp; axis &nbsp; &bull; &nbsp; jeon &nbsp; &bull; &nbsp; kiss &nbsp; &bull; &nbsp; lose &nbsp; &bull; &nbsp; resl &nbsp; &bull; &nbsp; sega &nbsp; &bull; &nbsp; tank</td></tr>
-<tr><td>5</td><td>2221</td><td>17354</td><td>bonds &nbsp; &bull; &nbsp; boura &nbsp; &bull; &nbsp; ghost &nbsp; &bull; &nbsp; naacp &nbsp; &bull; &nbsp; pride &nbsp; &bull; &nbsp; racer &nbsp; &bull; &nbsp; slope &nbsp; &bull; &nbsp; stage &nbsp; &bull; &nbsp; tzuke &nbsp; &bull; &nbsp; zomia</td></tr>
-<tr><td>6</td><td>2601</td><td>15820</td><td>bhebia &nbsp; &bull; &nbsp; dactyl &nbsp; &bull; &nbsp; discog &nbsp; &bull; &nbsp; hooker &nbsp; &bull; &nbsp; kiyoto &nbsp; &bull; &nbsp; koyama &nbsp; &bull; &nbsp; locale &nbsp; &bull; &nbsp; mystic &nbsp; &bull; &nbsp; nepali &nbsp; &bull; &nbsp; oblong</td></tr>
-<tr><td>7</td><td>2446</td><td>14161</td><td>alefeld &nbsp; &bull; &nbsp; dentist &nbsp; &bull; &nbsp; diocese &nbsp; &bull; &nbsp; gradual &nbsp; &bull; &nbsp; microid &nbsp; &bull; &nbsp; montana &nbsp; &bull; &nbsp; pressed &nbsp; &bull; &nbsp; takinak &nbsp; &bull; &nbsp; teteven &nbsp; &bull; &nbsp; tyndari</td></tr>
-<tr><td>8</td><td>2030</td><td>9547</td><td>adoniram &nbsp; &bull; &nbsp; bluffton &nbsp; &bull; &nbsp; elective &nbsp; &bull; &nbsp; grunberg &nbsp; &bull; &nbsp; huhtasen &nbsp; &bull; &nbsp; islander &nbsp; &bull; &nbsp; mangfall &nbsp; &bull; &nbsp; mischief &nbsp; &bull; &nbsp; mongolia &nbsp; &bull; &nbsp; silandhi</td></tr>
-<tr><td>9</td><td>1673</td><td>6397</td><td>brouhgton &nbsp; &bull; &nbsp; herbicide &nbsp; &bull; &nbsp; mezzanine &nbsp; &bull; &nbsp; nyynainen &nbsp; &bull; &nbsp; reproduce &nbsp; &bull; &nbsp; sensitize &nbsp; &bull; &nbsp; singarasu &nbsp; &bull; &nbsp; snodgrass &nbsp; &bull; &nbsp; typically &nbsp; &bull; &nbsp; whitworth</td></tr>
-<tr><td>10</td><td>1110</td><td>4558</td><td>diabetique &nbsp; &bull; &nbsp; euphalacra &nbsp; &bull; &nbsp; homozygous &nbsp; &bull; &nbsp; illustrate &nbsp; &bull; &nbsp; indigofera &nbsp; &bull; &nbsp; innovation &nbsp; &bull; &nbsp; phricotelu &nbsp; &bull; &nbsp; profitable &nbsp; &bull; &nbsp; rodersdorf &nbsp; &bull; &nbsp; vocabulary</td></tr>
-<tr><td>11</td><td>646</td><td>2223</td><td>charlemagne &nbsp; &bull; &nbsp; crystalline &nbsp; &bull; &nbsp; housekeeper &nbsp; &bull; &nbsp; institution &nbsp; &bull; &nbsp; montenegrin &nbsp; &bull; &nbsp; nationalist &nbsp; &bull; &nbsp; outperforme &nbsp; &bull; &nbsp; retinopathy &nbsp; &bull; &nbsp; supposition &nbsp; &bull; &nbsp; tetrapteryx</td></tr>
-<tr><td>12</td><td>351</td><td>1418</td><td>accumulation &nbsp; &bull; &nbsp; architettura &nbsp; &bull; &nbsp; arteriopathy &nbsp; &bull; &nbsp; brahmamsagar &nbsp; &bull; &nbsp; characterise &nbsp; &bull; &nbsp; conciliatory &nbsp; &bull; &nbsp; insufficient &nbsp; &bull; &nbsp; intervention &nbsp; &bull; &nbsp; photovoltaic &nbsp; &bull; &nbsp; polarization</td></tr>
-<tr><td>13</td><td>200</td><td>645</td><td>collaboration &nbsp; &bull; &nbsp; congressional &nbsp; &bull; &nbsp; contradiction &nbsp; &bull; &nbsp; corroboration &nbsp; &bull; &nbsp; effectiveness &nbsp; &bull; &nbsp; intravascular &nbsp; &bull; &nbsp; koppanyszanto &nbsp; &bull; &nbsp; philosophical &nbsp; &bull; &nbsp; pulamaipithan &nbsp; &bull; &nbsp; understanding</td></tr>
-<tr><td>14</td><td>104</td><td>323</td><td>cardiovascular &nbsp; &bull; &nbsp; correspondence &nbsp; &bull; &nbsp; crawfordsville &nbsp; &bull; &nbsp; hardangerfjord &nbsp; &bull; &nbsp; heterojunction &nbsp; &bull; &nbsp; interpretation &nbsp; &bull; &nbsp; microprocessor &nbsp; &bull; &nbsp; osteoarthritis &nbsp; &bull; &nbsp; pharmaceutical &nbsp; &bull; &nbsp; reconnaissance</td></tr>
-<tr><td>15</td><td>41</td><td>96</td><td>dissatisfaction &nbsp; &bull; &nbsp; experimentalist &nbsp; &bull; &nbsp; fraxinipratensi &nbsp; &bull; &nbsp; hexylthiopehene &nbsp; &bull; &nbsp; polycrystalline &nbsp; &bull; &nbsp; professionalism &nbsp; &bull; &nbsp; recombinational &nbsp; &bull; &nbsp; reconfiguration &nbsp; &bull; &nbsp; supracoracoideu &nbsp; &bull; &nbsp; transesophageal</td></tr>
-<tr><td>16</td><td>34</td><td>42</td><td>anesthesiologist &nbsp; &bull; &nbsp; audiopyrotechnix &nbsp; &bull; &nbsp; characterization &nbsp; &bull; &nbsp; echocardiography &nbsp; &bull; &nbsp; hardangerfjorden &nbsp; &bull; &nbsp; institutionalize &nbsp; &bull; &nbsp; schoolmastership &nbsp; &bull; &nbsp; technologyreview &nbsp; &bull; &nbsp; teleopthalmology &nbsp; &bull; &nbsp; дніпропетровська</td></tr>
+<table class='vtop'><tr><th>length</th><th>type freq</th><th>token count</th><th>examples</th></tr>
+<tr><td>1</td><td>133</td><td>4,483</td><td>6 &nbsp; &bull; &nbsp; β &nbsp; &bull; &nbsp; י &nbsp; &bull; &nbsp; 三 &nbsp; &bull; &nbsp; 代 &nbsp; &bull; &nbsp; 坛 &nbsp; &bull; &nbsp; 文 &nbsp; &bull; &nbsp; 王 &nbsp; &bull; &nbsp; 碼 &nbsp; &bull; &nbsp; 行</td></tr>
+<tr><td>2</td><td>339</td><td>5,821</td><td>00 &nbsp; &bull; &nbsp; 14 &nbsp; &bull; &nbsp; 27 &nbsp; &bull; &nbsp; do &nbsp; &bull; &nbsp; in &nbsp; &bull; &nbsp; mq &nbsp; &bull; &nbsp; rq &nbsp; &bull; &nbsp; so &nbsp; &bull; &nbsp; wm &nbsp; &bull; &nbsp; zw</td></tr>
+<tr><td>3</td><td>1,271</td><td>10,997</td><td>111 &nbsp; &bull; &nbsp; 295 &nbsp; &bull; &nbsp; 612 &nbsp; &bull; &nbsp; 820 &nbsp; &bull; &nbsp; 840 &nbsp; &bull; &nbsp; ala &nbsp; &bull; &nbsp; die &nbsp; &bull; &nbsp; eds &nbsp; &bull; &nbsp; kyu &nbsp; &bull; &nbsp; way</td></tr>
+<tr><td>4</td><td>2,062</td><td>22,288</td><td>1546 &nbsp; &bull; &nbsp; 1926 &nbsp; &bull; &nbsp; bale &nbsp; &bull; &nbsp; bead &nbsp; &bull; &nbsp; girl &nbsp; &bull; &nbsp; hurl &nbsp; &bull; &nbsp; prof &nbsp; &bull; &nbsp; todd &nbsp; &bull; &nbsp; urge &nbsp; &bull; &nbsp; wbir</td></tr>
+<tr><td>5</td><td>2,221</td><td>17,354</td><td>71595 &nbsp; &bull; &nbsp; align &nbsp; &bull; &nbsp; burga &nbsp; &bull; &nbsp; drive &nbsp; &bull; &nbsp; grade &nbsp; &bull; &nbsp; knute &nbsp; &bull; &nbsp; platt &nbsp; &bull; &nbsp; proto &nbsp; &bull; &nbsp; rasid &nbsp; &bull; &nbsp; swamp</td></tr>
+<tr><td>6</td><td>2,601</td><td>15,820</td><td>chisel &nbsp; &bull; &nbsp; chorus &nbsp; &bull; &nbsp; cougar &nbsp; &bull; &nbsp; indium &nbsp; &bull; &nbsp; labour &nbsp; &bull; &nbsp; lumpur &nbsp; &bull; &nbsp; moscow &nbsp; &bull; &nbsp; nepali &nbsp; &bull; &nbsp; nissen &nbsp; &bull; &nbsp; sparta</td></tr>
+<tr><td>7</td><td>2,446</td><td>14,161</td><td>bayonne &nbsp; &bull; &nbsp; capensi &nbsp; &bull; &nbsp; dracula &nbsp; &bull; &nbsp; filling &nbsp; &bull; &nbsp; kalouch &nbsp; &bull; &nbsp; organic &nbsp; &bull; &nbsp; realise &nbsp; &bull; &nbsp; reserve &nbsp; &bull; &nbsp; travels &nbsp; &bull; &nbsp; warrior</td></tr>
+<tr><td>8</td><td>2,030</td><td>9,547</td><td>cassette &nbsp; &bull; &nbsp; farquhar &nbsp; &bull; &nbsp; juvenile &nbsp; &bull; &nbsp; likovnih &nbsp; &bull; &nbsp; predator &nbsp; &bull; &nbsp; reserved &nbsp; &bull; &nbsp; salammbo &nbsp; &bull; &nbsp; sgallova &nbsp; &bull; &nbsp; sugihara &nbsp; &bull; &nbsp; survival</td></tr>
+<tr><td>9</td><td>1,673</td><td>6,397</td><td>appointee &nbsp; &bull; &nbsp; cormorant &nbsp; &bull; &nbsp; grindelia &nbsp; &bull; &nbsp; liberated &nbsp; &bull; &nbsp; pictorial &nbsp; &bull; &nbsp; skeptical &nbsp; &bull; &nbsp; temporary &nbsp; &bull; &nbsp; turfgrass &nbsp; &bull; &nbsp; woodleigh &nbsp; &bull; &nbsp; yacoraite</td></tr>
+<tr><td>10</td><td>1,110</td><td>4,558</td><td>acceptance &nbsp; &bull; &nbsp; michalevic &nbsp; &bull; &nbsp; mozambique &nbsp; &bull; &nbsp; mukasarasi &nbsp; &bull; &nbsp; paraphrase &nbsp; &bull; &nbsp; pontifical &nbsp; &bull; &nbsp; relaxation &nbsp; &bull; &nbsp; specialize &nbsp; &bull; &nbsp; turpentine &nbsp; &bull; &nbsp; willoughby</td></tr>
+<tr><td>11</td><td>646</td><td>2,223</td><td>backbreaker &nbsp; &bull; &nbsp; concentrate &nbsp; &bull; &nbsp; housemartin &nbsp; &bull; &nbsp; mahbubnagar &nbsp; &bull; &nbsp; maslandapur &nbsp; &bull; &nbsp; presumption &nbsp; &bull; &nbsp; rockefeller &nbsp; &bull; &nbsp; shipbuilder &nbsp; &bull; &nbsp; viscumamide &nbsp; &bull; &nbsp; vishayakpur</td></tr>
+<tr><td>12</td><td>351</td><td>1,418</td><td>choreography &nbsp; &bull; &nbsp; complication &nbsp; &bull; &nbsp; gesneriaceae &nbsp; &bull; &nbsp; indefinitely &nbsp; &bull; &nbsp; jurisdiction &nbsp; &bull; &nbsp; modification &nbsp; &bull; &nbsp; overwhelming &nbsp; &bull; &nbsp; shipbuilding &nbsp; &bull; &nbsp; sportsperson &nbsp; &bull; &nbsp; turbellarian</td></tr>
+<tr><td>13</td><td>200</td><td>645</td><td>circumstances &nbsp; &bull; &nbsp; controversial &nbsp; &bull; &nbsp; environmental &nbsp; &bull; &nbsp; guatemalienne &nbsp; &bull; &nbsp; haverfordwest &nbsp; &bull; &nbsp; international &nbsp; &bull; &nbsp; parliamentary &nbsp; &bull; &nbsp; scripturalist &nbsp; &bull; &nbsp; theoretically &nbsp; &bull; &nbsp; uncomfortable</td></tr>
+<tr><td>14</td><td>104</td><td>323</td><td>administrative &nbsp; &bull; &nbsp; anthropologist &nbsp; &bull; &nbsp; discriminating &nbsp; &bull; &nbsp; nagarjunakonda &nbsp; &bull; &nbsp; noncommissione &nbsp; &bull; &nbsp; ophthalmoscope &nbsp; &bull; &nbsp; pyramidellidae &nbsp; &bull; &nbsp; revolucionario &nbsp; &bull; &nbsp; schwarzenegger &nbsp; &bull; &nbsp; sigurdardottir</td></tr>
+<tr><td>15</td><td>41</td><td>96</td><td>atherosclerotic &nbsp; &bull; &nbsp; cryptosporidium &nbsp; &bull; &nbsp; experimentalist &nbsp; &bull; &nbsp; fraxinipratensi &nbsp; &bull; &nbsp; krishnadevaraya &nbsp; &bull; &nbsp; professionalism &nbsp; &bull; &nbsp; sadashivasagara &nbsp; &bull; &nbsp; supracoracoideu &nbsp; &bull; &nbsp; underwaterworld &nbsp; &bull; &nbsp; ymddiriedolaeth</td></tr>
+<tr><td>16</td><td>34</td><td>42</td><td>ambohinamboarina &nbsp; &bull; &nbsp; audiopyrotechnix &nbsp; &bull; &nbsp; bandarkhalibazar &nbsp; &bull; &nbsp; bibliographische &nbsp; &bull; &nbsp; characterization &nbsp; &bull; &nbsp; hardangerfjorden &nbsp; &bull; &nbsp; maakuntamuseossa &nbsp; &bull; &nbsp; postmediangulata &nbsp; &bull; &nbsp; schizophreniform &nbsp; &bull; &nbsp; unconstitutional</td></tr>
 <tr><td>17</td><td>9</td><td>39</td><td>bollettinotrieste &nbsp; &bull; &nbsp; fraxinipratensisi &nbsp; &bull; &nbsp; indistinguishable &nbsp; &bull; &nbsp; krishnarayasagara &nbsp; &bull; &nbsp; massnahmenzentrum &nbsp; &bull; &nbsp; newtowncunningham &nbsp; &bull; &nbsp; schwarzeneggerize &nbsp; &bull; &nbsp; teleophthalmology &nbsp; &bull; &nbsp; teleophthamologic</td></tr>
 <tr><td>18</td><td>6</td><td>13</td><td>adirondackmarathon &nbsp; &bull; &nbsp; pachyosteosclerosi &nbsp; &bull; &nbsp; telecommunications &nbsp; &bull; &nbsp; teleophthalmologic &nbsp; &bull; &nbsp; telerehabilitation &nbsp; &bull; &nbsp; transcommunication</td></tr>
 <tr><td>19</td><td>8</td><td>9</td><td>allotransplantation &nbsp; &bull; &nbsp; interdenominational &nbsp; &bull; &nbsp; leukoencephalopathy &nbsp; &bull; &nbsp; maatalousnayttelyyn &nbsp; &bull; &nbsp; naturwissenschaften &nbsp; &bull; &nbsp; tetrabenzoporphryin &nbsp; &bull; &nbsp; xenotransplantation &nbsp; &bull; &nbsp; yugozapadtransstroy</td></tr>
@@ -2990,8 +3021,8 @@
 </table>
 
 <a name='tokenCategories'><h3>Token Samples by Category <a href=#TOC class=TOC>[TOC]</a></h3>
-Pre-analysis types/tokens: 23,813 / 116,241<br>
-Post-analysis types/tokens: 17,292 / 116,241<br>
+&bull; Pre-analysis types/tokens: 23,813 / 116,241<br>
+&bull; Post-analysis types/tokens: 17,292 / 116,241<br>
 <br>
 <div class=leftCatDiv>
 <b> Pre-analysis tokens by category</b>
@@ -3001,28 +3032,28 @@ Post-analysis types/tokens: 17,292 / 116,241<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i> other:</i> 2 types, 2 tokens<br>
-<blockquote>µ &bull; µ<span class=ltn title='Latin script'>m</span><br>
-</blockquote>
-</div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i> other, mixed-Latin-Cyrillic:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i> mixed-Cyrillic-Latin:</i> 1 types, 1 tokens<br>
 <blockquote><span class=cyr title='Cyrillic script'>с</span><span class=ltn title='Latin script'>ommittee</span><br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i> other, mixed-Latin-Cyrillic:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i> mixed-Cyrillic-Latin:</i> 1 types, 1 tokens<br>
 <blockquote><span class=cyr title='Cyrillic script'>с</span><span class=ltn title='Latin script'>ommittee</span><br>
 </blockquote>
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i> other, mixed-Latin-Greek:</i> 1 types, 2 tokens<br>
+&nbsp;&nbsp;&nbsp;<i> mixed-Greek-Latin:</i> 1 types, 2 tokens<br>
 <blockquote><span class=grk title='Greek script'>Δ</span><span class=ltn title='Latin script'>L</span><br>
 </blockquote>
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i> other, mixed-Latin-Greek:</i> 2 types, 3 tokens<br>
+&nbsp;&nbsp;&nbsp;<i> mixed-Greek-Latin:</i> 2 types, 3 tokens<br>
 <blockquote><span class=grk title='Greek script'>δ</span><span class=ltn title='Latin script'>l</span> &bull; <span class=grk title='Greek script'>μ</span><span class=ltn title='Latin script'>m</span><br>
+</blockquote>
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i> mixed-Latin-known symbols:</i> 1 types, 1 tokens<br>
+<blockquote>µ<span class=ltn title='Latin script'>m</span><br>
 </blockquote>
 </div>
 <br style='clear:both'>
@@ -3039,12 +3070,12 @@ Post-analysis types/tokens: 17,292 / 116,241<br>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 39 types, 42 tokens (sample of 25)<br>
-<blockquote>Аліна &bull; Барсукоў &bull; Валерій &bull; Горе &bull; державна &bull; до &bull; Евгений &bull; Евсекции &bull; Залив &bull; Ликовних &bull; Новий &bull; О &bull; Павлович &bull; Розділ &bull; Ропочево &bull; річного &bull; Смоленск &bull; Туркменбашы &bull; Факултет &bull; Федорова &bull; Црне &bull; ювілею &bull; Юрьевич &bull; Яўген &bull; історія<br>
+<blockquote>Аліна &bull; Барсукоў &bull; Валерій &bull; Горе &bull; державна &bull; Дніпропетровська &bull; дуга &bull; Евгений &bull; Залив &bull; Илић &bull; Кришень &bull; Ликовних &bull; Мартинів &bull; медична &bull; Новий &bull; О &bull; Синагога &bull; Смоленск &bull; Туркменбашы &bull; Умјетности &bull; Универзитета &bull; Факултет &bull; Юрьевич &bull; Яўген &bull; Јован<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 39 types, 42 tokens (sample of 25)<br>
-<blockquote>академія &bull; барсукоу &bull; валеріи &bull; горе &bull; дніпропетровська &bull; евгении &bull; евсекции &bull; залив &bull; илић &bull; ликовних &bull; мартинів &bull; новии &bull; о &bull; особистості &bull; павлович &bull; подіі &bull; річного &bull; синагога &bull; смоленск &bull; туркменбашы &bull; факултет &bull; федорова &bull; ювілею &bull; яуген &bull; історія<br>
+<blockquote>академія &bull; барсукоу &bull; валеріи &bull; горе &bull; державна &bull; дуга &bull; евгении &bull; евсекции &bull; кришень &bull; медична &bull; новии &bull; о &bull; особистості &bull; павлович &bull; подіі &bull; розділ &bull; ропочево &bull; річного &bull; синагога &bull; смоленск &bull; умјетности &bull; факултет &bull; црне &bull; яуген &bull; історія<br>
 </blockquote>
 </div>
 <br style='clear:both'>
@@ -3131,12 +3162,12 @@ Post-analysis types/tokens: 17,292 / 116,241<br>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Ideographic:</i> 82 types, 125 tokens (sample of 25)<br>
-<blockquote>一 &bull; 上 &bull; 代 &bull; 仮 &bull; 光 &bull; 児 &bull; 化 &bull; 大 &bull; 学 &bull; 将 &bull; 山 &bull; 島 &bull; 文 &bull; 未 &bull; 歌 &bull; 海 &bull; 滸 &bull; 町 &bull; 耕 &bull; 菱 &bull; 譜 &bull; 輯 &bull; 體 &bull; 鹿 &bull; 龍<br>
+<blockquote>七 &bull; 三 &bull; 仮 &bull; 児 &bull; 城 &bull; 大 &bull; 存 &bull; 川 &bull; 未 &bull; 水 &bull; 沙 &bull; 海 &bull; 王 &bull; 珑 &bull; 碼 &bull; 耕 &bull; 育 &bull; 菱 &bull; 見 &bull; 覽 &bull; 譜 &bull; 輯 &bull; 里 &bull; 面 &bull; 體<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Ideographic:</i> 82 types, 125 tokens (sample of 25)<br>
-<blockquote>七 &bull; 三 &bull; 上 &bull; 世 &bull; 化 &bull; 委 &bull; 存 &bull; 将 &bull; 広 &bull; 弘 &bull; 曲 &bull; 未 &bull; 本 &bull; 来 &bull; 武 &bull; 水 &bull; 沙 &bull; 海 &bull; 淑 &bull; 王 &bull; 環 &bull; 耕 &bull; 覽 &bull; 讀 &bull; 風<br>
+<blockquote>七 &bull; 世 &bull; 代 &bull; 仮 &bull; 光 &bull; 児 &bull; 学 &bull; 山 &bull; 文 &bull; 未 &bull; 本 &bull; 武 &bull; 町 &bull; 署 &bull; 翡 &bull; 耕 &bull; 航 &bull; 行 &bull; 賣 &bull; 輯 &bull; 里 &bull; 鍾 &bull; 院 &bull; 頭 &bull; 風<br>
 </blockquote>
 </div>
 <br style='clear:both'>
@@ -3163,24 +3194,19 @@ Post-analysis types/tokens: 17,292 / 116,241<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Latin (Basic):</i> 22,134 types, 106,870 tokens (sample of 25)<br>
-<blockquote>capitalism &bull; Castrozza &bull; chronic &bull; coalition &bull; Din &bull; generator &bull; handcopies &bull; Hans &bull; Hobart &bull; hourly &bull; milieu &bull; monochromatic &bull; Oriented &bull; preparatory &bull; projected &bull; Quote &bull; remotest &bull; Sacramento &bull; Security &bull; snout &bull; superscripted &bull; WBIR &bull; Westropes &bull; withstanding &bull; zone<br>
+&nbsp;&nbsp;&nbsp;<i>Latin:</i> 22,593 types, 107,514 tokens (sample of 25)<br>
+<blockquote>Caspian &bull; cursorial &bull; district &bull; Donalds &bull; framework &bull; Glory &bull; Granvin &bull; grossing &bull; Igbo &bull; Languages &bull; Lebanese &bull; Literary &bull; Malden &bull; mold &bull; Mouskouri &bull; MUFJ &bull; Nana &bull; persuade &bull; populous &bull; rabbinical &bull; rowing &bull; talking &bull; TEM &bull; Titles &bull; Vyacheslav<br>
 <br>
 &nbsp;&nbsp;&nbsp;<i>hi-freq tokens: </i>s | 1,075<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Latin (Basic):</i> 16,086 types, 107,526 tokens (sample of 25)<br>
-<blockquote>alchemy &bull; arroyo &bull; captive &bull; choose &bull; deserving &bull; diminish &bull; dookudu &bull; eurasianet &bull; gods &bull; icon &bull; indent &bull; maju &bull; methanol &bull; personal &bull; philanthropist &bull; profile &bull; progressograph &bull; qvide &bull; salim &bull; sayyaf &bull; scotia &bull; spitsbergen &bull; threaten &bull; univ &bull; yunga<br>
+&nbsp;&nbsp;&nbsp;<i>Latin:</i> 16,086 types, 107,526 tokens (sample of 25)<br>
+<blockquote>ammo &bull; assassinate &bull; bamanda &bull; bassline &bull; cartier &bull; courage &bull; eurohockey &bull; falsify &bull; freely &bull; hexameter &bull; hiram &bull; nelson &bull; pinyin &bull; prison &bull; pyramidellidae &bull; saxophone &bull; schilderij &bull; shevchenko &bull; shunter &bull; sportswriter &bull; tablature &bull; telegraful &bull; urlatelu &bull; virtual &bull; wisconsin<br>
 <br>
 &nbsp;&nbsp;&nbsp;<i>hi-freq tokens: </i>s | 1,177<br>
 </blockquote>
 </div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin (Extended):</i> 459 types, 644 tokens (sample of 25)<br>
-<blockquote>ajilimójili &bull; Constanța &bull; Hamlagrøvatnet &bull; Hrál &bull; inéditos &bull; León &bull; Luís &bull; Munții &bull; näyttely &bull; Paweł &bull; Polgár &bull; přízvučná &bull; României &bull; Roßkopf &bull; Salomón &bull; sekä &bull; Sinéad &bull; Vaigattøyane &bull; Vác &bull; Wahlbergøya &bull; évêque &bull; Čaman &bull; ēm &bull; řeckého &bull; ḵona<br>
-</blockquote>
-</div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Tibetan:</i> 2 types, 2 tokens<br>
@@ -3194,13 +3220,20 @@ Post-analysis types/tokens: 17,292 / 116,241<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>numbers, integers:</i> 1,019 types, 8,465 tokens (sample of 25)<br>
-<blockquote>1005 &bull; 1012 &bull; 1111 &bull; 1300 &bull; 14 &bull; 1494 &bull; 153 &bull; 1686 &bull; 1711 &bull; 1737 &bull; 1797 &bull; 1812 &bull; 1864 &bull; 1894 &bull; 1903 &bull; 1973 &bull; 1988 &bull; 2299 &bull; 270 &bull; 308 &bull; 450 &bull; 456 &bull; 496 &bull; 80452 &bull; 90885<br>
+&nbsp;&nbsp;&nbsp;<i>integers:</i> 1,019 types, 8,465 tokens (sample of 25)<br>
+<blockquote>01862 &bull; 1005 &bull; 1182 &bull; 120990 &bull; 1357 &bull; 14 &bull; 163 &bull; 170 &bull; 1713 &bull; 1814 &bull; 1835 &bull; 1969 &bull; 1992 &bull; 229 &bull; 233 &bull; 350 &bull; 358 &bull; 4131489 &bull; 49 &bull; 50 &bull; 50292 &bull; 520 &bull; 5332 &bull; 567 &bull; 97<br>
 </blockquote>
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>numbers, integers:</i> 1,019 types, 8,465 tokens (sample of 25)<br>
-<blockquote>004 &bull; 01 &bull; 08 &bull; 10273 &bull; 1182 &bull; 150 &bull; 1546 &bull; 1690 &bull; 1803 &bull; 1816 &bull; 1838 &bull; 1843 &bull; 1947 &bull; 206 &bull; 2093 &bull; 25297 &bull; 308294 &bull; 375 &bull; 459 &bull; 572 &bull; 627 &bull; 694 &bull; 744 &bull; 814 &bull; 941<br>
+&nbsp;&nbsp;&nbsp;<i>integers:</i> 1,019 types, 8,465 tokens (sample of 25)<br>
+<blockquote>008 &bull; 104 &bull; 112 &bull; 113 &bull; 1257 &bull; 139 &bull; 152 &bull; 1546 &bull; 1719 &bull; 172 &bull; 175 &bull; 1834 &bull; 1857 &bull; 2049 &bull; 2404 &bull; 4 &bull; 54 &bull; 571 &bull; 61 &bull; 6339 &bull; 713 &bull; 719 &bull; 790 &bull; 88 &bull; 97<br>
 </blockquote>
 </div>
 <br style='clear:both'>
+<div class='leftCatDiv newCat'>
+&nbsp;&nbsp;&nbsp;<i>known symbols:</i> 1 types, 1 tokens<br>
+<blockquote>µ<br>
+</blockquote>
+</div>
+<br style='clear:both'>
+<br>

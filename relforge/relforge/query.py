@@ -30,6 +30,10 @@ import pipes
 import subprocess
 import yaml
 
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
 try:
     # py 2.x
@@ -216,7 +220,7 @@ class Query(object):
 
     def __init__(self, settings):
         with codecs.open(settings('query'), "r", "utf-8") as f:
-            sql_config = yaml.load(f.read())
+            sql_config = yaml.load(f.read(), Loader=Loader)
 
         try:
             preferred_host = settings('host')

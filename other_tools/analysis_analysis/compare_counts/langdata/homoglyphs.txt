@@ -1,0 +1,44 @@
+# Cyrillic / Latin Homoglyphs
+#
+# fold Cyrillic characters to Latin homoglyphs
+#
+# since folding happens *after* lowercasing, some of these mappings (like в/b)
+# may not look quite right because the intended mapping is actually the
+# uppercase version (В/B)
+
+fold	а	a
+fold	ӑ	ă
+fold	ӓ	ä
+fold	ӕ	æ
+fold	в	b
+fold	с	c
+fold	ҫ	ç
+fold	е	e
+fold	ѐ	è
+fold	ё	ë
+fold	ӗ	ĕ
+fold	ә	ə
+fold	н	h
+fold	і	i
+fold	ї	ï
+fold	ј	j
+fold	к	k
+fold	м	m
+fold	о	o
+fold	ӧ	ö
+fold	р	p
+fold	ԛ	q
+fold	ѕ	s
+fold	т	t
+fold	ԝ	w
+fold	х	x
+fold	у	y
+fold	ӯ	ȳ
+fold	ӱ	ÿ
+fold	а́	á
+fold	е́	é
+fold	і́	í
+fold	о́	ó
+fold	у́	ý
+fold	ћ	ħ
+fold	з	ɜ

@@ -39,8 +39,8 @@ my @stemming_results = ();  # the results of the new-only stemming grouping
 my %old_v_new_results = (); # the results of comparing stemming group changes
 
 # get options
-our ($opt_d, $opt_f, $opt_l, $opt_n, $opt_o, $opt_s, $opt_t, $opt_x, $opt_1);
-getopts('d:fl:n:o:s:t:x1');
+our ($opt_d, $opt_f, $opt_l, $opt_n, $opt_o, $opt_s, $opt_S, $opt_t, $opt_x, $opt_1);
+getopts('d:fl:n:o:s:S:t:x1');
 
 my $old_file = $opt_o;
 my $new_file = $opt_n;
@@ -60,14 +60,17 @@ $opt_l ||= '';
 %{$config{lang}} = map {lc($_) => 1} split(/[, ]+/, $opt_l);
 $config{terse} = $opt_t;
 $config{terse} ||= 0;
+$config{Sample} = $opt_S || 0;
 
-my $min_freqtable_link = 10;
+my $min_freqtable_link = 20;
 my $token_length_examples = 10;
 my $token_count_examples = 10;
 my $min_alternation_freq = 4;
 my $max_lost_found_sample = 100;
 my $max_solo_cat_sample = 25;
+my $min_other_cat_sample = 100;
 my $hi_freq_cutoff = 1000;
+my $hi_freq_sample = 25;
 my $hi_impact_cutoff = 10;
 
 # get to work
@@ -88,18 +91,34 @@ my $indent = '&nbsp;&nbsp;&nbsp;';
 my $block_open = '<blockquote>';
 my $block_close = '</blockquote>';
 
+my @script_colors = (
+	# Latin has to be first so it doesn't highlight the highlights of the others
+	[ 'Latin script',      '\p{Latin}+',      'ltn', '#007700' ],
+	[ 'Bengali script',    '\p{Bengali}+',    'ben', '#107896' ],
+	[ 'Cyrillic script',   '\p{Cyrillic}+',   'cyr', '#ff0000' ],
+	[ 'Devanagari script', '\p{Devanagari}+', 'dev', '#e68d2e' ],
+	[ 'Greek script',      '\p{Greek}+',      'grk', '#0000ff' ],
+	# likely useful future colors
+	# 	[ 'xxx script',        '\p{xxx}+',        'xxx', '#FF00FF' ],
+	# 	[ 'xxx script',        '\p{xxx}+',        'xxx', '#9400D3' ],
+	# 	[ 'xxx script',        '\p{xxx}+',        'xxx', '#999900' ],
+	# 	[ 'xxx script',        '\p{xxx}+',        'xxx', '#808080' ],
+	);
+
 my $HTMLmeta = <<"HTML";
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
     body { font-family:Helvetica; font-size:115%; }
-    th, td { text-align:left; vertical-align: top; border: 1px solid black; dir:auto;
-        padding:2px; }
+    th, td { text-align:left; border: 1px solid black; dir:auto;
+        padding:2px 3px; }
     table { border-collapse: collapse; }
+    .vtop tr td, .vtop tr th { vertical-align:top; }
+    .vcent tr td, .vcent tr td { vertical-align:center }
     tr:nth-child(even) { background: #f8f8f8; }
     tr.key td:nth-of-type(3n+1) { text-align:center; }
     .red { color: red; font-weight: bold; }
     .hang { padding-left: 2em ; text-indent: -2em; }
-    .invis { color:#57c6eb; }
+    .invis { color:#57c6eb; cursor: help; }
     .leftCatDiv, .rightCatDiv { width:47%; border:1px solid grey; padding:1%;
         word-wrap:break-word; vertical-align: top; margin-bottom: -1px; }
     .leftCatDiv { float:left; clear:left; }
@@ -108,12 +127,15 @@ my $HTMLmeta = <<"HTML";
     .TOC { font-size:60%; }
     .diff { background-color:#ffffe8; }
     .bigNum { color:blue }
-    .cyr { color:#f00 }
-    .ltn { color:#070 }
-    .grk { color:#00f }
-    .cyr, .ltn, .grk, .invis { cursor: help; }
-</style>
 HTML
+
+foreach my $script ( @script_colors ) {
+	my ($s_name, $s_pat, $s_class, $s_color) = @$script;
+	$HTMLmeta .= "\t.$s_class { color:$s_color }\n";
+	}
+
+$HTMLmeta .= "\t" . join (', ',
+	map {'.' . $_->[2]} @script_colors) . " { cursor: help; }\n</style>\n\n";
 
 # info on invisible chars
 my %invis_symbol = (
@@ -121,9 +143,9 @@ my %invis_symbol = (
 	'061C' => '«',  '200B' => '⎵',  '200C' => '⋮',
 	'200D' => '+',  '200E' => '»',  '200F' => '«',
 	'202A' => '»',  '202B' => '«',  '202C' => '↥',
-	'202D' => '»',  '202E' => '«',  '2060' => '+',
-	'2066' => '»',  '2067' => '«',  '2068' => '⅟',
-	'2069' => '↥',  'FEFF' => '⎵',
+	'202D' => '»',  '202E' => '«',  '202F' => '⎵',
+	'2060' => '+',  '2066' => '»',  '2067' => '«',
+	'2068' => '⅟',  '2069' => '↥',  'FEFF' => '⎵',
 	);
 
 my %invis_desc = (
@@ -134,9 +156,10 @@ my %invis_desc = (
 	'200F' => 'RIGHT-TO-LEFT MARK',       '202A' => 'LEFT-TO-RIGHT EMBEDDING',
 	'202B' => 'RIGHT-TO-LEFT EMBEDDING',  '202C' => 'POP DIRECTIONAL FORMATTING',
 	'202D' => 'LEFT-TO-RIGHT OVERRIDE',   '202E' => 'RIGHT-TO-LEFT OVERRIDE',
-	'2060' => 'WORD JOINER',              '2066' => 'LEFT-TO-RIGHT ISOLATE',
-	'2067' => 'RIGHT-TO-LEFT ISOLATE',    '2068' => 'FIRST STRONG ISOLATE',
-	'2069' => 'POP DIRECTIONAL ISOLATE',  'FEFF' => 'ZERO WIDTH NO-BREAK SPACE',
+	'202F' => 'NARROW NO-BREAK SPACE',    '2060' => 'WORD JOINER',
+	'2066' => 'LEFT-TO-RIGHT ISOLATE',    '2067' => 'RIGHT-TO-LEFT ISOLATE',
+	'2068' => 'FIRST STRONG ISOLATE',     '2069' => 'POP DIRECTIONAL ISOLATE',
+	'FEFF' => 'ZERO WIDTH NO-BREAK SPACE',
 	);
 
 if ($old_file) {
@@ -320,17 +343,6 @@ if ($old_file) {
 
 				$old_v_new_results{collision}{near_match}{other}{type}++;
 				$old_v_new_results{collision}{near_match}{other}{token} += $new{$n};
-
-				push @{$old_v_new_results{bad_collisions}}, [$final, $new{$n}, $n];
-				}
-
-			if ($counts{both}{pre_type}) {
-				foreach my $o (keys %old) {
-					my $lc_o = lc($o);
-					if (!$lc_new{$lc_o}) {
-						push @{$old_v_new_results{bad_splits}}, [$final, $old{$o}, $o];
-						}
-					}
 				}
 
 			}
@@ -525,7 +537,7 @@ sub common_prefix {
 sub usage {
 print <<"USAGE";
 usage: $0 -n <new_file> [-o <old_file>] [-d <dir>] [-l <lang,lang,...>]
-    [-x] [-1] [-f] [-s <#>] [-t <#>] > output.html
+    [-S <#>] [-x] [-1] [-f] [-s <#>] [-t <#>] > output.html
 
     -n <file>  "new" counts file
     -d <dir>   specify the dir for language data config; default: compare_counts/langdata/
@@ -533,6 +545,7 @@ usage: $0 -n <new_file> [-o <old_file>] [-d <dir>] [-l <lang,lang,...>]
                See compare_counts/langdata/example.txt for config details
 
     Analyzer Self Analysis (new file only)
+    -S <#>     generate groups of up to <#> samples for speaker review
     -x         explore: automated prefix and suffix detection
     -1         give singleton output, showing one-member stemming groups, too
 
@@ -767,7 +780,7 @@ sub affix_fold {
 	my ($item) = @_;
 	$item = lc($item);
 	$item =~ s/́//g;
-	$item =~ s/[’ʼ＇]/'/g;
+	$item =~ s/[‘’ʼ＇]/'/g;
 	return $item;
 	}
 
@@ -869,15 +882,6 @@ HTML
 	if ($old_v_new_results{decreased}) {
 		print "$indent<a href='#changed_collisions_increased'>Net Gains</a><br>";
 		$spacer = 1;
-		}
-
-	if ($old_v_new_results{bad_collisions}) {
-		if ($spacer) { print "<br>\n"; $spacer = 0; }
-		print "$indent<a href='#bad_collisions_q'>Bad Collisions?</a><br>";
-		}
-	if ($old_v_new_results{bad_splits}) {
-		if ($spacer) { print "<br>\n"; $spacer = 0; }
-		print "$indent<a href='#bad_splits_q'>Bad Splits?</a><br>";
 		}
 
 	print_highlight_key();
@@ -1039,7 +1043,8 @@ HTML
 	print_table_foot();
 	print $cr;
 
-	print_table_key ('Key', 'New collision type is a near match for a type already in the group after...',
+	print_table_key ('Key',
+		'New collision type is a near match for a type already in the group after...',
 		'Categories do not overlap. Types are post-analysis types',
 		'folded', 'applying generic and language-specific character folding, de-spacing, and de-hyphenation',
 		'regulars', 'removing language-specific regular prefixes and suffixes',
@@ -1097,39 +1102,6 @@ HTML
 	print_changed_collisions('Mixed', 'mixed', '><');
 	print_changed_collisions('Net Gains', 'increased', '>>');
 
-	if ($old_v_new_results{bad_collisions}) {
-		print_section_head('Bad Collisions?', 'bad_collisions_q');
-		print $indent, scalar(@{$old_v_new_results{bad_collisions}}),
-			' collisions vs mininmum stem length: ', $config{min_stem_len}, $cr, $cr;
-
-		print_table_head('stemmed', 'added type -> group');
-		foreach my $b (sort { lc($a->[0]) cmp lc($b->[0]) || $a->[0] cmp $b->[0] ||
-				lc($a->[2]) cmp lc($b->[2]) || $a->[2] cmp $b->[2] }
-				@{$old_v_new_results{bad_collisions}}) {
-			my ($final, $cnt, $n) = @{$b};
-			print_table_row([show_invisibles(tooLong($final)),
-				show_invisibles(color_by_count("[$cnt $n] -> " . $mapping{$final}{old}))]);
-			}
-		print_table_foot();
-		print $cr;
-		}
-
-	if ($old_v_new_results{bad_splits}) {
-		print_section_head('Bad Splits?', 'bad_splits_q');
-		print $indent, scalar(@{$old_v_new_results{bad_splits}}), ' splits', $cr, $cr;
-
-		print_table_head('stemmed', 'removed type <- group');
-		foreach my $b (sort { lc($a->[0]) cmp lc($b->[0]) || $a->[0] cmp $b->[0] ||
-				lc($a->[2]) cmp lc($b->[2]) || $a->[2] cmp $b->[2] }
-				@{$old_v_new_results{bad_splits}}) {
-			my ($final, $cnt, $o) = @{$b};
-			print_table_row([show_invisibles(tooLong($final)),
-				show_invisibles(color_by_count("[$cnt $o] <- " . $mapping{$final}{new}))]);
-			}
-		print_table_foot();
-		print $cr;
-		}
-
 	return;
 	}
 
@@ -1145,9 +1117,9 @@ sub print_category_stats {
 
 	my $has_both = $left_cfg->{types} && $right_cfg->{types};
 
-	print "$left_cfg->{desc} types/tokens: ",  comma($left_cfg->{types}), ' / ',
+	print "&bull; $left_cfg->{desc} types/tokens: ",  comma($left_cfg->{types}), ' / ',
 		comma($left_cfg->{tokens}), $cr;
-	print "$right_cfg->{desc} types/tokens: ", comma($right_cfg->{types}), ' / ',
+	print "&bull; $right_cfg->{desc} types/tokens: ", comma($right_cfg->{types}), ' / ',
 		comma($right_cfg->{tokens}), $cr;
 	print $cr;
 
@@ -1185,6 +1157,7 @@ sub print_category_stats {
 		}
 
 	print $cr_all if $has_both;
+	print $cr;
 
 	return;
 	}
@@ -1199,36 +1172,46 @@ sub print_script_category {
 	my $token_list_ref = $cfg->{token_list}{$category};
 	my $joiner = ' &bull; ';
 
+	if ($category =~ /other/ && $samp_limit < $min_other_cat_sample) {
+		$samp_limit = $min_other_cat_sample;
+		}
+
 	my $token_tot = 0;
 	foreach my $item (@{$token_list_ref}) {
 		$token_tot += $statistics{token_exists}{$orig_final}{$item}{$old_new} || 0;
 		}
 	my $type_tot = scalar(@{$token_list_ref});
-	print $indent, $italic_open, "$category:$italic_close ", comma($type_tot), ' types, ',
-		comma($token_tot), ' tokens',
+	print $indent, $italic_open, $category, ':', $italic_close, ' ',
+		comma($type_tot), ' types, ', comma($token_tot), ' tokens',
 		($type_tot > $samp_limit) ? " (sample of $samp_limit)" : '', $cr;
 	print $block_open;
 
-	my $colorize = $category =~ /other|IPA/;
+	my $colorize = $category =~ /^ other|IPA|^ mixed/;
 	my $defrag = $category =~ /Unicode/;
 
 	my $picks = $samp_limit;
 	my $samples = scalar(@{$token_list_ref});
 	print show_invisibles(join($joiner,
-		map { $defrag ? defrag($_) : $_ }
+		map { $defrag ? defrag($_, 1) : $_ }
 		map { $colorize ? color_scripts($_) : $_ }
 		sort { lc($a) cmp lc($b) }
 		grep { ($picks && rand() < $picks/$samples--) ? $picks-- : 0 }
 		@{$token_list_ref})), $cr;
 
-	my @hifreq = grep { ($statistics{token_exists}{$orig_final}{$_}{$old_new} || 0) >=
+	my @hifreq = sort { $statistics{token_exists}{$orig_final}{$b}{$old_new} <=>
+			$statistics{token_exists}{$orig_final}{$a}{$old_new}}
+			grep { ($statistics{token_exists}{$orig_final}{$_}{$old_new} || 0) >=
 			$hi_freq_cutoff } @{$token_list_ref};
+	my $hifreq_overflow = '';
 	if (@hifreq) {
+		if (@hifreq > $hi_freq_sample) {
+			$hifreq_overflow = ' ... and ' . (@hifreq - $hi_freq_sample) . ' more';
+			@hifreq = @hifreq[0 .. $hi_freq_sample - 1];
+			}
 		print $cr, $indent, $italic_open, 'hi-freq tokens: ', $italic_close,
 			show_invisibles(join($joiner, map { "$_ | " .
 				comma($statistics{token_exists}{$orig_final}{$_}{$old_new}); }
-			sort { $statistics{token_exists}{$orig_final}{$b}{$old_new} <=>
-			$statistics{token_exists}{$orig_final}{$a}{$old_new}} @hifreq)), $cr;
+				@hifreq)), $hifreq_overflow, $cr;
 		}
 	print $block_close;
 
@@ -1263,6 +1246,9 @@ sub print_new_report {
 <a href='#stemmingResults'>Stemming Results</a><br>
 $indent<a href="#prob1">Potential Problem Stems</a><br>
 HTML
+	print <<"HTML" if $config{Sample};
+<a href='#samplesForReview'>Samples for Speaker Review</a><br>
+HTML
 	print <<"HTML" if $config{explore};
 <a href='#commonPrefixes'>Common Prefix Alternations</a><br>
 <a href='#commonSuffixes'>Common Suffix Alternations</a><br>
@@ -1289,6 +1275,9 @@ HTML
 	# stemming results table
 	my $prob_ref_cnt = 1;
 	my %type_ref_cnt = ();
+	my @problem_sample = ();
+	my @large_sample = ();
+	my @random_sample = ();
 	print_table_head('stem', 'common', 'group total', 'distinct types', 'types (counts)');
 	foreach my $aref (@stemming_results) {
 		my ($final, $token_count, $common, $type_cnt) = @$aref;
@@ -1300,6 +1289,7 @@ HTML
 			$display_final .= "<a href='#prob" .
 				++$prob_ref_cnt . "'>" . $red_open . $final . $red_close . '</a>';
 			$common = $red_open . "&nbsp;$common&nbsp;" . $red_close;
+			push @problem_sample, $aref if $config{Sample};
 			}
 		if ($type_cnt >= $min_freqtable_link) {
 			if (!$type_ref_cnt{$type_cnt}) {
@@ -1309,15 +1299,68 @@ HTML
 				"'>";
 			$display_type_cnt .= "<a href='#count$type_cnt." . ++$type_ref_cnt{$type_cnt} . "'>" .
 				$red_open . $type_cnt . $red_close . '</a>';
+			push @large_sample, $aref if $config{Sample};
 			}
 		my $the_mapping = $mapping{$final}{new};
 		$the_mapping =~ s/ /&nbsp;/g;
 		$the_mapping = show_invisibles($the_mapping);
 
-		print_table_row([$display_final, $common, $token_count, $display_type_cnt, $the_mapping]);
+		print_table_row([$display_final, $common, comma($token_count), $display_type_cnt, $the_mapping]);
 		}
 	print_table_foot();
-	print "<a name='prob" . $prob_ref_cnt ."'>\n";
+	print "<br><a name='prob", $prob_ref_cnt, "'> [Total of ", ($prob_ref_cnt - 1),
+		" potential problem stem", ($prob_ref_cnt == 2 ? '' : 's'), "]<br>\n";
+
+	if ($config{Sample}) {
+		# Samples for Speaker Review
+		print_section_head('Samples for Speaker Review', 'samplesForReview');
+
+		# sub-sample problem stem samples randomly
+		my $set_cnt = scalar(@problem_sample);
+		my $samp_cnt = $set_cnt;
+		if ($samp_cnt > $config{Sample}) {
+			shuffle(\@problem_sample);
+			@problem_sample = sort {$a->[0] cmp $b->[0]} @problem_sample[0 .. ($config{Sample}-1)];
+			$samp_cnt = $config{Sample};
+			}
+		my $problem_desc = "<b>Potential Problem Stemming Groups</b> ($samp_cnt of $set_cnt)";
+
+		# sub-sample large group samples by size
+		# omit previously seen problem stem samples
+		$set_cnt = scalar(@large_sample);
+		@large_sample = sort {$b->[3] <=> $a->[3]} set_diff(\@large_sample, \@problem_sample);
+		my $repeat_cnt = $set_cnt - scalar(@large_sample);
+		$samp_cnt = scalar(@large_sample);
+		if ($samp_cnt > $config{Sample}) {
+			@large_sample = @large_sample[0 .. ($config{Sample}-1)];
+			$samp_cnt = $config{Sample};
+			}
+		my $repeat_msg = $repeat_cnt
+			? " ($repeat_cnt problem stem" . ($repeat_cnt == 1 ? '' : 's') . " omitted)"
+			: '';
+		my $large_desc = "<b>Largest Stemming Groups</b> ($samp_cnt of $set_cnt$repeat_msg)";
+
+		# create a random sample
+		# over-generate x3, remove duplicates, and then remove any problem stems or
+		# large group examples and down sample from there.
+		for (my $i = 0; $i < $config{Sample} * 3; $i++) {
+			push @random_sample, @stemming_results[rand @stemming_results];
+			}
+		@random_sample = uniq(@random_sample);
+		@random_sample = set_diff(\@random_sample, \@problem_sample);
+		@random_sample = set_diff(\@random_sample, \@large_sample);
+		$samp_cnt = scalar(@random_sample);
+		if ($samp_cnt > $config{Sample}) {
+			@random_sample = @random_sample[0 .. ($config{Sample}-1)];
+			}
+		$samp_cnt = scalar(@random_sample);
+		my $random_desc = "<b>Random Stemming Groups</b> ($samp_cnt)";
+
+		# output the samples in a less alarm-inducing order
+		speaker_sample($random_desc, @random_sample);
+		speaker_sample($large_desc, @large_sample);
+		speaker_sample($problem_desc, @problem_sample);
+		}
 
 	# explore: show automatically generated affix candidates
 	if ($config{explore}) {
@@ -1335,7 +1378,7 @@ HTML
 		if ($cnt >= $min_freqtable_link) {
 			$cnt_display = "<a name='count$cnt." . $type_ref_cnt{$cnt} ."'><a href='#count$cnt.1'>$cnt</a>";
 			}
-		print_table_row([$cnt_display, $statistics{count_freqtable}{$cnt}]);
+		print_table_row([$cnt_display, comma($statistics{count_freqtable}{$cnt})]);
 		}
 	print_table_foot();
 
@@ -1355,7 +1398,7 @@ HTML
 			else {
 				@examples = @{$aref->[$i]};
 				}
-			print_table_row([$i, $freq, show_invisibles(join($joiner, map {color_scripts($_)}
+			print_table_row([$i, comma($freq), show_invisibles(join($joiner, map {color_scripts($_)}
 				sort @examples))]);
 			}
 		}
@@ -1375,9 +1418,9 @@ HTML
 			else {
 				@examples = @{$href->{$len}};
 				}
-			print_table_row([$len, $freq, $statistics{token_length}{$len},
+			print_table_row([$len, comma($freq), comma($statistics{token_length}{$len}),
 				show_invisibles(join($joiner,
-					map { /^(\\u[0-9A-F]{4})+$/i ? defrag($_) : $_ }
+					map { /^(\\u[0-9A-F]{4})+$/i ? tooLong(defrag($_)) : $_ }
 					sort @examples))]);
 			}
 		}
@@ -1425,14 +1468,18 @@ sub print_section_head {
 # print the header for a table
 #
 sub print_table_head {
-	my @items = @_;
+	print_table_head_class('vtop', @_);
+	return;
+	}
 
+sub print_table_head_class {
+	my ($class, @items) = @_;
+
+	print "<table class='$class'>";
 	if (@items) {
-		print '<table><tr><th>', join('</th><th>', @items), '</th></tr>', "\n";
+		print '<tr><th>', join('</th><th>', @items), '</th></tr>';
 		}
-	else {
-		print "<table>\n";
-		}
+	print "\n";
 	return;
 	}
 
@@ -1595,7 +1642,7 @@ sub print_alternations {
 	foreach my $item (sort { $tot_href->{$b} <=> $tot_href->{$a} || $a cmp $b } keys %{$tot_href}) {
 		last if ($tot_href->{$item} < $min_alternation_freq);
 		my ($a, $b, $z) = split(/\|/, $item);
-		my @row_data = ($oneby_href->{$item} || '', $group_href->{$item} || '', $a, $b);
+		my @row_data = (comma($oneby_href->{$item}) || '', 	comma($group_href->{$item}) || '', $a, $b);
 		my $known = '';
 		my $red = 'red';
 		if ($known_pairs) {
@@ -1625,13 +1672,13 @@ sub token_category {
 	#  certain greek letters or stress marks, plus nothing else other than a-z
 	#  characters rarely used outside phonetic transcription
 	#  IPA-specific characters
-	if (($token =~ /[θβχˈˌ]/ && $token =~ /[a-z]/ && $token =~ /^[a-zθβχˈˌ.]+$/)
+	if (($token =~ /[θβχγˈˌ]/ && $token =~ /[a-z]/ && $token =~ /^[a-zθβχγŋðʃ'ˈˌ.]+$/)
 		|| $token =~ /[ʰʲʷː̝̞̪͡‿]|[lrn][̩̥]/
 		|| $token =~ /\p{IPA_Extensions}|\p{Phonetic_Ext}|\p{Phonetic_Ext_Sup}/i) {
-		$category = 'IPA-ish';
+		$category = 'IPA-ish' unless $token =~ /\p{Cyrillic}/;
 		}
 
-	# remove modifiers before categorizing
+	# remove modifiers, invisibles, etc., before categorizing
 	if ($token =~ s/[\x{FEFF}\x{00A0}]//g) {
 		$modifier .= '+nbsp';
 		}
@@ -1643,6 +1690,9 @@ sub token_category {
 		}
 	if ($token =~ s/\x{200D}//g) {
 		$modifier .= '+zwj';
+		}
+	if ($token =~ s/\x{202F}//g) {
+		$modifier .= '+nnbsp';
 		}
 	if ($token =~ s/\x{2060}//g) {
 		$modifier .= '+wj';
@@ -1676,46 +1726,64 @@ sub token_category {
 		}
 
 	my $num_pat = '(\d+([.,]\d\d\d)*([.,]\d+)?)';
-	my $unit_pat = '([ap]\.?m|[AP]\.?M|°|°C|°F|a|b|B|C|cm|d|eV|F|fps|g|GB|GHz|h|Hz|k|K|kbit|keV|kg|kgm|kJ|km|Km|km2|L|lb|m|M|m2|Ma|MeV|mg|MHz|MHZ|ml|mm|mol|mph|º|ºC|ºF|Pa|ppm|rpm|s|T|Ts|W|x)';
+	my $unit_pat = '([ap]\.?m|[AP]\.?M|°|°C|°F|a|b|B|C|cc|cm|d|eV|F|fps|g|GB|GHz|h|Hz|k|K|kcal|kbit|keV|kg|kgm|kJ|km|Km|km2|µ?L|lb|µ?m|M|m2|Ma|MeV|mg|MHz|MHZ|ml|mm|mol|mph|µ?N|º|ºC|ºF|Pa|ppm|rpm|s|T|Ts|W|x)';
+	my $file_type_pat = '(7z|aif|aspx?|avi|bat|bin|bmp|cfm|cpp|css|csv|dll|dmg|docx?|exe|flv|gif|gz|h264|html?|htmx|ico|ini|iso|jar|java|jpe?g|jsp|m4v|midi|mkv|mov|mp3|mp4|mpa|mpe?g|msi|odp|ods|odt|ogg|otf|pdf|php|pkg|png|ppt|pptx?|rar|rmp|rss|rtfd?|shtml?|svg|swf|sys|tar|tiff?|tmp|tsv|ttf|txt|wav|wma|wmv|woff2?|xhtml?|xlsx?|xml|zip)';
+	my $chem_formula_pat = '(([HBCNOFPSKVYIWU]|He|Li|Be|Ne|Na|Mg|Al|Si|Cl|Ar|Ca|Sc|Ti|Cr|Mn|Fe|Co|Ni|Cu|Zn|Ga|Ge|As|Se|Br|Kr|Rb|Sr|Zr|Nb|Mo|Tc|Ru|Rh|Pd|Ag|Cd|In|Sn|Sb|Te|Xe|Cs|Ba|La|Hf|Ta|Re|Os|Ir|Pt|Au|Hg|Tl|Pb|Bi|Po|At|Rn|Fr|Ra|Ac|Rf|Db|Sg|Bh|Hs|Mt|Ds|Rg|Cn|Nh|Fl|Mc|Lv|Ts|Og|Ce|Pr|Nd|Pm|Sm|Eu|Gd|Tb|Dy|Ho|Er|Tm|Yb|Lu|Th|Pa|Np|Pu|Am|Cm|Bk|Cf|Es|Fm|Md|No|Lr)1?\d?)';
+	my $tld_pat = '(bh|biz|ca|ch|com|cz|de|dk|edu|eu|fi|fr|gov|info|io|is|it|jp|net|nl|no|org|ru|ua|uk|us)';
 
 	if ($token eq '') { $category = 'empty'; }
 	elsif ($category ne ' other') {} # already categorized
+	elsif ($token =~ /\d/ && $token =~ /^$chem_formula_pat+$/) { $category = 'chemical formula'; }
 	elsif ($token =~ /^([A-Z]\.)+[A-Z]\.?$/) { $category = 'acronyms'; }
 	elsif ($token =~ /^\p{Punctuation}+$/i) { $category = 'Punctuation'; }
 	elsif ($token =~ /^([A-Z]\.)+[A-Z]\.?$/i) { $category = 'acronym-like'; }
 	elsif ($token =~ /^([A-Z]\.){1,3}[A-Z]\p{Latin}+$/) { $category = 'name-like'; }
 	elsif ($token =~ /^www\.(\S+\.)+\S{2,3}$/i) { $category = 'web domains'; }
-	elsif ($token =~ /^(\S+\.)+(com|org|co\.uk|edu|gov|net|de|info)$/i) { $category = 'web domains'; }
-	elsif ($token =~ /^[+-]?\d+$/) { $category = 'numbers, integers'; }
-	elsif ($token =~ /^[+-]?\d+\.\d+$/) { $category = 'numbers, decimals'; }
-	elsif ($token =~ /^[+-]?\d{1,3}\,(\d\d\d,)*\d\d\d(\.\d+)?$/) { $category = 'numbers, with commas'; }
-	elsif ($token =~ /^\d+(,\d+)+$/) { $category = 'numbers lists, comma-sep'; }
-	elsif ($token =~ /^[+-]?\d+(\.\d+)+$/) { $category = 'numbers, period-sep'; }
-	elsif ($token =~ /^\d*(1st|2nd|3rd|\dth)$/i) { $category = 'numbers, ordinals'; }
+	elsif ($token =~ /^(\S+\.)+$tld_pat$/i) { $category = 'web domains'; }
+	elsif ($token =~ /^(\S+\.)+(co|com|edu|gov|net|org)\..{2,3}$/i) { $category = 'web domains'; }
+	elsif ($token =~ /^(\S+\.)+$file_type_pat$/i) { $category = 'file types'; }
+	elsif ($token =~ /^[+-]?\d+$/) { $category = 'integers'; }
+	elsif ($token =~ /^[+-]?\d+(,\d{3})*\.\d+$/) { $category = 'decimals'; }
+	elsif ($token =~ /^[+-]?\d+[⁄\/]\d+$/) { $category = 'fractions'; }
+	elsif ($token =~ /^[+-]?\d{1,3}\,(\d\d\d,)*\d\d\d(\.\d+)?$/) { $category = 'numbers with commas'; }
+	elsif ($token =~ /^\d*(1st|2nd|3rd|\dth)$/i) { $category = 'ordinals'; }
 	elsif ($token =~ /^[A-Z0-9-]+$/ && $token =~ /[A-Z]/ && $token =~ /[0-9]/) { $category = 'ID-like'; }
-	elsif ($token =~ /\p{IPA_Extensions}|\p{Phonetic_Ext}|\p{Phonetic_Ext_Sup}/i) { $category = 'IPA-ish'; }
-
-	elsif ($token =~ /^[a-z'’-]+(\.[a-z'’-]+)+$/i) { $category = 'words, period-sep'; }
-	elsif ($token =~ /^[a-z'’-]+(\:[a-z'’-]+)+$/i) { $category = 'words, colon-sep'; }
-	elsif ($token =~ /^[a-z'’-]+(\,[a-z'’-]+)+$/i) { $category = 'words, comma-sep'; }
-
-	elsif ($token =~ /^(['’-]|\p{Latin})+(\.(['’-]|\p{Latin})+)+$/i) { $category = 'words, period-sep, extended'; }
-	elsif ($token =~ /^(['’-]|\p{Latin})+(\:(['’-]|\p{Latin})+)+$/i) { $category = 'words, colon-sep, extended'; }
-	elsif ($token =~ /^(['’-]|\p{Latin})+(\,(['’-]|\p{Latin})+)+$/i) { $category = 'words, comma-sep, extended'; }
-
-	elsif ($token =~ /^[a-z.'’-]+$/i) { $category = 'Latin (Basic)'; }
-	elsif ($token =~ /^([.'’-]|\p{Latin})+$/i) { $category = 'Latin (Extended)'; }
+	elsif ($token =~ /\p{IPA_Extensions}|\p{Phonetic_Ext}|\p{Phonetic_Ext_Sup}/i &&
+		$token !~ /\p{Cyrillic}/) { $category = 'IPA-ish'; }
+	elsif ($token =~ /^[ℏℵµ]$/) { $category = 'known symbols'; }
+	elsif ($token =~ /^([.'‘’-]|\p{Latin})+$/i) { $category = 'Latin'; }
 	elsif ($token =~ /^([.́']|\p{Cyrillic})+$/i) { $category = 'Cyrillic'; }
-	elsif ($token =~ /^(\\u[0-9A-F]{4})+$/i) { $category = 'Unicode'; }
+	elsif ($token =~ /^(\\u[0-9A-F]{4}|[.'‘’-])+$/i) { $category = 'Unicode'; }
 	elsif ($token =~ /^([']|\p{Greek})+$/i) { $category = 'Greek'; }
-	elsif ($token =~ /^(\p{Block: Arabic}|\p{Arabic_Ext_A}|\p{Arabic_Supplement}|\x{200E})+$/i) { $category = 'Arabic'; }
+	elsif ($token =~ /^(\p{Block: Arabic}|\p{Arabic_Ext_A}|\p{Arabic_Supplement}|\p{Arabic_Presentation Forms-A}|\p{Arabic_Presentation Forms-B}|\x{200E})+$/i) { $category = 'Arabic'; }
+	elsif ($token =~ /^[𝐀-𝚥ℎℬℰℱℋℐℒℳℛℓℯℊℴℭℌℑℜℨℂℍℕℙℚℝℤ']+$/i) { $category = 'Math Latin'; }
+		# some characters are not in the expected block: math italic h; script
+		# BEFHILMRlego; frak CHIRZ; double-struck CHNPQRZ
+	elsif ($token =~ /^[𝚨-𝟋]+$/i) { $category = 'Math Greek'; }
+	elsif ($token =~ /^[𝟎-𝟿]+$/i) { $category = 'Math Numbers'; }
+	elsif ($token =~ /^\p{Ahom}+$/i) { $category = 'Ahom'; }
 	elsif ($token =~ /^\p{Armenian}+$/i) { $category = 'Armenian'; }
+	elsif ($token =~ /^\p{Avestan}+$/i) { $category = 'Avestan'; }
+	elsif ($token =~ /^\p{Balinese}+$/i) { $category = 'Balinese'; }
+	elsif ($token =~ /^\p{Bamum}+$/i) { $category = 'Bamum'; }
+	elsif ($token =~ /^\p{Batak}+$/i) { $category = 'Batak'; }
 	elsif ($token =~ /^\p{Bengali}+$/i) { $category = 'Bengali'; }
 	elsif ($token =~ /^\p{Bopomofo}+$/i) { $category = 'Bopomofo'; }
+	elsif ($token =~ /^\p{Brahmi}+$/i) { $category = 'Brahmi'; }
 	elsif ($token =~ /^\p{Braille}+$/i) { $category = 'Braille'; }
+	elsif ($token =~ /^\p{Buginese}+$/i) { $category = 'Buginese'; }
 	elsif ($token =~ /^\p{Buhid}+$/i) { $category = 'Buhid'; }
+	elsif ($token =~ /^\p{Carian}+$/i) { $category = 'Carian'; }
+	elsif ($token =~ /^\p{Chakma}+$/i) { $category = 'Chakma'; }
+	elsif ($token =~ /^\p{Cham}+$/i) { $category = 'Cham'; }
 	elsif ($token =~ /^\p{Cherokee}+$/i) { $category = 'Cherokee'; }
-	elsif ($token =~ /^\p{Devanagari}+$/i) { $category = 'Devanagari'; }
+	elsif ($token =~ /^\p{Coptic}+$/i) { $category = 'Coptic'; }
+	elsif ($token =~ /^(\p{Coptic}|\p{Greek})+$/i) { $category = 'Coptic+Greek'; }
+	elsif ($token =~ /^\p{Cuneiform}+$/i) { $category = 'Cuneiform'; }
+	elsif ($token =~ /^\p{Cypriot}+$/i) { $category = 'Cypriot'; }
+	elsif ($token =~ /^\p{Deseret}+$/i) { $category = 'Deseret'; }
+	elsif ($token =~ /^[\p{Devanagari}\x{0951}]+$/i) { $category = 'Devanagari'; }
+	elsif ($token =~ /^\p{Egyptian_Hieroglyphs}+$/i) { $category = 'Egyptian Hieroglyphs'; }
 	elsif ($token =~ /^\p{Ethiopic}+$/i) { $category = 'Ethiopic'; }
 	elsif ($token =~ /^\p{Georgian}+$/i) { $category = 'Georgian'; }
 	elsif ($token =~ /^\p{Glagolitic}+$/i) { $category = 'Glagolitic'; }
@@ -1726,36 +1794,72 @@ sub token_category {
 	elsif ($token =~ /^\p{Hanunoo}+$/i) { $category = 'Hanunoo'; }
 	elsif ($token =~ /^(\p{Hebrew}|[ְָֹּ]|[\\"'.])+$/i) { $category = 'Hebrew'; }
 	elsif ($token =~ /^(ー|\p{Hiragana})+$/i) { $category = 'Hiragana'; }
+	elsif ($token =~ /^\p{Imperial_Aramaic}+$/i) { $category = 'Imperial Aramaic'; }
+	elsif ($token =~ /^\p{Inscriptional_Pahlavi}+$/i) { $category = 'Inscriptional Pahlavi'; }
+	elsif ($token =~ /^\p{Inscriptional_Parthian}+$/i) { $category = 'Inscriptional Parthian'; }
 	elsif ($token =~ /^\p{Javanese}+$/i) { $category = 'Javanese'; }
+	elsif ($token =~ /^\p{Kaithi}+$/i) { $category = 'Kaithi'; }
 	elsif ($token =~ /^\p{Kannada}+$/i) { $category = 'Kannada'; }
 	elsif ($token =~ /^(ー|\p{Katakana})+$/i) { $category = 'Katakana'; }
+	elsif ($token =~ /^\p{Kayah_Li}+$/i) { $category = 'Kayah Li'; }
+	elsif ($token =~ /^\p{Kharoshthi}+$/i) { $category = 'Kharoshthi'; }
 	elsif ($token =~ /^\p{Khmer}+$/i) { $category = 'Khmer'; }
 	elsif ($token =~ /^\p{Lao}+$/i) { $category = 'Lao'; }
+	elsif ($token =~ /^\p{Lepcha}+$/i) { $category = 'Lepcha'; }
 	elsif ($token =~ /^\p{Limbu}+$/i) { $category = 'Limbu'; }
+	elsif ($token =~ /^\p{Linear_B}+$/i) { $category = 'Linear B'; }
+	elsif ($token =~ /^\p{Lisu}+$/i) { $category = 'Lisu'; }
+	elsif ($token =~ /^\p{Lycian}+$/i) { $category = 'Lycian'; }
+	elsif ($token =~ /^\p{Lydian}+$/i) { $category = 'Lydian'; }
 	elsif ($token =~ /^\p{Malayalam}+$/i) { $category = 'Malayalam'; }
+	elsif ($token =~ /^\p{Mandaic}+$/i) { $category = 'Mandaic'; }
+	elsif ($token =~ /^\p{Meetei_Mayek}+$/i) { $category = 'Meetei Mayek'; }
+	elsif ($token =~ /^\p{Meroitic_Cursive}+$/i) { $category = 'Meroitic Cursive'; }
+	elsif ($token =~ /^\p{Meroitic_Hieroglyphs}+$/i) { $category = 'Meroitic Hieroglyphs'; }
+	elsif ($token =~ /^\p{Miao}+$/i) { $category = 'Miao'; }
 	elsif ($token =~ /^\p{Mongolian}+$/i) { $category = 'Mongolian'; }
 	elsif ($token =~ /^\p{Myanmar}+$/i) { $category = 'Myanmar'; }
+	elsif ($token =~ /^\p{New_Tai_Lue}+$/i) { $category = 'New Tai Lue'; }
+	elsif ($token =~ /^\p{Nko}+$/i) { $category = 'Nko'; }
 	elsif ($token =~ /^\p{Ogham}+$/i) { $category = 'Ogham'; }
+	elsif ($token =~ /^\p{Ol_Chiki}+$/i) { $category = 'Ol Chiki'; }
+	elsif ($token =~ /^\p{Old_Italic}+$/i) { $category = 'Old Italic'; }
+	elsif ($token =~ /^\p{Old_Persian}+$/i) { $category = 'Old Persian'; }
+	elsif ($token =~ /^\p{Old_South_Arabian}+$/i) { $category = 'Old South Arabian'; }
 	elsif ($token =~ /^\p{Old_Turkic}+$/i) { $category = 'Old Turkic'; }
 	elsif ($token =~ /^\p{Oriya}+$/i) { $category = 'Oriya'; }
+	elsif ($token =~ /^\p{Osmanya}+$/i) { $category = 'Osmanya'; }
+	elsif ($token =~ /^\p{Phags_Pa}+$/i) { $category = 'Phags Pa'; }
+	elsif ($token =~ /^\p{Phoenician}+$/i) { $category = 'Phoenician'; }
+	elsif ($token =~ /^\p{Rejang}+$/i) { $category = 'Rejang'; }
 	elsif ($token =~ /^\p{Runic}+$/i) { $category = 'Runic'; }
 	elsif ($token =~ /^\p{Samaritan}+$/i) { $category = 'Samaritan'; }
+	elsif ($token =~ /^\p{Saurashtra}+$/i) { $category = 'Saurashtra'; }
+	elsif ($token =~ /^\p{Sharada}+$/i) { $category = 'Sharada'; }
+	elsif ($token =~ /^\p{Shavian}+$/i) { $category = 'Shavian'; }
 	elsif ($token =~ /^\p{Sinhala}+$/i) { $category = 'Sinhala'; }
+	elsif ($token =~ /^\p{Sora_Sompeng}+$/i) { $category = 'Sora Sompeng'; }
 	elsif ($token =~ /^\p{Sundanese}+$/i) { $category = 'Sundanese'; }
+	elsif ($token =~ /^\p{Syloti_Nagri}+$/i) { $category = 'Syloti Nagri'; }
 	elsif ($token =~ /^\p{Syriac}+$/i) { $category = 'Syriac'; }
 	elsif ($token =~ /^\p{Tagalog}+$/i) { $category = 'Tagalog'; }
 	elsif ($token =~ /^\p{Tagbanwa}+$/i) { $category = 'Tagbanwa'; }
-	elsif ($token =~ /^\p{TaiLe}+$/i) { $category = 'TaiLe'; }
+	elsif ($token =~ /^\p{TaiLe}+$/i) { $category = 'Tai Le'; }
+	elsif ($token =~ /^\p{Tai_Tham}+$/i) { $category = 'Tai Tham'; }
+	elsif ($token =~ /^\p{Tai_Viet}+$/i) { $category = 'Tai Viet'; }
+	elsif ($token =~ /^\p{Takri}+$/i) { $category = 'Takri'; }
 	elsif ($token =~ /^\p{Tamil}+$/i) { $category = 'Tamil'; }
-	elsif ($token =~ /^\p{Tifinagh}+$/i) { $category = 'Tifinagh'; }
 	elsif ($token =~ /^\p{Telugu}+$/i) { $category = 'Telugu'; }
 	elsif ($token =~ /^\p{Thaana}+$/i) { $category = 'Thaana'; }
 	elsif ($token =~ /^\p{Thai}+$/i) { $category = 'Thai'; }
 	elsif ($token =~ /^\p{Tibetan}+$/i) { $category = 'Tibetan'; }
+	elsif ($token =~ /^\p{Tifinagh}+$/i) { $category = 'Tifinagh'; }
 	elsif ($token =~ /^\p{Ugaritic}+$/i) { $category = 'Ugaritic'; }
 	elsif ($token =~ /^\p{Unified_Canadian_Aboriginal_Syllabics}+$/i) { $category = 'Canadian Syllabics'; }
-	elsif ($token =~ /^(\p{Ideographic}|[々])+$/i) { $category = 'Ideographic'; }
+	elsif ($token =~ /^\p{Vai}+$/i) { $category = 'Vai'; }
 	elsif ($token =~ /^\p{Yi}+$/i) { $category = 'Yi'; }
+	elsif ($token =~ /^(\p{Ideographic}|[々])+$/i) { $category = 'Ideographic'; }
+	elsif ($token =~ /^\d\d?'\d\d?(\.\d+)?[NSEW]?$/i) { $category = 'measurements'; }
 	elsif ($token =~ /^$num_pat$unit_pat$/) { $category = 'measurements'; }
 	elsif ($token =~ /^$num_pat[xh'‘’]$num_pat$/i) { $category = 'measurements'; }
 	elsif ($token =~ /^$unit_pat[·]$unit_pat$/i) { $category = 'measurements'; }
@@ -1764,31 +1868,121 @@ sub token_category {
 	elsif ($token =~ /^0x[0-9A-F]+$/i) { $category = 'hex'; }
 
 	if ($category eq ' other') {
-		my ($lat, $cyr, $grk, $cnt) = (0, 0, 0, 0);
-		if ($token =~ /\p{Latin}/) { $lat = 1; $cnt++; }
-		if ($token =~ /\p{Greek}/) { $grk = 1; $cnt++; }
-		if ($token =~ /\p{Cyrillic}/) { $cyr = 1; $cnt++; }
-		if ($cnt > 1) {
-			$category .= ", mixed";
-			$category .= "-Latin" if ($lat);
-			$category .= "-Cyrillic" if ($cyr);
-			$category .= "-Greek" if ($grk);
-			}
+		$category = complex_other_category($token)
 		}
 
 	return $category . $modifier;
 	}
 
+sub complex_other_category {
+	my ($token) = @_;
+	my $other = ' other';
+	my $mixed = ' mixed';
+	my $category = $other;
+
+	# other category, plus numbers
+	if ($token =~ /\d/) {
+		my $without = $token;
+		$without =~ s/\d([.,]\d+)*//g;
+		if ($without) {
+			my $without_cat = token_category($without);
+			if ($without_cat !~ /other|empty/) {
+				return $without_cat . '+numbers';
+				}
+			}
+		}
+
+	# look for x.y.z and a.b:c_d;e type tokens
+	my %seps = ('.' => 'period',      ':' => 'colon',     ',' => 'comma',
+				'_' => 'underscore',  ';' => 'semicolon',
+				);
+	my $sep_pat = join('', keys %seps);
+
+	if ($token =~ /[$sep_pat]/) {
+		my %sep_seen = ();
+		my %cat_seen = ();
+		my %mod_seen = ();
+		my @bits = grep {$_} split(/([$sep_pat])/, $token);
+		foreach my $bit (@bits) {
+			if ($seps{$bit}) {
+				$sep_seen{$bit} = 1;
+				}
+			else {
+				$bit = token_category($bit);
+				if ($bit =~ s/\+(.*)$// ) {
+					my $mods = $1;
+					foreach my $m (split(/\+/, $mods)) {
+						$mod_seen{$m} = 1;
+						}
+					}
+				if ($bit =~ s/^$mixed-//) {
+					foreach my $c (split(/-/, $bit)) {
+						$cat_seen{$c} = 1;
+						}
+					}
+				else {
+					$cat_seen{$bit} = 1;
+					}
+				}
+			}
+		my $modifier = join('+', sort keys %mod_seen);
+		$modifier = '+' . $modifier if $modifier;
+		if (1 == keys %sep_seen && 1 == keys %cat_seen) {
+			return (keys %cat_seen)[0] . ', ' . $seps{(keys %sep_seen)[0]} . '-sep' . $modifier;
+			}
+		if (1 == keys %cat_seen) {
+			return (keys %cat_seen)[0] . ', mixed-sep' . $modifier;
+			}
+		if (1 == keys %sep_seen) {
+			return join('-', $mixed, sort keys %cat_seen) . ', ' . $seps{(keys %sep_seen)[0]} .
+				'-sep' . $modifier;
+			}
+		return join('-', $mixed, sort keys %cat_seen) . ', mixed-sep' . $modifier;
+		}
+
+	# other category, plus common script
+	foreach my $script (qw( Latin Greek Devanagari Bengali Telugu Gurmukhi Gujarati Tamil
+			Cyrillic Arabic Hebrew )) {
+		my $pat = '\p{' . $script . '}';
+		if ($token =~ /$pat/ && $token !~ /\p{Punctuation}|\d/) {
+			my $without = $token;
+			$without =~ s/$pat//g;
+			if ($without) {
+				my $without_cat = token_category($without);
+				if ($without_cat !~ /other|empty/) {
+					return join('-', $mixed, sort ($without_cat, $script));
+					}
+				}
+			}
+		}
+
+	# other category, plus apostrophe
+	if ($token =~ /['‘’]/) {
+		my $without = $token;
+		$without =~ s/['‘’]//g;
+		if ($without) {
+			my $without_cat = token_category($without);
+			if ($without_cat !~ /other|empty/) {
+				return $without_cat . '+apos';
+				}
+			}
+		}
+
+	return $other;
+	}
+
 ###############
-# Add color highlights for Latin, Greek, and Cyrillic text
-# to highlight potential homoglyphs
+# Add color highlights for Latin, Greek, Cyrillic and other scripts
+# to highlight potential homoglyphs and make mixed script tokens
+# easier to read
 #
 sub color_scripts {
 	my ($str) = @_;
 
-	$str =~ s/(\p{Latin}+)/<span class=ltn title='Latin script'>$1<\/span>/g;
-	$str =~ s/(\p{Greek}+)/<span class=grk title='Greek script'>$1<\/span>/g;
-	$str =~ s/(\p{Cyrillic}+)/<span class=cyr title='Cyrillic script'>$1<\/span>/g;
+	foreach my $script ( @script_colors ) {
+		my ($s_name, $s_pat, $s_class, $s_color) = @$script;
+		$str =~ s/($s_pat)/<span class=$s_class title='$s_name'>$1<\/span>/g;
+		}
 
 	return $str;
 	}
@@ -1812,29 +2006,50 @@ sub show_invisibles {
 sub print_highlight_key {
 	print_section_head('Invisibles and Script Colors');
 
-	print_table_head('symbol', 'invisible chars', '&nbsp;',
-		'symbol', 'invisible chars', '&nbsp;',
-		'color', 'script');
+	print_table_head_class('vcent',
+		'symbol', 'invisible chars', '',
+		'symbol', 'invisible chars', '',
+		'color', 'script', '', 'color', 'script');
 	print_table_row([show_invisibles("\t"), 'tab',
 		'', show_invisibles("\x{200E}"), 'LTR bidi (200E, 202A, 202D, 2066)',
-		'', color_scripts('Кириллица'), 'Cyrillic'
+		'', color_scripts('বাংলা'), 'Bengali',
+		'', color_scripts('あ가កกᎹیא'), 'unlabelled'
 		], 'key');
 	print_table_row([show_invisibles("\x{00AD}"), 'soft-hyphen (00AD)',
 		'', show_invisibles("\x{200F}"), 'RTL bidi (200F, 202B, 202E, 2067, 061C)',
-		'', color_scripts('Ελληνικά'), 'Greek'
-		], 'key');
-	print_table_row([show_invisibles("\x{200B}"), 'whitespace (200B, FEFF, 00A0)',
-		'', show_invisibles("\x{2068}"), 'first strong isolate bidi (2068)',
-		'', color_scripts('Latin'), 'Latin'
+		'', color_scripts('Кириллица'), 'Cyrillic',
 		], 'key');
 	print_table_row([show_invisibles("\x{200C}"), 'non-joiner (200C)',
-		'', show_invisibles("\x{2069}"), 'pop bidi (2069, 202C)',
-		'', 'कあ가កกیא', 'unlabelled'
+		'', show_invisibles("\x{2068}"), 'first strong isolate bidi (2068)',
+		'', color_scripts('देवनागरी'), 'Devanagari',
 		], 'key');
-	print_table_row([show_invisibles("\x{200D}"), 'joiner (200D)'], 'key');
+	print_table_row([show_invisibles("\x{200D}"), 'joiner (200D)',
+		'', show_invisibles("\x{2069}"), 'pop bidi (2069, 202C)',
+		'', color_scripts('Ελληνικά'), 'Greek'
+		], 'key');
+	print_table_row(['', '',
+		'', show_invisibles("\x{200B}"), 'whitespace (200B, 202F, FEFF, 00A0)',
+		'', color_scripts('Latin'), 'Latin',
+		], 'key');
 
 	print_table_foot();
 
+	return;
+	}
+
+###############
+# Print a set of samples for speaker review
+#
+sub speaker_sample {
+	my ($desc, @samples) = @_;
+	print "$desc<br><blockquote style='border-left:1px solid grey; padding-left:1em'>\n";
+	foreach my $aref (@samples) {
+		my ($final, $token_count, $common, $type_cnt) = @$aref;
+		my $the_mapping = $mapping{$final}{new};
+		$the_mapping = show_invisibles($the_mapping);
+		print "* $final: $the_mapping<br>\n";
+		}
+	print "</blockquote>\n";
 	return;
 	}
 
@@ -1857,6 +2072,16 @@ sub shuffle {
 sub uniq {
 	my %seen = ();
 	return grep { ! $seen{$_}++ } @_;
+	}
+
+###############
+# set difference of two arrays, A \ B
+# returns array of items in A that are not in B
+#
+sub set_diff {
+	my ($aref, $bref) = @_;
+	my %bseen = map { $_ => 1 } @$bref;
+	return grep { ! $bseen{$_} } @$aref;
 	}
 
 ###############
@@ -1883,9 +2108,12 @@ sub percentify {
 # Annotate a \u encoded string with its real characters
 #
 sub defrag {
-	my ($str) = @_;
+	my ($str, $label) = @_;
 	my $defragged = $str;
 	$defragged =~ s/((\\u[A-F0-9]{4})+)/defragger($1)/eig;
+	if ($label) {
+		$defragged .= ' [' . token_category($defragged) . ']';
+		}
 	return "$str ($defragged)";
 	}
 
