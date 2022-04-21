@@ -3,7 +3,7 @@ from setuptools import setup
 requirements = [
     'relforge',
     'elasticsearch>=5.0.0,<6.0.0',
-    'hyperopt',
+    'hyperopt==0.2.3',
     'jsonpath-rw',
     'numba',
     'numpy',

@@ -65,14 +65,13 @@ def read_tfrecord_dataset(in_path, explain, batch_size=64 * 1024):
 
     in_path = list(glob(in_path))
 
-    # Hopefully this is standard...evaluating a simple graph
-    # goes from ~50k hits/s to 5M hits/s when cache is on tmpfs
-    # This needs to be unique per input files, because tensorflow
-    # doesn't check if the cache matches the input it simply accepts
-    # it.
+    # evaluating a simple graph goes from ~50k hits/s to 5M hits/s when cache
+    # is on tmpfs This needs to be unique per input files, because tensorflow
+    # doesn't check if the cache matches the input it simply accepts it.
     path_hash = hashlib.md5(''.join(in_path).encode('utf8')).hexdigest()
-    cache_path = '/run/user/{}/relforge-tf-ac.{}'.format(
-        os.getuid(), path_hash)
+    cache_path = os.path.join(
+        os.environ.get('TMPDIR', '/tmp'),
+        'relforge-tf-ac.{}'.format(path_hash))
     DELETE_ON_EXIT.append(cache_path + '*')
 
     dataset = (
@@ -120,7 +119,7 @@ def iterate_lucene_explains(paths):
                     yield row, hits
                     hits_pbar.update(len(hits))
             except:  # noqa: E722
-                log.error('Failed while reading {}'.format(one_path))
+                log.error('Failed while reading %s', one_path)
                 raise
 
 

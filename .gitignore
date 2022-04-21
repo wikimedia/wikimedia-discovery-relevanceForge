@@ -1,6 +1,10 @@
+/tf-ltr-data
 .tox/
+.ipynb_checkpoints
+build/
 dist/
 *.egg-info/
 
 *.sw?
 *.pyc
+*.whl

@@ -310,7 +310,7 @@ class FunctionScoreExplainParser(BaseExplainParser):
                 (functions_lexplain['description'], self.score_mode)
             remaining_parsers, remaining_details, parsed = parse_list(self.functions, functions_lexplain['details'])
             if remaining_details:
-                raise Exception()
+                raise Exception('unclaimed details')
             no_match_value = 0
         base_functions_explain = score_mode_type(
             functions_lexplain, expected_children=len(self.functions), children=parsed, name_prefix=self.name_prefix)

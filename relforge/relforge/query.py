@@ -31,11 +31,6 @@ import subprocess
 import yaml
 
 try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
-
-try:
     # py 2.x
     unicode()
 
@@ -44,7 +39,7 @@ try:
 except NameError:
     # py 3.x
     def decode_unicode_bytes(x):
-        return x
+        return x.decode('utf-8')
 
 LOG = logging.getLogger(__name__)
 
@@ -66,6 +61,9 @@ class CliCommand(object):
 
     def __init__(self, args):
         self.args = args
+
+    def __str__(self):
+        return self.to_shell_string()
 
     def default_converter(self, arg):
         return arg.to_shell_string()
@@ -207,7 +205,6 @@ def execute_remote(remote_host, cli_command, input):
     p = subprocess.Popen(['ssh', '-o', 'Compression=yes', remote_host, command],
                          stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
-
     stdout, stderr = p.communicate(input=input)
     return stdout, stderr, p.returncode
 
@@ -221,7 +218,7 @@ class Query(object):
 
     def __init__(self, settings):
         with codecs.open(settings('query'), "r", "utf-8") as f:
-            sql_config = yaml.load(f.read(), Loader=Loader)
+            sql_config = yaml.safe_load(f.read())
 
         try:
             preferred_host = settings('host')
@@ -237,7 +234,7 @@ class Query(object):
         self.scoring_config = sql_config['scoring']
         sql_config['variables'].update(settings())
         self._query = sql_config['query'].format(**sql_config['variables'])
-        LOG.debug('Loaded SQL query: %s', self._query)
+        LOG.debug('Loaded SQL query:\n%s', self._query)
 
     def _choose_server(self, servers, host):
         for server in servers:
@@ -255,6 +252,12 @@ class Query(object):
         cli_command = self.provider.commandline()
         stdout, stderr, return_code = execute_remote(
                 self._remote_host, cli_command, self._query.encode('utf8'))
+        try:
+            stderr = decode_unicode_bytes(stderr)
+        except UnicodeDecodeError:
+            # it'll print as a byte stream
+            pass
+
         if len(stdout) == 0 or return_code != 0:
             LOG.warning('query stderr:\n%s', stderr)
             raise RuntimeError("Failed query with return code %d" % return_code)
@@ -285,6 +288,7 @@ class CachedQuery(Query):
     def fetch(self):
         try:
             with codecs.open(self._cache_path, 'r', 'utf-8') as f:
+                LOG.debug("Returning cached query result.")
                 return pickle.load(f)
         except IOError:
             LOG.debug("No cached query result available.")

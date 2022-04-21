@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
+from elasticsearch import Elasticsearch
 import pickle
 import tempfile
 
-import elasticsearch
 import pytest
 
 import relforge.cli_utils as cli
@@ -31,7 +31,7 @@ def test_load_pkl():
 def test_make_elasticsearch_args():
     loader = cli.with_elasticsearch(ArgumentParser())
     args = loader({'es': 'localhost:9200'})
-    assert isinstance(args['es'], elasticsearch.Elasticsearch)
+    assert isinstance(args['es'], Elasticsearch)
 
 
 @pytest.mark.parametrize('min_val,max_val,raw_val,expected', [

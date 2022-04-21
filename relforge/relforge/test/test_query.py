@@ -30,7 +30,7 @@ def make_query(query_class=Query, **kwargs):
             'variables': {},
             'query': 'SELECT x, y FROM ...',
         }
-        f.write(yaml.dump(dict(defaults, **kwargs)))
+        f.write(yaml.safe_dump(dict(defaults, **kwargs)))
         f.flush()
         return query_class(lambda x=None: settings if x is None else settings[x])
 
@@ -106,7 +106,7 @@ def test_mysql_provider_parse():
 def test_to_df(mocker):
     mocker.patch.object(
         relforge.query, 'execute_remote',
-        return_value=('some useless text', '', 0))
+        return_value=(b'some useless text', b'', 0))
     df = make_query(
         columns=['z', 'y', 'x'],
         servers=[{

@@ -1580,7 +1580,7 @@ lucene_explain_RootExplainParser = {
 
 lucene_explain_RootExplainParser_multiple_rescore = {
     'value': (query_RootExplainParser_multiple_rescore['rescore'][1]['query']['query_weight'] *
-             (lucene_explain_MatchQueryExplainParser['value'] + lucene_explain_FunctionScoreExplainParser['value'])) +  # noqa: E128, E501
+              (lucene_explain_MatchQueryExplainParser['value'] + lucene_explain_FunctionScoreExplainParser['value'])) +  # noqa: E501
              (query_RootExplainParser_multiple_rescore['rescore'][1]['query']['rescore_query_weight'] * lucene_explain_FunctionScoreExplainParser['value']),  # noqa: E131, E501
     'description': 'sum of:',
     'details': [
