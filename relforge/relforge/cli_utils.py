@@ -36,26 +36,45 @@ def load_pkl(in_path):
     return next(iterate_pickle(in_path))
 
 
-def load_sql_query(yaml_path):
+def load_kv_pairs(pairs_str):
+    """Load dict from string formatted as: k1=v1,k2=v2"""
+    if not pairs_str:
+        return dict()
+    return dict(pair.split('=', 2) for pair in pairs_str.split(','))
+
+
+def load_sql_query(yaml_path, template_variables=None):
     import configparser
     from relforge.query import Query
+
+    if template_variables is None:
+        template_variables = {}
+    if 'limit' not in template_variables:
+        template_variables['limit'] = str(1e9)
 
     def settings(key=None):
         if key == 'query':
             return yaml_path
         elif key is None:
-            return {  # Templating variables
-                'limit': str(1e9)
-            }
+            return template_variables
         else:
             raise configparser.NoOptionError(key, None)
 
     return Query(settings)
 
 
-def make_elasticsearch_args(args):
-    """Helper to make elasticsearch client from with_args loader"""
-    return dict(args, es=elasticsearch.Elasticsearch(args['es']))
+def make_loader(fn, *arg_names, prune=[], **kwargs):
+    # arg names with leading ? optionally pass None
+    def inner(args):
+        value = fn(*(
+            args.get(name[1:]) if name[0] == '?' else args[name]
+            for name in arg_names), **kwargs)
+        result_args = dict(args, **{arg_names[0]: value})
+        for key in prune:
+            if key in result_args:
+                del result_args[key]
+        return result_args
+    return inner
 
 
 def with_arg(*args, **kwargs):
@@ -177,5 +196,10 @@ def generate_cli():
 
 
 with_pkl_df = with_arg('-d', '--dataframe', dest='df', type=load_pkl, required=True)
-with_elasticsearch = with_arg('--elasticsearch', dest='es', loader=make_elasticsearch_args, default='localhost:9200')
-with_sql_query = with_arg('--sql-query', dest='sql_query', type=load_sql_query, required=True)
+with_elasticsearch = with_arg(
+    '--elasticsearch', dest='es', default='localhost:9200',
+    loader=make_loader(elasticsearch.Elasticsearch, 'es', verify_certs=not os.environ.get('RELFORGE_SKIP_CERTS')))
+with_sql_vars = with_arg('--sql-vars', dest='sql_vars', type=load_kv_pairs, default={}, required=False)
+with_sql_query = with_arg(
+    '--sql-query', dest='sql_query', required=True,
+    loader=make_loader(load_sql_query, 'sql_query', '?sql_vars', prune=['sql_vars']))

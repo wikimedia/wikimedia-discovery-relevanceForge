@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 import pickle
 import tempfile
 
@@ -28,7 +29,8 @@ def test_load_pkl():
 
 
 def test_make_elasticsearch_args():
-    args = cli.make_elasticsearch_args({'es': 'localhost:9200'})
+    loader = cli.with_elasticsearch(ArgumentParser())
+    args = loader({'es': 'localhost:9200'})
     assert isinstance(args['es'], elasticsearch.Elasticsearch)
 
 

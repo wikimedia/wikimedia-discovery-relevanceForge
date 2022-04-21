@@ -19,7 +19,7 @@ from tqdm import tqdm
 
 from relforge.cli_utils import \
     iterate_pickle, load_pkl, with_arg, bounded_float, positive_int, \
-    with_pkl_df, with_elasticsearch, with_sql_query, \
+    with_pkl_df, with_elasticsearch, with_sql_query, with_sql_vars,\
     DELETE_ON_ERROR, DELETE_ON_EXIT, generate_cli
 from relforge_wbsearchentities.explain_parser import \
     explain_parser_from_root, parse_hits, merge_explains
@@ -149,7 +149,7 @@ with_train_report = with_arg('--train-report', dest='train_report', type=load_pk
 main = generate_cli()
 
 
-@main.command(with_sql_query)
+@main.command(with_sql_query, with_sql_vars)
 def fetch_source(sql_query, out_path):
     """Load input dataset from sql query definition"""
     df_raw = sql_query.to_df()
