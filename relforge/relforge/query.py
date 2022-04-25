@@ -208,7 +208,8 @@ def execute_remote(remote_host, cli_command, input):
                          stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
 
-    return p.communicate(input=input)
+    stdout, stderr = p.communicate(input=input)
+    return stdout, stderr, p.returncode
 
 
 class Query(object):
@@ -252,12 +253,13 @@ class Query(object):
 
     def fetch(self):
         cli_command = self.provider.commandline()
-        stdout, stderr = execute_remote(
+        stdout, stderr, return_code = execute_remote(
                 self._remote_host, cli_command, self._query.encode('utf8'))
-        if len(stdout) == 0:
-            raise RuntimeError("Couldn't run SQL query:\n%s" % (stderr))
+        if len(stdout) == 0 or return_code != 0:
+            LOG.warning('query stderr:\n%s', stderr)
+            raise RuntimeError("Failed query with return code %d" % return_code)
         if len(stderr):
-            LOG.debug('query stderr: %s', stderr)
+            LOG.debug('query stderr:\n%s', stderr)
 
         try:
             output = decode_unicode_bytes(stdout).split("\n")

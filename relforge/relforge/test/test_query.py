@@ -106,7 +106,7 @@ def test_mysql_provider_parse():
 def test_to_df(mocker):
     mocker.patch.object(
         relforge.query, 'execute_remote',
-        return_value=('some useless text', ''))
+        return_value=('some useless text', '', 0))
     df = make_query(
         columns=['z', 'y', 'x'],
         servers=[{
