@@ -12,6 +12,10 @@ requirements = [
     'requests',
     'tensorflow<2.0.0',
     'tqdm',
+    # only for reporting
+    'bokeh',
+    'jupyter',
+    'matplotlib',
 ]
 
 test_requirements = [

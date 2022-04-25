@@ -21,6 +21,8 @@ TF_BATCH_SIZE=4096
 RELFORGE_ETC_DIR = ./etc
 DATASET_DIR = ../tf-ltr-data/$(DATASET_NAME)
 PYTHON_PATH = ../relforge-venv/bin/python
+REPORT_SRC_DIR = ../reports
+REPORT_NOTEBOOK = $(REPORT_SRC_DIR)/wbsearchentitities-explain_tuning_analysis.ipynb
 
 # Variations to build models for such as item_en or item_de
 DATASET_VARIATIONS = $(shell cat $(DATASET_RAW).meta 2>/dev/null)
@@ -38,11 +40,15 @@ EXPLAIN_DIR = $(DATASET_DIR)/explain
 TFRECORD_DIR = $(DATASET_DIR)/tfrecord
 MODEL_DIR = $(DATASET_DIR)/model
 SENSITIVITY_DIR = $(DATASET_DIR)/sensitivity
+REPORT_DIR = $(DATASET_DIR)/report
 
 # Point to files that will never exist, so they always run?
 # There is probably a better way to do this
 DEBUG_DIR = /dev/null
 
+# Template that will be expanded with per-line contents of $(DATASET_RAW).meta.
+# $(1) will be values such as item_de, property_zh, etc. Generates variables
+# containing all target files.
 define VARIANT_DST_template =
 QUERY_$(1)_DST = $$(wildcard $$(QUERY_DIR)/*.$(1).pkl.gz)
 QUERY_DST += $$(QUERY_$(1)_DST)
@@ -76,6 +82,10 @@ EVAL_MODEL_DST += eval-$(1)
 # Analyze the sensitivity of chosen parameters
 SENSITIVITY_$(1)_DST = $$(SENSITIVITY_DIR)/sensitivity.$(1).pkl.gz
 SENSITIVITY_DST += $$(SENSITIVITY_$(1)_DST)
+
+# HTML tuning report
+REPORT_$(1)_DST = $$(REPORT_DIR)/report.$(1).html
+REPORT_DST += $$(REPORT_$(1)_DST)
 endef
 
 $(foreach variant,$(DATASET_VARIATIONS), \
@@ -88,10 +98,10 @@ QUERY_SPLITS_COMPLETE = $(QUERY_DIR)/.complete
 
 # First target in makefile, used when no arguments given
 .PHONY: all
-all: model
+all: report
 
 # Basic cleanups
-.PHONY: clean clean-source clean-queries clean-explain clean-equation clean-tfrecord clean-sensitivity
+.PHONY: clean clean-source clean-queries clean-explain clean-equation clean-tfrecord clean-sensitivity clean-report
 clean: clean-source
 	rm -rf $(DATASET_DIR)
 
@@ -113,8 +123,11 @@ clean-tfrecord: clean-model
 clean-model: clean-sensitivity
 	rm -rf $(MODEL_DIR)
 
-clean-sensitivity:
+clean-sensitivity: clean-report
 	rm -rf $(SENSITIVITY_DIR)
+
+clean-report:
+	rm -rf $(REPORT_DIR)
 
 
 # Import the dataset. Uses order only dependency to prevent
@@ -137,6 +150,9 @@ $(QUERY_SPLITS_COMPLETE): $(DATASET_RAW)
 		--resample $(RESAMPLE)
 	touch $@
 
+# Template that will be expanded with per-line contents of $(DATASET_RAW).meta.
+# $(1) will be values such as item_de, property_zh, etc. Generates rules
+# from the DST variables populated by VARIANT_DST_template.
 define VARIANT_RULE_template =
 
 # Fetch Cirrus queries for each (context, language) pair
@@ -226,15 +242,23 @@ $$(SENSITIVITY_$(1)_DST): $$(MODEL_$(1)_DST)
 		--resample "$$(RESAMPLE)" \
 		--sensitivity-width "$$(SENSITIVITY_WIDTH)"
 
-.PHONY: cirrus-query-$(1) explain-$(1) equation-$(1) tfrecord-$(1) model-$(1) sensitivity-$(1)
+$$(REPORT_$(1)_DST): $$(SENSITIVITY_$(1)_DST) $(REPORT_NOTEBOOK)
+	@mkdir -p $$(REPORT_DIR)
+	WIKIDATA_VARIANT=$(1) DATASET_DIR=$$(DATASET_DIR) $$(PYTHON) -m jupyter nbconvert --to notebook --output $$(REPORT_$(1)_DST).ipynb --execute $$(REPORT_NOTEBOOK)
+	# output is relative to input and doesn't accept absolute paths
+	$$(PYTHON) -m jupyter nbconvert --to html --no-input --output `basename $$(REPORT_$(1)_DST)` $$(REPORT_$(1)_DST).ipynb
+	rm $$(REPORT_$(1)_DST).ipynb
+
+.PHONY: cirrus-query-$(1) explain-$(1) equation-$(1) tfrecord-$(1) model-$(1) sensitivity-$(1) report-$(1)
 cirrus-query-$(1): $$(CIRRUS_QUERY_$(1)_DST)
 explain-$(1): $$(EXPLAIN_$(1)_DST)
 equation-$(1): $$(EQUATION_$(1)_DST)
 tfrecord-$(1): $$(TFRECORD_$(1)_DST)
 model-$(1): $$(MODEL_$(1)_DST)
 sensitivity-$(1): $$(SENSITIVITY_$(1)_DST)
+report-$(1): $$(REPORT_$(1)_DST)
 
-.PHONY: clean-cirrus-query-$(1) clean-explain-$(1) clean-equation-$(1) clean-tfrecord-$(1) clean-model-$(1) clean-sensitivity-$(1) clean-$(1)
+.PHONY: clean-cirrus-query-$(1) clean-explain-$(1) clean-equation-$(1) clean-tfrecord-$(1) clean-model-$(1) clean-sensitivity-$(1) clean-report-$(1) clean-$(1)
 clean-cirrus-query-$(1): clean-explain-$(1) clean-equation-$(1)
 	rm -f $$(CIRRUS_QUERY_$(1)_DST)
 clean-explain-$(1): clean-tfrecord-$(1)
@@ -245,8 +269,10 @@ clean-tfrecord-$(1): clean-model-$(1)
 	rm -f $$(TFRECORD_$(1)_DST)
 clean-model-$(1): clean-sensitivity-$(1)
 	rm -f $$(MODEL_$(1)_DST)
-clean-sensitivity-$(1):
+clean-sensitivity-$(1): clean-report-$(1)
 	rm -f $$(SENSITIVITY_$(1)_DST)
+clean-report-$(1):
+	rm -f $$(REPORT_$(1)_DST)
 clean-$(1): clean-cirrus-query-$(1)
 endef
 
@@ -265,6 +291,7 @@ debug-tfrecord: $(DEBUG_TFRECORD_DST)
 model: $(MODEL_DST)
 eval: $(EVAL_MODEL_DST)
 sensitivity: $(SENSITIVITY_DST)
+report: $(REPORT_DST)
 
 # Debug helper. print any variable, such as:
 #   make -f Makefile.tf_autocomplete print-MODEL_DST
