@@ -2,7 +2,6 @@ import logging
 import time
 
 import hyperopt
-import numba
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -10,12 +9,17 @@ import tensorflow as tf
 
 use_numba = True
 if use_numba:
-    njit = numba.njit
-else:
-    def njit(parallel=False):
+    try:
+        from numba import njit, prange
+    except ImportError:
+        use_numba = False
+if not use_numba:
+    def njit(parallel=False):  # noqa: F811
         def inner(fn):
             return fn
         return inner
+
+    prange = range  # noqa: F811
 
 
 log = logging.getLogger(__name__)
@@ -317,7 +321,7 @@ class AutocompleteEvaluator(object):
         """
         top_k = result.shape[1]
         scores = scores.ravel()[sort_idx]
-        for i in numba.prange(len(indptr) - 1):
+        for i in prange(len(indptr) - 1):
             search_scores = scores[indptr[i]:indptr[i+1]]
             # argsorts always sorts low to high, so take last top_k
             # and reverse with ::-1
@@ -354,7 +358,7 @@ class AutocompleteEvaluator(object):
             result of applying metric to each row of clickthroughs
         """
         out = np.empty(clickthroughs.shape[0], dtype=np.float32)
-        for i in numba.prange(clickthroughs.shape[0]):
+        for i in prange(clickthroughs.shape[0]):
             cat_id, clickpage = clickthroughs[i]
             # list of cat_ids for prefix searches on cat_id
             # from shortest to longest
