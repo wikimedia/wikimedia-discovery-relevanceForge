@@ -4,22 +4,7 @@ import re
 
 RE_NAME_FIXER = re.compile(r'[^A-Za-z0-9_.\-/]')
 # A common explain seen in various things that should be ignored.
-MATCH_ALL_EXPLAIN = {
-    'value': 1.0,
-    'description': '*:*, product of:',
-    'details': [
-        {
-            'value': 1.0,
-            'description': 'boost',
-            'details': [],
-        },
-        {
-            'value': 1.0,
-            'description': 'queryNorm',
-            'details': [],
-        }
-    ]
-}
+MATCH_ALL_EXPLAIN = {'description': '*:*', 'value': 1.0, 'details': []}
 
 
 def isclose(a, b, atol=1e-6):

@@ -213,7 +213,7 @@ def fetch_wbsearchentities_query(out_path, context, language, api_url):
         'type': context,
         'language': language,
         'cirrusDumpQuery': 1,
-    }).json()['query']
+    }).json()['__main__']['query']
 
     with GzipFile(out_path, 'wb') as f:
         pickle.dump(es_query, f, pickle.HIGHEST_PROTOCOL)

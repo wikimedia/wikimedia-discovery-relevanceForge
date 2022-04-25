@@ -124,7 +124,7 @@ def explain_parser_from_query(query, name_prefix):
 def parser_for_template_query(options, name_prefix):
     # Templates are invisible in the returned explain
     # TODO: apply template?
-    return explain_parser_from_query(options['inline'], name_prefix)
+    return explain_parser_from_query(options['source'], name_prefix)
 
 
 class IncorrectExplainException(Exception):

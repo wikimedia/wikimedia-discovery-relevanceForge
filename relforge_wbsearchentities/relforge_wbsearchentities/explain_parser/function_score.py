@@ -17,6 +17,7 @@ from relforge_wbsearchentities.explain_parser.core import (
     SumExplain,
     TunableVariableExplain
 )
+from relforge_wbsearchentities.explain_parser.match_all import MatchAllExplainParser
 from relforge_wbsearchentities.explain_parser.utils import join_name, isclose
 
 FLT_MAX = 3.4028235e+38  # in elasticsearch
@@ -57,10 +58,18 @@ class FunctionScoreFunctionExplainParser(BaseExplainParser):
             ' '.join('{}={}'.format(key, repr(value)) for key, value in self.parsers.items()))
 
     def parse(self, base_lucene_explain):
-        assert base_lucene_explain['description'] == 'function score, product of:'
+        assert base_lucene_explain['description'] == 'product of:'
         assert len(base_lucene_explain['details']) == 2
-        filter_lexplain, lucene_explain = base_lucene_explain['details']
-        filter_explain = self.parsers['filter'].parse(filter_lexplain)
+        # elastic appears to optimize a level away when a match_all is used
+        if isinstance(self.parsers['filter'].filter_parser, MatchAllExplainParser):
+            lucene_explain = base_lucene_explain
+            filter_explain = self.parsers['filter'].parse({
+                'description': self.parsers['filter'].desc_prefix,
+                'value': 1,
+                'details': []})
+        else:
+            filter_lexplain, lucene_explain = base_lucene_explain['details']
+            filter_explain = self.parsers['filter'].parse(filter_lexplain)
 
         assert lucene_explain['description'] == 'product of:'
         parsers = []
@@ -140,7 +149,7 @@ class FunctionScoreScriptScoreExplainParser(BaseExplainParser):
         # There are more options, but for now support one specific use case
         script = options['script']
         assert len(script) == 2
-        satu = RE_SATU.match(script['inline'])
+        satu = RE_SATU.match(script['source'])
         if satu:
             field = satu.group(1)
             a = float(satu.group(2))
@@ -149,10 +158,10 @@ class FunctionScoreScriptScoreExplainParser(BaseExplainParser):
             k = float(satu.group(5))
             assert a == float(satu.group(6))
             return FunctionScoreSatuExplainParser(
-                script['lang'], script['inline'],
+                script['lang'], script['source'],
                 field, a, k, name_prefix)
         else:
-            return FunctionScoreScriptScoreExplainParser(script['lang'], script['inline'], name_prefix)
+            return FunctionScoreScriptScoreExplainParser(script['lang'], script['source'], name_prefix)
 
     def parse(self, lucene_explain):
         if lucene_explain['description'] != self.desc:

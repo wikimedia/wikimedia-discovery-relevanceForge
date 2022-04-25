@@ -102,7 +102,7 @@ register_test(
 
 query_FunctionScoreScriptScoreExplainParser = {
     "script": {
-        "inline": "pow(doc['incoming_links'].value , 1) / ( pow(doc['incoming_links'].value, 1) + pow(100,1))",  # noqa: E501
+        "source": "pow(doc['incoming_links'].value , 1) / ( pow(doc['incoming_links'].value, 1) + pow(100,1))",  # noqa: E501
         "lang": "expression"
     }
 }
@@ -176,7 +176,7 @@ query_FunctionScoreFunctionExplainParser = {
 
 lucene_explain_FunctionScoreFunctionExplainParser = {
     'value': 0.53710693,
-    'description': 'function score, product of:',
+    'description': 'product of:',
     'details': [
         lucene_explain_FunctionScoreFilterExplainParser,
         {
@@ -217,7 +217,7 @@ query_FunctionScoreFunctionExplainParser_2 = {
 
 lucene_explain_FunctionScoreFunctionExplainParser_2 = {
     'value': lucene_explain_FunctionScoreWeightExplainParser['value'],
-    'description': 'function score, product of:',
+    'description': 'product of:',
     'details': [
         lucene_explain_FunctionScoreFilterExplainParser,
         {
@@ -2010,7 +2010,7 @@ def test_FunctionScoreExplainParser_merge_same_weight_filters():
                             'details': [
                                 {
                                     'value': value * weight,
-                                    'description': 'function score, product of:',
+                                    'description': 'product of:',
                                     'details': [
                                         term_explain,
                                         {
