@@ -26,12 +26,20 @@ use Getopt::Std;
 our ($opt_a, $opt_d, $opt_h, $opt_i, $opt_p, $opt_t, $opt_1, $opt_2);
 getopts('a:d:h:i:p:t:12');
 
+my %default_config = (
+	'host' => 'elasticsearch',
+	'port' => '9200',
+	'index' => 'my_wiki_content',
+	'analyzer' => 'text',
+	'tag' => 'baseline',
+	);
+
 # -h host, -p port, -i index, -a analyzer
-my $host = $opt_h || 'localhost';
-my $port = $opt_p || '9200';
-my $index = $opt_i || 'wiki_content';
-my $analyzer = $opt_a || 'text';
-my $tag = $opt_t || 'baseline';
+my $host = $opt_h || $default_config{'host'};
+my $port = $opt_p || $default_config{'port'};
+my $index = $opt_i || $default_config{'index'};
+my $analyzer = $opt_a || $default_config{'analyzer'};
+my $tag = $opt_t || $default_config{'tag'};
 my $dir = $opt_d;
 
 # -1: prep 1-token-per-line output for external stemmer
@@ -49,12 +57,12 @@ if ( $ext_stem_in && $ext_stem_out ) {
 	}
 
 if ( $ext_stem_in && scalar(@ARGV) != 2 ) {
-	usage("External stemmer input requires token counts file and stemmed tokens file.");
+	usage('External stemmer input requires token counts file and stemmed tokens file.');
 	exit;
 	}
 
 if ( ! $ext_stem_in && scalar(@ARGV) != 1 ) {
-	usage("Input text file required.");
+	usage('Input text file required.');
 	exit;
 	}
 
@@ -294,7 +302,7 @@ sub urlize {
 
 # user-defined character class for high-value Unicode characters
 sub InSurrogates {
-        return <<'END';
+        return <<END;
 10000	FFFCFF
 END
     }
@@ -307,21 +315,21 @@ sub usage {
 	if ($msg) {
 		print "Error: $msg\n\n";
 		}
-print <<"USAGE";
+print <<USAGE;
 usage: $0  [-t <tag>] [-d <dir>]
     [-h <host>] [-p <port>] [-i <index>] [-a <analyzer>]
     [-1] <input_file>.txt | -2 <input_counts>.txt <input_stemmed>.txt
 
-    -t <tag>   tag added to the names of output files (default: baseline)
+    -t <tag>   tag added to the names of output files (default: $default_config{'tag'})
                  e.g., <input_file>.counts.<tag>.txt
     -d <dir>   directory output files should be written to
                  (default: same as <input_file>.txt or <input_stemmed>.txt)
 
-    -h <host>  specify host for analysis (default: localhost)
-    -p <port>  specify port for analysis (default: 9200)
-    -i <index> specify index for analysis (default: wiki_content)
+    -h <host>  specify host for analysis (default: $default_config{'host'})
+    -p <port>  specify port for analysis (default: $default_config{'port'})
+    -i <index> specify index for analysis (default: $default_config{'index'})
     -a <analyzer>
-               specify analyzer for analysis (default: text)
+               specify analyzer for analysis (default: $default_config{'analyzer'})
 
       Analyzer information is used for normal processing, or when creating
       output for an external stemmer (-1), but not when using input from an

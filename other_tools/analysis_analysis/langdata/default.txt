@@ -21,24 +21,69 @@ fold	ā	a
 fold	ả	a
 fold	ạ	a
 fold	ặ	a
+fold	ɑ	a
+fold	ɒ	a
+fold	ɐ	a
 fold	Á	A
 fold	Â	A
 fold	Å	A
 fold	Ä	A
 fold	Ā	A
+fold	À	A
+fold	Ă	A
+fold	Ắ	A
+fold	Ấ	A
+fold	Ầ	A
+fold	Ẫ	A
+fold	Ã	A
+fold	Ą	A
+fold	Ả	A
+fold	Ạ	A
+fold	Ặ	A
+fold	Ɑ	A
+fold	Ɒ	A
+fold	Ɐ	A
+fold	Ə	A
+fold	ə	a
 fold	Ć	C
 fold	Č	C
 fold	Ç	C
+fold	Ĉ	C
 fold	ć	c
 fold	č	c
 fold	ç	c
+fold	ĉ	c
+fold	ɕ	c
+fold	Ď	D
+fold	Đ	D
+fold	Ð	D
+fold	Ɗ	D
+fold	Ḍ	D
 fold	ď	d
 fold	đ	d
+fold	ð	d
+fold	ɗ	d
+fold	ḍ	d
 fold	É	E
 fold	È	E
 fold	Ê	E
 fold	Ē	E
-fold	Ə	E
+fold	Ě	E
+fold	Ë	E
+fold	ᴇ	E
+fold	Ḕ	E
+fold	Ɇ	E
+fold	Ĕ	E
+fold	Ȅ	E
+fold	Ȇ	E
+fold	Ȩ	E
+fold	Ḗ	E
+fold	Ḙ	E
+fold	Ḛ	E
+fold	Ḝ	E
+fold	Ẻ	E
+fold	Ễ	E
+fold	ɇ	e
 fold	é	e
 fold	è	e
 fold	ê	e
@@ -53,25 +98,45 @@ fold	ę	e
 fold	ē	e
 fold	ẹ	e
 fold	ệ	e
-fold	ə	e
 fold	ɛ	e
+fold	ɜ	e
 fold	ɘ	e
 fold	ᵉ	e
+fold	ᶒ	e
+fold	ℯ	e
+fold	ⱸ	e
+fold	ḕ	e
+fold	ĕ	e
+fold	ȅ	e
+fold	ễ	e
+fold	ȇ	e
+fold	ȩ	e
+fold	ḗ	e
+fold	ḙ	e
+fold	ḛ	e
+fold	ḝ	e
+fold	ẻ	e
 fold	℉	F
+fold	ƒ	f
 fold	ǵ	g
 fold	ğ	g
 fold	ĝ	g
 fold	ģ	g
+fold	ɡ	g
+fold	ġ	g
 fold	Ģ	G
 fold	Ḥ	H
+fold	ʜ	H
 fold	ḥ	h
 fold	ḫ	h
 fold	ʰ	h
+fold	ɦ	h
 fold	Í	I
 fold	Î	I
 fold	Ī	I
 fold	Î	I
 fold	İ	I
+fold	ɪ	I
 fold	í	i
 fold	ì	i
 fold	ĭ	i
@@ -82,16 +147,21 @@ fold	ī	i
 fold	ı	i
 fold	ɨ	i
 fold	î	i
-fold	ɨ	i
+fold	į	i
+fold	ĩ	i
 fold	ʲ	j
+fold	ĵ	j
+fold	ɟ	j
 fold	ķ	k
 fold	Ķ	K
 fold	Ľ	L
 fold	Ł	L
+fold	ᴸ	L
 fold	ļ	l
 fold	ł	l
 fold	ḷ	l
 fold	ℓ	l
+fold	ɫ	l
 fold	ṃ	m
 fold	Ñ	N
 fold	ⁿ	n
@@ -101,6 +171,8 @@ fold	ñ	n
 fold	ṅ	n
 fold	ņ	n
 fold	ṇ	n
+fold	ŋ	n
+fold	ɲ	n
 fold	Ó	O
 fold	Ö	O
 fold	Ø	O
@@ -125,6 +197,9 @@ fold	ŕ	r
 fold	ř	r
 fold	ɾ	r
 fold	ʳ	r
+fold	ɽ	r
+fold	ʁ	R
+fold	ʀ	R
 fold	Ś	S
 fold	Š	S
 fold	Ş	S
@@ -136,14 +211,22 @@ fold	ṣ	s
 fold	ș	s
 fold	ʂ	s
 fold	ſ	s
-fold	ʂ	s
+fold	ˢ	s
+fold	ŝ	s
 fold	Ţ	T
 fold	ť	t
 fold	ţ	t
 fold	ț	t
+fold	ʈ	t
+fold	ṭ	t
 fold	Ú	U
 fold	Ü	U
 fold	Ū	U
+fold	Ũ	U
+fold	Ù	U
+fold	Û	U
+fold	Ǔ	U
+fold	Ű	U
 fold	ú	u
 fold	ù	u
 fold	û	u
@@ -151,9 +234,12 @@ fold	ǔ	u
 fold	ü	u
 fold	ű	u
 fold	ū	u
-fold	ʷ	u
+fold	ũ	u
+fold	ʋ	v
+fold	ʷ	w
 fold	ý	y
 fold	ÿ	y
+fold	ʏ	Y
 fold	Ž	Z
 fold	ȝ	z
 fold	ź	z
@@ -161,11 +247,14 @@ fold	ž	z
 fold	ż	z
 fold	ʐ	z
 fold	ʑ	z
+fold	Æ	AE
 fold	æ	ae
+fold	Ǣ	AE
+fold	ǣ	ae
+fold	Ǽ	AE
+fold	ǽ	ae
 fold	þ	Th
 fold	Þ	th
-fold	ð	th
-fold	Đ	Th
 fold	œ	oe
 fold	Œ	Oe
 fold	ß	ss
@@ -324,6 +413,9 @@ fold	ϱ	ρ
 fold	ϲ	σ
 fold	ϒ	Υ
 fold	ϕ	φ
+fold	ᵝ	β
+fold	ή	η
+fold	ἣ	η
 
 # misc
 fold	㎝	cm
@@ -338,9 +430,9 @@ fold	³	3
 fold	⁴	4
 fold	ª	a
 fold	º	o
-fold	­	
+fold	­
 fold	ℛ	r
-fold	ℏ	ħ
+fold	ℏ	h
 
 # variants in circles and parens
 fold	⑩	10
@@ -533,11 +625,11 @@ fold	ｷ	キ
 
 # Weird spaces
 # characters below--the first element of each of these is not empty!
-fold	‬	
-fold	﻿	
-fold	‬	
-fold	‪	
-fold	‎	
+fold	‬
+fold	﻿
+fold	‬
+fold	‪
+fold	‎
 
 # precomposed Roman numerals
 fold	ⅽ	c
@@ -578,3 +670,165 @@ fold	‘	'
 fold	’	'
 fold	“	"
 fold	”	"
+
+# diacritics to ignore
+fold	ˈ
+
+# Japanese
+fold	ー
+fold	ヾ	ヽ
+fold	〢	二
+fold	ぁ	あ
+fold	ァ	ア
+fold	ぃ	い
+fold	ィ	イ
+fold	ぅ	う
+fold	ゥ	ウ
+fold	ヴ	ウ
+fold	ぇ	え
+fold	ェ	エ
+fold	ぉ	お
+fold	ォ	オ
+fold	ヵ	カ
+fold	が	か
+fold	ガ	カ
+fold	ぎ	き
+fold	ギ	キ
+fold	ぐ	く
+fold	グ	ク
+fold	ヶ	ケ
+fold	げ	け
+fold	ゲ	ケ
+fold	ご	こ
+fold	ゴ	コ
+fold	ざ	さ
+fold	ザ	サ
+fold	じ	し
+fold	ジ	シ
+fold	ず	す
+fold	ズ	ス
+fold	ぜ	せ
+fold	ゼ	セ
+fold	ぞ	そ
+fold	ゾ	ソ
+fold	だ	た
+fold	ダ	タ
+fold	ぢ	ち
+fold	ヂ	チ
+fold	っ	つ
+fold	ッ	ツ
+fold	づ	つ
+fold	ヅ	ツ
+fold	で	て
+fold	デ	テ
+fold	ど	と
+fold	ド	ト
+fold	ば	は
+fold	バ	ハ
+fold	ぱ	は
+fold	パ	ハ
+fold	び	ひ
+fold	ビ	ヒ
+fold	ぴ	ひ
+fold	ピ	ヒ
+fold	ぶ	ふ
+fold	ブ	フ
+fold	ぷ	ふ
+fold	プ	フ
+fold	べ	へ
+fold	ベ	ヘ
+fold	ぺ	へ
+fold	ペ	ヘ
+fold	ぼ	ほ
+fold	ボ	ホ
+fold	ぽ	ほ
+fold	ポ	ホ
+fold	ゃ	や
+fold	ャ	ヤ
+fold	ゅ	ゆ
+fold	ュ	ユ
+fold	ょ	よ
+fold	ョ	ヨ
+fold	ゎ	わ
+fold	ヮ	ワ
+fold	ヷ	ワ
+fold	ヸ	ヰ
+fold	ヹ	ヱ
+fold	ヺ	ヲ
+fold	⺈	刀
+fold	⺊	卜
+fold	⺌	小
+fold	⺍	小
+fold	⺶	羊
+fold	⺸	羋
+fold	⺼	肉
+
+# fractur
+fold	𝔄	A
+fold	𝔅	B
+fold	ℭ	C
+fold	𝔇	D
+fold	𝔈	E
+fold	𝔉	F
+fold	𝔊	G
+fold	ℌ	H
+fold	ℑ	I
+fold	𝔍	J
+fold	𝔎	K
+fold	𝔏	L
+fold	𝔐	M
+fold	𝔑	N
+fold	𝔒	O
+fold	𝔓	P
+fold	𝔔	Q
+fold	ℜ	R
+fold	𝔖	S
+fold	𝔗	T
+fold	𝔘	U
+fold	𝔙	V
+fold	𝔚	W
+fold	𝔛	X
+fold	𝔜	Y
+fold	ℨ	Z
+fold	𝔞	a
+fold	𝔟	b
+fold	𝔠	c
+fold	𝔡	d
+fold	𝔢	e
+fold	𝔣	f
+fold	𝔤	g
+fold	𝔥	h
+fold	𝔦	i
+fold	𝔧	j
+fold	𝔨	k
+fold	𝔩	l
+fold	𝔪	m
+fold	𝔫	n
+fold	𝔬	o
+fold	𝔭	p
+fold	𝔮	q
+fold	𝔯	r
+fold	𝔰	s
+fold	𝔱	t
+fold	𝔲	u
+fold	𝔳	v
+fold	𝔴	w
+fold	𝔵	x
+fold	𝔶	y
+fold	𝔷	z
+
+# bidi marks: these are usually invisible *and* we fold them to nothing..
+# so these look like empty lines, but aren't (or shouldn't be).
+fold	‎
+fold	‪
+fold	‭
+fold	⁦
+fold	‏
+fold	‫
+fold	‮
+fold	⁧
+fold	؜
+
+fold	⁨
+fold	⁩
+fold	‬

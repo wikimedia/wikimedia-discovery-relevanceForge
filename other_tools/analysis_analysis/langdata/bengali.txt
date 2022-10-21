@@ -1,0 +1,17 @@
+# Bengali
+
+# Bengali digits
+fold	০	0
+fold	১	1
+fold	২	2
+fold	৩	3
+fold	৪	4
+fold	৫	5
+fold	৬	6
+fold	৭	7
+fold	৮	8
+fold	৯	9
+
+# অ+া ~ আ
+fold	অা	আ
+

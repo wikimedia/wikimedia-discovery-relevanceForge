@@ -70,6 +70,44 @@ fold	٧	7
 fold	٨	8
 fold	٩	9
 
+# Mongolian digits
+fold	᠐	0
+fold	᠑	1
+fold	᠒	2
+fold	᠓	3
+fold	᠔	4
+fold	᠕	5
+fold	᠖	6
+fold	᠗	7
+fold	᠘	8
+fold	᠙	9
+
+# New Tai Lue digits
+fold	᧐	0
+fold	᧑	1
+fold	᧒	2
+fold	᧓	3
+fold	᧔	4
+fold	᧕	5
+fold	᧖	6
+fold	᧗	7
+fold	᧘	8
+fold	᧙	9
+
+fold	᧚	1
+
+# Myanmar Shan digits
+fold	႐	0
+fold	႑	1
+fold	႒	2
+fold	႓	3
+fold	႔	4
+fold	႕	5
+fold	႖	6
+fold	႗	7
+fold	႘	8
+fold	႙	9
+
 # Gurmukhi digits
 fold	੦	0
 fold	੧	1

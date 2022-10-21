@@ -1,13 +1,13 @@
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
-    body { font-family:Helvetica; font-size:115%; }
-    th, td { text-align:left; border: 1px solid black; dir:auto;
-        padding:2px 3px; }
+    body { font-family:Helvetica, Noto Sans CJK JP; font-size:115%; }
+    th, td { text-align:left; border: 1px solid black; padding:2px 3px; }
     table { border-collapse: collapse; }
     .vtop tr td, .vtop tr th { vertical-align:top; }
-    .vcent tr td, .vcent tr td { vertical-align:center }
+    .vcent tr td, .vcent tr th { vertical-align:center; }
     tr:nth-child(even) { background: #f8f8f8; }
     tr.key td:nth-of-type(3n+1) { text-align:center; }
+    .vcent tr th:nth-of-type(3n+1) { text-align:center; }
     .red { color: red; font-weight: bold; }
     .hang { padding-left: 2em ; text-indent: -2em; }
     .invis { color:#57c6eb; cursor: help; }
@@ -17,14 +17,25 @@
     .rightCatDiv { float:right; clear:right; }
     .newCat { border-top: 2px solid black; }
     .TOC { font-size:60%; }
-    .diff { background-color:#ffffe8; }
-    .bigNum { color:blue }
+    .diff { background-color:#ffffdd; }
+    .bigNum { color:blue; }
+    .dirAuto, .dirAuto td { text-align: start; unicode-bidi: plaintext; }
+    .deemphasized { color:#C0C0C0; }
+    .lenStats { font-size: 75%; color:#999; }
+    .lenHist, .lenHist0, .lenHistNone { width:0.5em; display:inline-block; margin-top:8px; cursor:help; }
+    .lenHist { background-color:#ccc; }
+    .lenHist0 { background-color:#f00; }
+    .lenHistNone { background-color:#eee; }
+    .vertText { writing-mode:vertical-lr; }
+    .vertCont { display:inline-block; vertical-align:top; }
+	.uni { color:#808080 }
 	.ltn { color:#007700 }
 	.ben { color:#107896 }
 	.cyr { color:#ff0000 }
 	.dev { color:#e68d2e }
 	.grk { color:#0000ff }
-	.ltn, .ben, .cyr, .dev, .grk { cursor: help; }
+	.thai { color:#9400D3 }
+	.uni, .ltn, .ben, .cyr, .dev, .grk, .thai { cursor:help; }
 </style>
 
 <b>Processing samples/output/en.counts.unfolded.txt as 'old'.</b><br>
@@ -44,15 +55,17 @@
 
 &nbsp;&nbsp;&nbsp;<a href='#new_collision_near_match_stats'>New Collision Near Match Stats</a><br>
 <a href='#lost_and_found'>Lost and Found Tokens</a><br>
+&nbsp;&nbsp;&nbsp;<a href='#lost_and_found_pre'>Pre-analysis Lost and Found</a><br>
+&nbsp;&nbsp;&nbsp;<a href='#lost_and_found_post'>Post-analysis Lost and Found</a><br>
 <a href='#changed_collisions'>Changed Groups</a><br>
-
+&nbsp;&nbsp;&nbsp;<a href='#changed_collisions_increased'>Net Gains</a><br>
 <h3>Invisibles and Script Colors <a href=#TOC class=TOC>[TOC]</a></h3>
 <table class='vcent'><tr><th>symbol</th><th>invisible chars</th><th></th><th>symbol</th><th>invisible chars</th><th></th><th>color</th><th>script</th><th></th><th>color</th><th>script</th></tr>
-<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=ben title='Bengali script'>বাংলা</span></td><td>Bengali</td><td></td><td>あ가កกᎹیא</td><td>unlabelled</td></tr>
-<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>⅟</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=dev title='Devanagari script'>देवनागरी</span></td><td>Devanagari</td></tr>
+<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=ben title='Bengali script'>বাংলা</span></td><td>Bengali</td><td></td><td><span class=thai title='Thai script'>อักษรไทย</span></td><td>Thai</td></tr>
+<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td><td></td><td><span class=uni title='Unicode'>\uFFFD</span></td><td>Unicode</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C, 2063)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>∷</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=dev title='Devanagari script'>देवनागरी</span></td><td>Devanagari</td><td></td><td>あ가កᎹیא</td><td>unlabelled</td></tr>
 <tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
-<tr class='key'><td></td><td></td><td></td><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, 202F, FEFF, 00A0)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
+<tr class='key'><td><span class=invis title='VARIATION SELECTOR-1'>∵</span></td><td>variation selector<br>(FE00-FE0F, E0100-E01EF)</td><td></td><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, 202F, FEFF, 00A0)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
 </table>
 
 <a name='PPTTS'><h3>Pre/Post Type & Token Stats <a href=#TOC class=TOC>[TOC]</a></h3>
@@ -97,8 +110,8 @@ Note: All percentages are relative to old token/type counts.<br>
 
 <a name='new_collision_near_match_stats'><h3>New Collision Near Match Stats <a href=#TOC class=TOC>[TOC]</a></h3>
 <table class='vtop'><tr><th>type</th><th>token</th><th>kind</th></tr>
-<tr><td>62</td><td>109</td><td>folded</td></tr>
-<tr><td>11</td><td>14</td><td>other</td></tr>
+<tr><td>65</td><td>112</td><td>folded</td></tr>
+<tr><td>8</td><td>11</td><td>other</td></tr>
 </table>
 <br>
 <b>Key</b><br>
@@ -106,6 +119,10 @@ New collision type is a near match for a type already in the group after...<br>
 <div class=hang>&nbsp;&nbsp;&nbsp;<b>folded:</b> applying generic and language-specific character folding, de-spacing, and de-hyphenation</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>regulars:</b> removing language-specific regular prefixes and suffixes</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>folded_regulars:</b> applying generic and language-specific character folding, de-spacing, de-hyphenation, and removing language-specific regular prefixes and suffixes</div>Categories do not overlap. Types are post-analysis types<br>
 
 <a name='lost_and_found'><h3>Lost and Found Tokens <a href=#TOC class=TOC>[TOC]</a></h3>
+
+<a name='lost_and_found_pre'><h4>Pre_analysis Lost and Found <a href=#TOC class=TOC>[TOC]</a></h4>
+
+<a name='lost_and_found_post'><h4>Post_analysis Lost and Found <a href=#TOC class=TOC>[TOC]</a></h4>
 &bull; Lost (old only) post-analysis types/tokens: 484 / 674<br>
 &bull; Found (new only) post-analysis types/tokens: 409 / 551<br>
 <br>
@@ -118,100 +135,139 @@ New collision type is a near match for a type already in the group after...<br>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Arabic:</i> 6 types, 6 tokens<br>
-<blockquote>أبو &bull; جمعية &bull; عودة &bull; هزارگی &bull; کرمی &bull; یوسف<br>
+<blockquote class=dirAuto>أبو &bull; جمعية &bull; عودة &bull; هزارگی &bull; کرمی &bull; یوسف<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–6, n=6, µ=4.33, σ=0.94</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:6px;"></div><div title="len:4; freq:3" class=lenHist style="height:16px;"></div><div title="len:5; freq:1" class=lenHist style="height:6px;"></div><div title="len:6; freq:1" class=lenHist style="height:6px;"></div><br>
 </blockquote>
+
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Arabic:</i> 6 types, 6 tokens<br>
-<blockquote>ابو &bull; جمعيه &bull; عوده &bull; كرمي &bull; هزارگي &bull; يوسف<br>
+<blockquote class=dirAuto>ابو &bull; جمعيه &bull; عوده &bull; كرمي &bull; هزارگي &bull; يوسف<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–6, n=6, µ=4.33, σ=0.94</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:6px;"></div><div title="len:4; freq:3" class=lenHist style="height:16px;"></div><div title="len:5; freq:1" class=lenHist style="height:6px;"></div><div title="len:6; freq:1" class=lenHist style="height:6px;"></div><br>
 </blockquote>
+
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 6 types, 7 tokens<br>
-<blockquote>барсукоў &bull; валерій &bull; евгений &bull; новий &bull; події &bull; яўген<br>
+<blockquote class=dirAuto>барсукоў &bull; валерій &bull; евгений &bull; новий &bull; події &bull; яўген<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–8, n=6, µ=6.17, σ=1.21</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:3" class=lenHist style="height:16px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:2" class=lenHist style="height:11px;"></div><div title="len:8; freq:1" class=lenHist style="height:6px;"></div><br>
 </blockquote>
+
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 6 types, 7 tokens<br>
-<blockquote>барсукоу &bull; валеріи &bull; евгении &bull; новии &bull; подіі &bull; яуген<br>
+<blockquote class=dirAuto>барсукоу &bull; валеріи &bull; евгении &bull; новии &bull; подіі &bull; яуген<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–8, n=6, µ=6.17, σ=1.21</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:3" class=lenHist style="height:16px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:2" class=lenHist style="height:11px;"></div><div title="len:8; freq:1" class=lenHist style="height:6px;"></div><br>
 </blockquote>
+
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Devanagari:</i> 2 types, 2 tokens<br>
-<blockquote>कृष्णप्रसाद &bull; भट्टराई<br>
+<blockquote class=dirAuto>कृष्णप्रसाद &bull; भट्टराई<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 7–11, n=2, µ=9.00, σ=2.00</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:7; freq:1" class=lenHist style="height:16px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:10; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:11; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
+
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Devanagari:</i> 2 types, 2 tokens<br>
-<blockquote>कृषणपरसाद &bull; भटटराई<br>
+<blockquote class=dirAuto>कृषणपरसाद &bull; भटटराई<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 6–9, n=2, µ=7.50, σ=1.50</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:6; freq:1" class=lenHist style="height:16px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
+
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 4 types, 4 tokens<br>
-<blockquote>יִשְׂרְאֵלִית &bull; יִשׂרְאְלִיּוֹת &bull; לִירָה &bull; לִירוֹת<br>
+<blockquote class=dirAuto>יִשְׂרְאֵלִית &bull; יִשׂרְאְלִיּוֹת &bull; לִירָה &bull; לִירוֹת<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 6–15, n=4, µ=10.25, σ=3.83</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:6; freq:1" class=lenHist style="height:16px;"></div><div title="len:7; freq:1" class=lenHist style="height:16px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:10; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:1" class=lenHist style="height:16px;"></div><div title="len:14; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:15; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
+
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 2 types, 2 tokens<br>
-<blockquote>ישראליות &bull; לירות<br>
+<blockquote class=dirAuto>ישראליות &bull; לירות<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–8, n=2, µ=6.50, σ=1.50</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:1" class=lenHist style="height:16px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
+
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>IPA-ish:</i> 4 types, 4 tokens<br>
-<blockquote><span class=ltn title='Latin script'>flœʁ</span> &bull; <span class=ltn title='Latin script'>pɛl</span> &bull; <span class=ltn title='Latin script'>ɢ</span> &bull; <span class=ltn title='Latin script'>ɨ</span><br>
+<blockquote class=dirAuto><span class=ltn title='Latin script'>flœʁ</span> &bull; <span class=ltn title='Latin script'>pɛl</span> &bull; <span class=ltn title='Latin script'>ɢ</span> &bull; <span class=ltn title='Latin script'>ɨ</span><br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–4, n=4, µ=2.25, σ=1.30</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:2" class=lenHist style="height:16px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:9px;"></div><div title="len:4; freq:1" class=lenHist style="height:9px;"></div><br>
 </blockquote>
+
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish+comb:</i> 1 types, 1 tokens<br>
-<blockquote><span class=ltn title='Latin script'>ʁɛ</span>̃<br>
-</blockquote>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo:</i> 1 types, 1 tokens<br>
+<blockquote class=dirAuto><span class=ltn title='Latin script'>ʁɛ</span>̃<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type length: 3, n=1, µ=3, σ=0</span></blockquote>
+
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish+comb+mod:</i> 3 types, 3 tokens<br>
-<blockquote><span class=ltn title='Latin script'>ɡɔ</span>ˈ<span class=ltn title='Latin script'>ʂɨt</span>͡<span class=ltn title='Latin script'>sɛ</span> &bull; ˈ<span class=ltn title='Latin script'>e</span>ː<span class=ltn title='Latin script'>ija</span>ˌ<span class=ltn title='Latin script'>fjœrðʏr</span>̥ &bull; ˈ<span class=ltn title='Latin script'>ɕt</span>͡<span class=ltn title='Latin script'>ɕeɡnɨ</span><br>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo+mod:</i> 3 types, 3 tokens<br>
+<blockquote class=dirAuto><span class=ltn title='Latin script'>ɡɔ</span>ˈ<span class=ltn title='Latin script'>ʂɨt</span>͡<span class=ltn title='Latin script'>sɛ</span> &bull; ˈ<span class=ltn title='Latin script'>e</span>ː<span class=ltn title='Latin script'>ija</span>ˌ<span class=ltn title='Latin script'>fjœrðʏr</span>̥ &bull; ˈ<span class=ltn title='Latin script'>ɕt</span>͡<span class=ltn title='Latin script'>ɕeɡnɨ</span><br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 9–15, n=3, µ=11.00, σ=2.83</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:9; freq:2" class=lenHist style="height:16px;"></div><div title="len:10; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:14; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:15; freq:1" class=lenHist style="height:9px;"></div><br>
 </blockquote>
+
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish+mod:</i> 4 types, 4 tokens<br>
-<blockquote>ˈ<span class=ltn title='Latin script'>veɾð</span> &bull; ˈ<span class=ltn title='Latin script'>vilɐ</span> &bull; ˈ<span class=ltn title='Latin script'>zbraxlin</span> &bull; ˈ<span class=ltn title='Latin script'>ɡrabuf</span><br>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+mod:</i> 3 types, 3 tokens<br>
+<blockquote class=dirAuto>ˈ<span class=ltn title='Latin script'>veɾð</span> &bull; ˈ<span class=ltn title='Latin script'>vilɐ</span> &bull; ˈ<span class=ltn title='Latin script'>ɡrabuf</span><br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–7, n=3, µ=5.67, σ=0.94</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:2" class=lenHist style="height:16px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:1" class=lenHist style="height:9px;"></div><br>
 </blockquote>
+
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Kannada:</i> 1 types, 1 tokens<br>
-<blockquote>ಸಂಕೇಶ್ವರ<br>
-</blockquote>
+<blockquote class=dirAuto>ಸಂಕೇಶ್ವರ<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type length: 8, n=1, µ=8, σ=0</span></blockquote>
+
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Kannada:</i> 1 types, 1 tokens<br>
-<blockquote>ಸಂಕೇಶವರ<br>
-</blockquote>
+<blockquote class=dirAuto>ಸಂಕೇಶವರ<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type length: 7, n=1, µ=7, σ=0</span></blockquote>
+
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Katakana:</i> 2 types, 2 tokens<br>
-<blockquote>ガス &bull; テレビ<br>
+<blockquote class=dirAuto>ガス &bull; テレビ<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 2–3, n=2, µ=2.50, σ=0.50</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:1" class=lenHist style="height:16px;"></div><div title="len:3; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
+
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Katakana:</i> 2 types, 2 tokens<br>
-<blockquote>カス &bull; テレヒ<br>
+<blockquote class=dirAuto>カス &bull; テレヒ<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 2–3, n=2, µ=2.50, σ=0.50</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:1" class=lenHist style="height:16px;"></div><div title="len:3; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
+
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Latin:</i> 451 types, 640 tokens (sample of 100)<br>
-<blockquote>ajilimójili &bull; alexandrín &bull; alfréd &bull; altădată &bull; améleté &bull; archäologische &bull; atlética &bull; ayê &bull; bartolomé &bull; bjørgvin &bull; blatný &bull; bobuțac &bull; boulangère &bull; boţan &bull; buṭ &bull; bäčkäm &bull; bóbr &bull; bălan &bull; camões &bull; crónica &bull; córdoba &bull; département &bull; dépistage &bull; esmé &bull; fehérvári &bull; fiancé &bull; filisţīnī &bull; félicien &bull; garcía &bull; grünberg &bull; guillén &bull; guérard &bull; győr &bull; haendŭp &bull; hrísey &bull; hörgá &bull; hā &bull; iidesjärvi &bull; inéditos &bull; itäinen &bull; khālid &bull; kraków &bull; květa &bull; kōgen &bull; kōkai &bull; latinského &bull; lusíadas &bull; léo &bull; lópez &bull; maatalousnäyttelyyn &bull; manjirō &bull; martyniów &bull; masqué &bull; maḥmud &bull; mețianu &bull; mondragón &bull; monáe &bull; métabetchouan &bull; métis &bull; neguța &bull; nyynäinen &bull; näyttely &bull; országos &bull; podgórzyn &bull; páramos &bull; péter &bull; přízvučná &bull; ropočevo &bull; rychlé &bull; señora &bull; sueños &bull; suárez &bull; tecnológico &bull; topográfico &bull; tánchéng &bull; união &bull; urlăţelu &bull; varèse &bull; vladimír &bull; värmland &bull; wrocław &bull; zeleném &bull; zihlbrücke &bull; ålvik &bull; ælfric &bull; ía &bull; östers &bull; øyvind &bull; úrvalsdeild &bull; ān &bull; červenka &bull; člůnků &bull; ēw &bull; ściegny &bull; şanlıurfaspor &bull; șaguna &bull; țăranu &bull; ḥarbī &bull; ḵondagi &bull; ḵun<br>
+<blockquote class=dirAuto>alfréd &bull; améleté &bull; américaine &bull; armançon &bull; bartolomé &bull; baš &bull; bengoué &bull; bjørgvin &bull; blatný &bull; brașov &bull; burău &bull; béla &bull; camões &bull; chorągiews &bull; créole &bull; cărturari &bull; democrático &bull; domicó &bull; domínguez &bull; eheverhältnisse &bull; ejército &bull; emām &bull; escultórico &bull; esitelmä &bull; eyjafjarðardalur &bull; eyjafjarðará &bull; fehér &bull; françois &bull; fáil &bull; godeliève &bull; grímsson &bull; hlaváček &bull; hörgá &bull; ichirō &bull; ilić &bull; imām &bull; itäinen &bull; jiménez &bull; jüdische &bull; kalû &bull; kaṭa &bull; kheyrābād &bull; könnin &bull; kōgen &bull; lehkých &bull; léo &bull; lópez &bull; manjirō &bull; masqué &bull; munților &bull; métabetchouan &bull; méxico &bull; națională &bull; neuchâtel &bull; náhrada &bull; née &bull; ogooué &bull; paraná &bull; patiția &bull; pourtalès &bull; protégés &bull; prémonition &bull; póšum &bull; român &bull; ropočevo &bull; rychlé &bull; rémi &bull; rîurile &bull; römischen &bull; svarfaðardalur &bull; sá &bull; topográfico &bull; tulḡa &bull; tánchéng &bull; tír &bull; tǐyù &bull; urlăţelu &bull; varèse &bull; vikøyar &bull; vladimír &bull; wuḵt &bull; wörner &bull; władysław &bull; árskógssandur &bull; åsegrenda &bull; école &bull; ó &bull; óg &bull; ólafur &bull; östers &bull; øystese &bull; überzone &bull; āb &bull; łaszcz &bull; łęczyca &bull; řeckého &bull; şafī &bull; ţării &bull; ḵot &bull; ḵun<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–19, n=451, µ=6.76, σ=2.85</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:8" class=lenHist style="height:3px;"></div><div title="len:2; freq:15" class=lenHist style="height:4px;"></div><div title="len:3; freq:25" class=lenHist style="height:6px;"></div><div title="len:4; freq:49" class=lenHist style="height:11px;"></div><div title="len:5; freq:54" class=lenHist style="height:12px;"></div><div title="len:6; freq:77" class=lenHist style="height:16px;"></div><div title="len:7; freq:61" class=lenHist style="height:13px;"></div><div title="len:8; freq:55" class=lenHist style="height:12px;"></div><div title="len:9; freq:42" class=lenHist style="height:9px;"></div><div title="len:10; freq:18" class=lenHist style="height:5px;"></div><div title="len:11; freq:21" class=lenHist style="height:5px;"></div><div title="len:12; freq:8" class=lenHist style="height:3px;"></div><div title="len:13; freq:8" class=lenHist style="height:3px;"></div><div title="len:14; freq:4" class=lenHist style="height:2px;"></div><div title="len:15; freq:3" class=lenHist style="height:2px;"></div><div title="len:16; freq:2" class=lenHist style="height:1px;"></div><div title="len:17; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:18; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:19; freq:1" class=lenHist style="height:1px;"></div><br>
 </blockquote>
+
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Latin:</i> 390 types, 531 tokens (sample of 100)<br>
-<blockquote>ajilimojili &bull; almo &bull; alvik &bull; americaine &bull; an &bull; andra &bull; archaologische &bull; arskogssandur &bull; bacente &bull; bibliotheque &bull; bjolsegrovvatnet &bull; blatny &bull; boleslaw &bull; braganca &bull; carturari &bull; choragiew &bull; citta &bull; ciz &bull; cordoba &bull; crepin &bull; dalvik &bull; departement &bull; diabetique &bull; dominguez &bull; eheverhaltnisse &bull; erotico &bull; fernandez &bull; gjogurta &bull; glogowa &bull; gonzalez &bull; gora &bull; grabow &bull; grimsson &bull; haitien &bull; ichiro &bull; judetului &bull; judische &bull; judischen &bull; kaposvar &bull; karryseppia &bull; kata &bull; keflavik &bull; kocmyrzow &bull; kogen &bull; kut &bull; latinskeho &bull; leko &bull; lulea &bull; martynow &bull; meti &bull; nahrada &bull; naklo &bull; nationala &bull; neuchatel &bull; nystrom &bull; olleon &bull; orszago &bull; oystese &bull; pawel &bull; penelope &bull; pernia &bull; podgorzyn &bull; pourtale &bull; prenom &bull; ptaku &bull; retinopathie &bull; riviere &bull; ropocevo &bull; rozdol &bull; sanliurfaspor &bull; sante &bull; seinajoen &bull; sgallova &bull; sigurdardottir &bull; sinead &bull; soiree &bull; stanislaw &bull; stoleti &bull; suddeutsche &bull; sudtirol &bull; svalbardseyri &bull; taranu &bull; tecnologico &bull; tene &bull; tiyu &bull; topografico &bull; treteaux &bull; udah &bull; vac &bull; varese &bull; varietat &bull; varietaten &bull; vemmelsaari &bull; veslovani &bull; vrsovci &bull; wladyslaw &bull; wukt &bull; zelenem &bull; zollner &bull; zsofia<br>
+<blockquote class=dirAuto>alava &bull; alvik &bull; amelete &bull; angelica &bull; apatzingan &bull; arpad &bull; asegrenda &bull; bengoue &bull; boleslaw &bull; bucuresti &bull; carturari &bull; cervenka &bull; cesar &bull; ceska &bull; cesky &bull; charriere &bull; cirstea &bull; cordoba &bull; decepcion &bull; democratico &bull; eheverhaltnisse &bull; eijafjoerdyr &bull; esitelma &bull; espana &bull; estadio &bull; etoile &bull; ew &bull; eyjafjardara &bull; eyjafjardardalur &bull; fatwa &bull; geografico &bull; glogowa &bull; godelieve &bull; grevin &bull; guerard &bull; hacken &bull; halstromin &bull; ildiko &bull; imruz &bull; israili &bull; jimenez &bull; johanna &bull; judische &bull; kalman &bull; kaski &bull; kogen &bull; kot &bull; lehkych &bull; lodz &bull; lulea &bull; lusiada &bull; maatalousnayttelyyn &bull; martyniow &bull; martynow &bull; metianu &bull; michoacan &bull; neuchatel &bull; nievre &bull; nygardshaug &bull; nystrom &bull; nystromoya &bull; paramo &bull; parana &bull; patricia &bull; pawel &bull; penelope &bull; pirhe &bull; polatli &bull; posum &bull; pourtale &bull; prenom &bull; przekladu &bull; ptaku &bull; radioelectrique &bull; rhone &bull; riurile &bull; rozdol &bull; saguna &bull; saydi &bull; sciegny &bull; sgallova &bull; shafi &bull; sigurdardottir &bull; sinead &bull; spanga &bull; stanislaw &bull; suda &bull; sueno &bull; swiecie &bull; taranu &bull; tecnologico &bull; tete &bull; topografico &bull; urlatelu &bull; vac &bull; varaldsoy &bull; varietaten &bull; zollner &bull; zoltan &bull; zsofia<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–19, n=390, µ=7.08, σ=2.76</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:1" class=lenHist style="height:1px;"></div><div title="len:2; freq:7" class=lenHist style="height:3px;"></div><div title="len:3; freq:21" class=lenHist style="height:6px;"></div><div title="len:4; freq:34" class=lenHist style="height:9px;"></div><div title="len:5; freq:52" class=lenHist style="height:13px;"></div><div title="len:6; freq:63" class=lenHist style="height:16px;"></div><div title="len:7; freq:64" class=lenHist style="height:16px;"></div><div title="len:8; freq:45" class=lenHist style="height:12px;"></div><div title="len:9; freq:42" class=lenHist style="height:11px;"></div><div title="len:10; freq:15" class=lenHist style="height:5px;"></div><div title="len:11; freq:19" class=lenHist style="height:5px;"></div><div title="len:12; freq:9" class=lenHist style="height:3px;"></div><div title="len:13; freq:8" class=lenHist style="height:3px;"></div><div title="len:14; freq:4" class=lenHist style="height:2px;"></div><div title="len:15; freq:3" class=lenHist style="height:2px;"></div><div title="len:16; freq:2" class=lenHist style="height:1px;"></div><div title="len:17; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:18; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:19; freq:1" class=lenHist style="height:1px;"></div><br>
 </blockquote>
+
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin+mod:</i> 1 types, 1 tokens<br>
+<blockquote class=dirAuto>ˈzbraxlin<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type length: 9, n=1, µ=9, σ=0</span></blockquote>
+
 </div>
 <br style='clear:both'>
 <br>
@@ -221,14 +277,11 @@ New collision type is a near match for a type already in the group after...<br>
 <a name='changed_collisions_increased'><h4>Net Gains <a href=#TOC class=TOC>[TOC]</a></h4>
 <a href='#hic_increased_1'><b>High Impact Changes</b></a><br><br>
 <table class='vtop'>
-<tr><td><nobr>d >> 1</nobr></td><td><div class=hang>o: [48 D][16 d]</div><div class=hang>n: [48 D][16 d]<span class=diff>[1 ḍ]</span></div></td></tr>
 <tr><td><nobr>g >> 1</nobr></td><td><div class=hang>o: [23 G][35 g]</div><div class=hang>n: [23 G][35 g]<span class=diff>[1 ɢ]</span></div></td></tr>
 <tr><td><nobr>gab >> 1</nobr></td><td><div class=hang>o: [1 Gabes][1 gabions]</div><div class=hang>n: [1 Gabes]<span class=diff>[1 Gábor]</span>[1 gabions]</div></td></tr>
 <tr><td><nobr>ku >> 1</nobr></td><td><div class=hang>o: [1 ku]</div><div class=hang>n: [1 ku]<span class=diff>[3 ḵu]</span></div></td></tr>
 <tr><td><nobr>kun >> 1</nobr></td><td><div class=hang>o: [1 kun]</div><div class=hang>n: [1 kun]<span class=diff>[1 ḵun]</span></div></td></tr>
 <tr><td><nobr>re >> 1</nobr></td><td><div class=hang>o: [3 Re][26 re]</div><div class=hang>n: [3 Re][26 re]<span class=diff>[1 ʁɛ̃]</span></div></td></tr>
-<tr><td><nobr>t >> 1</nobr></td><td><div class=hang>o: [29 T][32 t]</div><div class=hang>n: [29 T][32 t]<span class=diff>[1 ṭ]</span></div></td></tr>
-<tr><td><nobr>vila >> 1</nobr></td><td><div class=hang>o: [3 Vila]</div><div class=hang>n: [3 Vila]<span class=diff>[1 ˈvilɐ]</span></div></td></tr>
 <tr><td><nobr>worn >> 1</nobr></td><td><div class=hang>o: [6 worn]</div><div class=hang>n: <span class=diff>[2 Wörner]</span>[6 worn]</div></td></tr>
 <tr><td><nobr>ישראלית >> 1</nobr></td><td><div class=hang>o: [1 ישראלית]</div><div class=hang>n: <span class=diff>[1 יִשְׂרְאֵלִית]</span>[1 ישראלית]</div></td></tr>
 <tr><td><nobr>לירה >> 1</nobr></td><td><div class=hang>o: [2 לירה]</div><div class=hang>n: <span class=diff>[1 לִירָה]</span>[2 לירה]</div></td></tr>

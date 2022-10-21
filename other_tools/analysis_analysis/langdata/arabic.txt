@@ -1,0 +1,53 @@
+# Eastern Arabic digits
+fold	٠	0
+fold	١	1
+fold	٢	2
+fold	٣	3
+fold	٤	4
+fold	٥	5
+fold	٦	6
+fold	٧	7
+fold	٨	8
+fold	٩	9
+
+# Common alternations in informal writing
+fold	أ	ا
+fold	إ	ا
+fold	آ	ا
+fold	ة	ه
+fold	ي	ى
+
+# Arabic Diacritics
+fold	ً
+fold	ٌ
+fold	ٍ
+fold	َ
+fold	ُ
+fold	ِ
+fold	ّ
+fold	ْ
+fold	ٓ
+fold	ٔ
+fold	ٕ
+fold	ٖ
+fold	ٗ
+fold	٘
+fold	ٙ
+fold	ٚ
+fold	ٛ
+fold	ٜ
+fold	ٝ
+fold	ٞ
+fold	ٟ
+fold	ـ
+
+strip_prefixes	ال	و	وال	فال	ف	ب	بال	لل
+strip_suffixes	ة	ه	ات	ي	ى	ية	ين	ان
+
+# Egyptian Arabic
+strip_suffixes	ها
+
+regular_prefixes		ال	و	وال	فال	ف	ب	بال	لل
+regular_suffixes		ة	ه	ات	ي	ية	ين	ان	ها
+
+
