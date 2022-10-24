@@ -8,6 +8,7 @@ requirements = [
     'numba',
     'numpy',
     'pandas',
+    'protobuf<4.0.0',
     'pyyaml',
     'requests',
     'tensorflow<2.0.0',

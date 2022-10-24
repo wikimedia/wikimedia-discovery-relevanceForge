@@ -417,8 +417,8 @@ def print_report(diff_count, file1, file2, myMetrics, errors):
 
 def toggle_string():
     toggle_string.num += 1
-    return("<span onclick='toggle(this,\"toggle{}\")' class=button>".format(toggle_string.num) +
-           "[ + ]</span><br>\n<span id=toggle{} class=toggle>\n".format(toggle_string.num))
+    return ("<span onclick='toggle(this,\"toggle{}\")' class=button>".format(toggle_string.num) +
+            "[ + ]</span><br>\n<span id=toggle{} class=toggle>\n".format(toggle_string.num))
 
 
 toggle_string.num = 0

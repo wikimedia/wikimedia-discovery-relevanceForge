@@ -305,7 +305,7 @@ class PerFieldSumExplain(SumExplain):
                 data[k].extend(v)
 
         # Every child must return the same variables every time
-        assert(len(set(len(x) for x in data.values()))) == 1
+        assert (len(set(len(x) for x in data.values()))) == 1
         return data
 
     def __str__(self):
