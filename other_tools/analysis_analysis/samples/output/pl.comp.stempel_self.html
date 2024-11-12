@@ -1,6 +1,6 @@
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
-    body { font-family:Helvetica, Noto Sans CJK JP; font-size:115%; }
+    body { font-family:Helvetica, Arial, Noto Sans CJK JP; font-size:115%; }
     th, td { text-align:left; border: 1px solid black; padding:2px 3px; }
     table { border-collapse: collapse; }
     .vtop tr td, .vtop tr th { vertical-align:top; }
@@ -19,7 +19,24 @@
     .TOC { font-size:60%; }
     .diff { background-color:#ffffdd; }
     .bigNum { color:blue; }
+    .hicIcon { color:red; }
+    .mixIcon { color:green; }
+    .ppsIcon { color:red; }
     .dirAuto, .dirAuto td { text-align: start; unicode-bidi: plaintext; }
+	.stemsPer td:nth-of-type(1) { width:3em; }
+	.stemsPer td:nth-of-type(2) { width:5em; }
+	.stemsPer td:nth-of-type(3) { max-width:calc(100vw - 10em); word-wrap:break-word;  }
+	.longToken td:nth-of-type(1) { width:3em; }
+	.longToken td:nth-of-type(2) { width:4em; }
+	.longToken td:nth-of-type(3) { width:5em; }
+	.longToken td:nth-of-type(4) { max-width:calc(100vw - 14em); word-wrap:break-word;  }
+	.stemRes td { word-wrap:break-word; }
+	.stemRes td:nth-of-type(1), .stemRes td:nth-of-type(2) { max-width:calc((100vw - 9em)*.18) }
+	.stemRes td:nth-of-type(3), .stemRes td:nth-of-type(4) { width:4em; }
+	.stemRes td:nth-of-type(5) { max-width:calc((100vw - 9em)*.62); }
+	.collision td { word-wrap:break-word; }
+	.collision td:nth-of-type(1) { max-width:min(20vw, 15em); }
+	.collision td:nth-of-type(2) { max-width:calc(98vw - 1.5em - min(20vw, 15em)) ; }
     .deemphasized { color:#C0C0C0; }
     .lenStats { font-size: 75%; color:#999; }
     .lenHist, .lenHist0, .lenHistNone { width:0.5em; display:inline-block; margin-top:8px; cursor:help; }
@@ -30,12 +47,15 @@
     .vertCont { display:inline-block; vertical-align:top; }
 	.uni { color:#808080 }
 	.ltn { color:#007700 }
-	.ben { color:#107896 }
 	.cyr { color:#ff0000 }
-	.dev { color:#e68d2e }
 	.grk { color:#0000ff }
+	.han { color:#996600 }
+	.hira { color:#999900 }
+	.kata { color:#e68d2e }
+	.ben { color:#107896 }
+	.dev { color:#cc00cc }
 	.thai { color:#9400D3 }
-	.uni, .ltn, .ben, .cyr, .dev, .grk, .thai { cursor:help; }
+	.uni, .ltn, .cyr, .grk, .han, .hira, .kata, .ben, .dev, .thai { cursor:help; }
 </style>
 
 <b>Processing samples/output/pl.counts.stempel.txt as 'new'.</b><br>
@@ -48,7 +68,6 @@
 <br>
 <a name='TOC'><h3>Table of Contents</h3>
 <a href='#stemmingResults'>Stemming Results</a><br>
-&nbsp;&nbsp;&nbsp;<a href="#prob1">Potential Problem Stems</a><br>
 <a href='#samplesForReview'>Samples for Speaker Review</a><br>
 <a href='#commonPrefixes'>Common Prefix Alternations</a><br>
 <a href='#commonSuffixes'>Common Suffix Alternations</a><br>
@@ -59,11 +78,12 @@
 
 <h3>Invisibles and Script Colors <a href=#TOC class=TOC>[TOC]</a></h3>
 <table class='vcent'><tr><th>symbol</th><th>invisible chars</th><th></th><th>symbol</th><th>invisible chars</th><th></th><th>color</th><th>script</th><th></th><th>color</th><th>script</th></tr>
-<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=ben title='Bengali script'>বাংলা</span></td><td>Bengali</td><td></td><td><span class=thai title='Thai script'>อักษรไทย</span></td><td>Thai</td></tr>
-<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td><td></td><td><span class=uni title='Unicode'>\uFFFD</span></td><td>Unicode</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C, 2063)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>∷</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=dev title='Devanagari script'>देवनागरी</span></td><td>Devanagari</td><td></td><td>あ가កᎹیא</td><td>unlabelled</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
-<tr class='key'><td><span class=invis title='VARIATION SELECTOR-1'>∵</span></td><td>variation selector<br>(FE00-FE0F, E0100-E01EF)</td><td></td><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, 202F, FEFF, 00A0)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
+<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td><td></td><td><span class=ben title='Bengali script'>বাংলা</span></td><td>Bengali</td></tr>
+<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td><td></td><td><span class=dev title='Devanagari script'>देवनागरी</span></td><td>Devanagari</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C, 2063)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>∷</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td><td></td><td><span class=thai title='Thai script'>อักษรไทย</span></td><td>Thai</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D, 2060)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td><span class=han title='Han script'>漢字</span></td><td>Han</td><td></td><td><span class=uni title='Unicode'>\uFFFD</span></td><td>Unicode</td></tr>
+<tr class='key'><td><span class=invis title='VARIATION SELECTOR-1'>∵</span></td><td>variation selector<br>(FE00-FE0F, E0100-E01EF)</td><td></td><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace<br>(200B, 202F, 3000, FEFF, 00A0)</td><td></td><td><span class=hira title='Hiragana script'>ひらがな</span></td><td>Hiragana</td><td></td><td>가កᎹیא</td><td>unlabelled</td></tr>
+<tr class='key'><td><span class=invis title='FUNCTION APPLICATION'>⋆</span></td><td>invisible math (2061-2064)</td><td></td><td></td><td></td><td></td><td><span class=kata title='Katakana script'>カタカナ</span></td><td>Katakana</td></tr>
 </table>
 
 <a name='stemmingResults'><h3>Stemming Results (groups only) <a href=#TOC class=TOC>[TOC]</a></h3>
@@ -71,7 +91,9 @@
 :: indicates affix-stripped matches<br>
 -- indicates affix-stripped and folded matches<br>
 <br>
-<table class='vtop'><tr><th>stem</th><th>common</th><th>group total</th><th>distinct types</th><th>types (counts)</th></tr>
+&nbsp;&nbsp;&nbsp;<a href='#prob1'><span class=ppsIcon>Potential Problem Stems <span class=ppsIcon>🅿</span></span></a> &nbsp; <span class=deemphasized>|</span> &nbsp; <a href='#mix1'><span class=mixIcon>Mixed-Script Groups <span class=mixIcon>🅼</span></span></a><br>
+<br>
+<table class='vtop stemRes'><tr><th>stem</th><th>common</th><th>group total</th><th>distinct types</th><th>types (counts)</th></tr>
 <tr class='dirAuto'><td>10ć</td><td>10 .. 1</td><td>2</td><td>2</td><td>[1&nbsp;1001][1&nbsp;1021]</td></tr>
 <tr class='dirAuto'><td>11ć</td><td>11 .. 1</td><td>2</td><td>2</td><td>[1&nbsp;1181][1&nbsp;1191]</td></tr>
 <tr class='dirAuto'><td>12ć</td><td>12 .. 1</td><td>2</td><td>2</td><td>[1&nbsp;12,1][1&nbsp;1291]</td></tr>
@@ -236,7 +258,7 @@
 <tr class='dirAuto'><td>auć</td><td>au .. o</td><td>9</td><td>2</td><td>[2&nbsp;Audio][4&nbsp;Auto][1&nbsp;audio][2&nbsp;auto]</td></tr>
 <tr class='dirAuto'><td>awans</td><td>awans .. </td><td>12</td><td>2</td><td>[10&nbsp;awans][2&nbsp;awansu]</td></tr>
 <tr class='dirAuto'><td>awansować</td><td>awansowa .. </td><td>10</td><td>5</td><td>[2&nbsp;awansowany][1&nbsp;awansować][3&nbsp;awansował][1&nbsp;awansowało][3&nbsp;awansowały]</td></tr>
-<tr class='dirAuto'><td><a name='prob1'><a href='#prob2'><span class=red>ayć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>6</td><td>2</td><td>[1&nbsp;Atlas][3&nbsp;Dziadek][2&nbsp;dziadek]</td></tr>
+<tr class='dirAuto'><td><a name='prob1'>ayć <a href='#prob2'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>6</td><td>2</td><td>[1&nbsp;Atlas][3&nbsp;Dziadek][2&nbsp;dziadek]</td></tr>
 <tr class='dirAuto'><td>azja</td><td>azj .. </td><td>12</td><td>3</td><td>[1&nbsp;Azja][10&nbsp;Azji][1&nbsp;Azję]</td></tr>
 <tr class='dirAuto'><td>azjatycki</td><td>azjatycki .. </td><td>3</td><td>2</td><td>[1&nbsp;Azjatyckie][2&nbsp;azjatyckich]</td></tr>
 <tr class='dirAuto'><td>ałtajski</td><td>ałtajsk .. </td><td>10</td><td>4</td><td>[4&nbsp;Ałtajska][2&nbsp;Ałtajski][2&nbsp;Ałtajskiej][2&nbsp;Ałtajską]</td></tr>
@@ -412,7 +434,7 @@
 <tr class='dirAuto'><td>błędny</td><td>błędn .. </td><td>5</td><td>4</td><td>[1&nbsp;Błędny][1&nbsp;błędna][1&nbsp;błędne][1&nbsp;błędnie][1&nbsp;błędny]</td></tr>
 <tr class='dirAuto'><td>błękit</td><td>błękit .. </td><td>6</td><td>2</td><td>[1&nbsp;Błękit][2&nbsp;błękit][3&nbsp;błękitu]</td></tr>
 <tr class='dirAuto'><td>błękitny</td><td>błękitn .. </td><td>3</td><td>2</td><td>[1&nbsp;Błękitna][2&nbsp;błękitnym]</td></tr>
-<tr class='dirAuto'><td><a name='prob2'><a href='#prob3'><span class=red>c</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>34</td><td>3</td><td>[26&nbsp;C][7&nbsp;County][1&nbsp;Pieter]</td></tr>
+<tr class='dirAuto'><td><a name='prob2'>c <a href='#prob3'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>34</td><td>3</td><td>[26&nbsp;C][7&nbsp;County][1&nbsp;Pieter]</td></tr>
 <tr class='dirAuto'><td>ca</td><td>ca .. </td><td>14</td><td>3</td><td>[1&nbsp;CA][1&nbsp;Caddy][12&nbsp;całej]</td></tr>
 <tr class='dirAuto'><td>caić</td><td>ca .. </td><td>13</td><td>2</td><td>[2&nbsp;Carol][11&nbsp;całym]</td></tr>
 <tr class='dirAuto'><td>camping</td><td>camping .. </td><td>2</td><td>2</td><td>[1&nbsp;camping][1&nbsp;campingu]</td></tr>
@@ -626,7 +648,7 @@
 <tr class='dirAuto'><td>doboszyński</td><td>doboszyński .. </td><td>47</td><td>3</td><td>[28&nbsp;Doboszyński][2&nbsp;Doboszyńskich][17&nbsp;Doboszyńskiego]</td></tr>
 <tr class='dirAuto'><td>dobrać</td><td>dobran .. </td><td>2</td><td>2</td><td>[1&nbsp;dobrane][1&nbsp;dobranych]</td></tr>
 <tr class='dirAuto'><td>dobry</td><td>dobr .. </td><td>17</td><td>7</td><td>[1&nbsp;Dobrego][1&nbsp;Dobrej][4&nbsp;dobre][3&nbsp;dobrej][3&nbsp;dobry][3&nbsp;dobrych][1&nbsp;dobrym][1&nbsp;dobrymi]</td></tr>
-<tr class='dirAuto'><td><a name='prob3'><a href='#prob4'><span class=red>dobrze</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>13</td><td>3</td><td>[9&nbsp;dobrze][3&nbsp;lepiej][1&nbsp;najlepiej]</td></tr>
+<tr class='dirAuto'><td><a name='prob3'>dobrze <a href='#prob4'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>13</td><td>3</td><td>[9&nbsp;dobrze][3&nbsp;lepiej][1&nbsp;najlepiej]</td></tr>
 <tr class='dirAuto'><td>dobór</td><td>dobor .. </td><td>8</td><td>2</td><td>[1&nbsp;Doboru][3&nbsp;doborem][4&nbsp;doboru]</td></tr>
 <tr class='dirAuto'><td>docenić</td><td>docenion .. </td><td>2</td><td>2</td><td>[1&nbsp;doceniona][1&nbsp;doceniono]</td></tr>
 <tr class='dirAuto'><td>dochód</td><td>doch .. </td><td>10</td><td>4</td><td>[1&nbsp;Dochody][1&nbsp;dochody][4&nbsp;dochodzi][2&nbsp;dochodów][2&nbsp;dochód]</td></tr>
@@ -856,7 +878,7 @@
 <tr class='dirAuto'><td>ewangelicki</td><td>ewangelick .. </td><td>10</td><td>2</td><td>[7&nbsp;ewangelicki][3&nbsp;ewangelicko]</td></tr>
 <tr class='dirAuto'><td>ewntualny</td><td>ewentualn .. </td><td>3</td><td>3</td><td>[1&nbsp;ewentualne][1&nbsp;ewentualnej][1&nbsp;ewentualnie]</td></tr>
 <tr class='dirAuto'><td>ewolucja</td><td>ewolucj .. </td><td>5</td><td>2</td><td>[1&nbsp;ewolucja][4&nbsp;ewolucji]</td></tr>
-<tr class='dirAuto'><td><a name='prob4'><a href='#prob5'><span class=red>eć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>62</td><td>12</td><td>[17&nbsp;Brno][2&nbsp;Enemy][1&nbsp;Kozioł][1&nbsp;Patty][1&nbsp;Wright][1&nbsp;Zaraz][1&nbsp;epopei][4&nbsp;napisany][1&nbsp;pobity][4&nbsp;prawdę][24&nbsp;samby][4&nbsp;szuwar][1&nbsp;zaraz]</td></tr>
+<tr class='dirAuto'><td><a name='prob4'>eć <a href='#prob5'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>62</td><td>12</td><td>[17&nbsp;Brno][2&nbsp;Enemy][1&nbsp;Kozioł][1&nbsp;Patty][1&nbsp;Wright][1&nbsp;Zaraz][1&nbsp;epopei][4&nbsp;napisany][1&nbsp;pobity][4&nbsp;prawdę][24&nbsp;samby][4&nbsp;szuwar][1&nbsp;zaraz]</td></tr>
 <tr class='dirAuto'><td>f</td><td>f .. </td><td>12</td><td>2</td><td>[8&nbsp;F][2&nbsp;f][2&nbsp;firm]</td></tr>
 <tr class='dirAuto'><td>fabryczny</td><td>fabryczn .. </td><td>3</td><td>3</td><td>[1&nbsp;Fabrycznej][1&nbsp;Fabrycznie][1&nbsp;fabrycznych]</td></tr>
 <tr class='dirAuto'><td>fabryka</td><td>fabry .. </td><td>22</td><td>4</td><td>[2&nbsp;Fabryce][3&nbsp;Fabryka][7&nbsp;fabryce][2&nbsp;fabryka][7&nbsp;fabryki][1&nbsp;fabrykę]</td></tr>
@@ -1216,11 +1238,11 @@
 <tr class='dirAuto'><td>istnieć</td><td>istnie .. </td><td>27</td><td>3</td><td>[2&nbsp;Istnieje][4&nbsp;Istnieją][8&nbsp;istnieje][10&nbsp;istnieją][3&nbsp;istnieć]</td></tr>
 <tr class='dirAuto'><td>istota</td><td>isto .. </td><td>7</td><td>4</td><td>[1&nbsp;Istota][2&nbsp;istocie][2&nbsp;istota][1&nbsp;istoty][1&nbsp;istotę]</td></tr>
 <tr class='dirAuto'><td>istotny</td><td>istotn .. </td><td>5</td><td>4</td><td>[1&nbsp;Istotnym][1&nbsp;istotnej][1&nbsp;istotnych][2&nbsp;istotną]</td></tr>
-<tr class='dirAuto'><td><a name='prob5'><a href='#prob6'><span class=red>iwać</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>3</td><td>2</td><td>[2&nbsp;Crew][1&nbsp;Stefa]</td></tr>
+<tr class='dirAuto'><td><a name='prob5'>iwać <a href='#prob6'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>3</td><td>2</td><td>[2&nbsp;Crew][1&nbsp;Stefa]</td></tr>
 <tr class='dirAuto'><td>izba</td><td>izb .. </td><td>7</td><td>2</td><td>[6&nbsp;Izby][1&nbsp;izbę]</td></tr>
 <tr class='dirAuto'><td>izotop</td><td>izotop .. </td><td>2</td><td>2</td><td>[1&nbsp;izotop][1&nbsp;izotopu]</td></tr>
 <tr class='dirAuto'><td>izraelski</td><td>izraelski .. </td><td>4</td><td>3</td><td>[2&nbsp;Izraelskiego][1&nbsp;izraelski][1&nbsp;izraelskie]</td></tr>
-<tr class='dirAuto'><td><a name='prob6'><a href='#prob7'><span class=red>ić</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>9</td><td>6</td><td>[1&nbsp;Depo][3&nbsp;Kest][1&nbsp;Tima][2&nbsp;ikoną][1&nbsp;iloraz][1&nbsp;meczem]</td></tr>
+<tr class='dirAuto'><td><a name='prob6'>ić <a href='#prob7'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>9</td><td>6</td><td>[1&nbsp;Depo][3&nbsp;Kest][1&nbsp;Tima][2&nbsp;ikoną][1&nbsp;iloraz][1&nbsp;meczem]</td></tr>
 <tr class='dirAuto'><td>j</td><td>j .. </td><td>32</td><td>3</td><td>[22&nbsp;J][5&nbsp;Judo][1&nbsp;j][1&nbsp;jang][3&nbsp;judo]</td></tr>
 <tr class='dirAuto'><td>jacki</td><td>jack .. </td><td>5</td><td>2</td><td>[4&nbsp;Jacka][1&nbsp;Jackie]</td></tr>
 <tr class='dirAuto'><td>jackson</td><td>jackson .. </td><td>5</td><td>2</td><td>[4&nbsp;Jackson][1&nbsp;Jacksona]</td></tr>
@@ -1371,7 +1393,7 @@
 <tr class='dirAuto'><td>kawałek</td><td>kawałk .. </td><td>2</td><td>2</td><td>[1&nbsp;kawałka][1&nbsp;kawałki]</td></tr>
 <tr class='dirAuto'><td>kazachstan</td><td>kazachstan .. </td><td>4</td><td>2</td><td>[2&nbsp;Kazachstan][2&nbsp;Kazachstanu]</td></tr>
 <tr class='dirAuto'><td>kazimierz</td><td>kazimierz .. </td><td>57</td><td>3</td><td>[22&nbsp;Kazimierz][32&nbsp;Kazimierza][3&nbsp;Kazimierzem]</td></tr>
-<tr class='dirAuto'><td><a name='prob7'><a href='#prob8'><span class=red>kać</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>6</td><td>5</td><td>[2&nbsp;Dwory][1&nbsp;Kaidy][1&nbsp;Kamy][1&nbsp;Kania][1&nbsp;czołgu]</td></tr>
+<tr class='dirAuto'><td><a name='prob7'>kać <a href='#prob8'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>6</td><td>5</td><td>[2&nbsp;Dwory][1&nbsp;Kaidy][1&nbsp;Kamy][1&nbsp;Kania][1&nbsp;czołgu]</td></tr>
 <tr class='dirAuto'><td>każdy</td><td>każd .. </td><td>12</td><td>3</td><td>[1&nbsp;każdego][5&nbsp;każdej][6&nbsp;każdy]</td></tr>
 <tr class='dirAuto'><td>kickstarter</td><td>kickstarter .. </td><td>2</td><td>2</td><td>[1&nbsp;Kickstarter][1&nbsp;Kickstarterze]</td></tr>
 <tr class='dirAuto'><td>kielecki</td><td>kielecki .. </td><td>3</td><td>2</td><td>[1&nbsp;kieleckie][2&nbsp;kieleckim]</td></tr>
@@ -2193,7 +2215,7 @@
 <tr class='dirAuto'><td>nurt</td><td>nurt .. </td><td>11</td><td>3</td><td>[1&nbsp;Nurt][2&nbsp;nurt][6&nbsp;nurtu][2&nbsp;nurtów]</td></tr>
 <tr class='dirAuto'><td>nów</td><td>now .. </td><td>29</td><td>2</td><td>[10&nbsp;Nowa][2&nbsp;Nową][8&nbsp;nowa][9&nbsp;nową]</td></tr>
 <tr class='dirAuto'><td>nówy</td><td>now .. </td><td>53</td><td>3</td><td>[1&nbsp;Nowego][16&nbsp;Nowej][2&nbsp;Nowo][15&nbsp;nowego][10&nbsp;nowej][9&nbsp;nowo]</td></tr>
-<tr class='dirAuto'><td><a name='prob8'><a href='#prob9'><span class=red>nąć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>5</td><td>2</td><td>[4&nbsp;Iwatani][1&nbsp;musicae]</td></tr>
+<tr class='dirAuto'><td><a name='prob8'>nąć <a href='#prob9'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>5</td><td>2</td><td>[4&nbsp;Iwatani][1&nbsp;musicae]</td></tr>
 <tr class='dirAuto'><td>nć</td><td>n .. </td><td>9</td><td>3</td><td>[3&nbsp;Norfolk][5&nbsp;nieco][1&nbsp;niejaki]</td></tr>
 <tr class='dirAuto'><td>obchodzić</td><td>obchodz .. </td><td>5</td><td>3</td><td>[1&nbsp;obchodzone][2&nbsp;obchodzono][2&nbsp;obchodzą]</td></tr>
 <tr class='dirAuto'><td>obcy</td><td>obc .. </td><td>5</td><td>2</td><td>[3&nbsp;Obcego][1&nbsp;Obcych][1&nbsp;obcego]</td></tr>
@@ -2472,7 +2494,7 @@
 <tr class='dirAuto'><td>out</td><td>out .. </td><td>3</td><td>2</td><td>[2&nbsp;Out][1&nbsp;outu]</td></tr>
 <tr class='dirAuto'><td>owad</td><td>owad .. </td><td>3</td><td>2</td><td>[2&nbsp;owady][1&nbsp;owadów]</td></tr>
 <tr class='dirAuto'><td>owalny</td><td>owaln .. </td><td>2</td><td>2</td><td>[1&nbsp;owalne][1&nbsp;owalnym]</td></tr>
-<tr class='dirAuto'><td><a name='prob9'><a href='#prob10'><span class=red>ować</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>7</td><td>4</td><td>[1&nbsp;Biblie][2&nbsp;Koszyc][1&nbsp;Ligę][2&nbsp;firmie][1&nbsp;ligę]</td></tr>
+<tr class='dirAuto'><td><a name='prob9'>ować <a href='#prob10'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>7</td><td>4</td><td>[1&nbsp;Biblie][2&nbsp;Koszyc][1&nbsp;Ligę][2&nbsp;firmie][1&nbsp;ligę]</td></tr>
 <tr class='dirAuto'><td>owernia</td><td>owerni .. </td><td>5</td><td>2</td><td>[4&nbsp;Owernia][1&nbsp;Owernii]</td></tr>
 <tr class='dirAuto'><td>owocewąć</td><td>owocowani .. </td><td>2</td><td>2</td><td>[1&nbsp;owocowania][1&nbsp;owocowaniu]</td></tr>
 <tr class='dirAuto'><td>owocowy</td><td>owocowe .. </td><td>3</td><td>2</td><td>[2&nbsp;owocowe][1&nbsp;owocowego]</td></tr>
@@ -4022,7 +4044,7 @@
 <tr class='dirAuto'><td>tworzyć</td><td>tworz .. </td><td>17</td><td>6</td><td>[2&nbsp;Tworzył][1&nbsp;tworzone][2&nbsp;tworzoną][3&nbsp;tworzyli][3&nbsp;tworzyć][1&nbsp;tworzył][5&nbsp;tworzą]</td></tr>
 <tr class='dirAuto'><td>tworzący</td><td>tworząc .. </td><td>8</td><td>3</td><td>[6&nbsp;tworząc][1&nbsp;tworzące][1&nbsp;tworzącą]</td></tr>
 <tr class='dirAuto'><td>twórca</td><td>twórc .. </td><td>25</td><td>5</td><td>[3&nbsp;Twórca][1&nbsp;Twórców][1&nbsp;Twórcą][6&nbsp;twórca][1&nbsp;twórcami][4&nbsp;twórcy][7&nbsp;twórców][2&nbsp;twórcą]</td></tr>
-<tr class='dirAuto'><td><a name='prob10'><a href='#prob11'><span class=red>ty</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>4</td><td>2</td><td>[1&nbsp;Ty][1&nbsp;ciebie][2&nbsp;ty]</td></tr>
+<tr class='dirAuto'><td><a name='prob10'>ty <a href='#prob11'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>4</td><td>2</td><td>[1&nbsp;Ty][1&nbsp;ciebie][2&nbsp;ty]</td></tr>
 <tr class='dirAuto'><td>tyczew</td><td>tyczew .. </td><td>2</td><td>2</td><td>[1&nbsp;Tyczewa][1&nbsp;Tyczewem]</td></tr>
 <tr class='dirAuto'><td>tygodnia</td><td>tygodnia .. </td><td>4</td><td>2</td><td>[2&nbsp;Tygodnia][1&nbsp;tygodnia][1&nbsp;tygodniach]</td></tr>
 <tr class='dirAuto'><td>tygodnik</td><td>tygodnik .. </td><td>10</td><td>3</td><td>[2&nbsp;Tygodnik][1&nbsp;Tygodnika][5&nbsp;tygodnik][1&nbsp;tygodnika][1&nbsp;tygodniku]</td></tr>
@@ -4211,7 +4233,7 @@
 <tr class='dirAuto'><td>watykański</td><td>watykański .. </td><td>2</td><td>2</td><td>[1&nbsp;Watykańskiego][1&nbsp;watykański]</td></tr>
 <tr class='dirAuto'><td>wawrzyniec</td><td>wawrzy .. </td><td>2</td><td>2</td><td>[1&nbsp;Wawrzyniec][1&nbsp;Wawrzyńca]</td></tr>
 <tr class='dirAuto'><td>wazon</td><td>wazon .. </td><td>3</td><td>2</td><td>[2&nbsp;wazon][1&nbsp;wazonu]</td></tr>
-<tr class='dirAuto'><td><a name='prob11'><a href='#prob12'><span class=red>wać</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>6</td><td>5</td><td>[1&nbsp;Wall][1&nbsp;farm][2&nbsp;kaszb][1&nbsp;wisi][1&nbsp;węży]</td></tr>
+<tr class='dirAuto'><td><a name='prob11'>wać <a href='#prob12'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>6</td><td>5</td><td>[1&nbsp;Wall][1&nbsp;farm][2&nbsp;kaszb][1&nbsp;wisi][1&nbsp;węży]</td></tr>
 <tr class='dirAuto'><td>wał</td><td>wał .. </td><td>4</td><td>2</td><td>[2&nbsp;Wału][1&nbsp;wału][1&nbsp;wałów]</td></tr>
 <tr class='dirAuto'><td>wałbrzyski</td><td>wałbrzyski .. </td><td>2</td><td>2</td><td>[1&nbsp;wałbrzyskiego][1&nbsp;wałbrzyskim]</td></tr>
 <tr class='dirAuto'><td>ważny</td><td>ważn :: </td><td>45</td><td>13</td><td>[3&nbsp;Najważniejsze][3&nbsp;Najważniejszym][3&nbsp;Najważniejszą][1&nbsp;Ważniejsze][2&nbsp;Ważną][2&nbsp;najważniejsze][1&nbsp;najważniejszej][4&nbsp;najważniejszych][1&nbsp;najważniejszym][1&nbsp;najważniejszą][10&nbsp;ważne][2&nbsp;ważniejszych][1&nbsp;ważniejszym][2&nbsp;ważny][1&nbsp;ważnych][7&nbsp;ważnym][1&nbsp;ważną]</td></tr>
@@ -4595,8 +4617,8 @@
 <tr class='dirAuto'><td>włączyć</td><td>włącz .. </td><td>4</td><td>3</td><td>[2&nbsp;włączona][1&nbsp;włączono][1&nbsp;włączyły]</td></tr>
 <tr class='dirAuto'><td>wściekły</td><td>wściek .. </td><td>2</td><td>2</td><td>[1&nbsp;Wściekli][1&nbsp;wściekła]</td></tr>
 <tr class='dirAuto'><td>xawery</td><td>xawer .. </td><td>2</td><td>2</td><td>[1&nbsp;Xawerego][1&nbsp;Xawery]</td></tr>
-<tr class='dirAuto'><td><a name='prob12'><a href='#prob13'><span class=red>y</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>17</td><td>2</td><td>[2&nbsp;Y][1&nbsp;nowsze][14&nbsp;y]</td></tr>
-<tr class='dirAuto'><td><a name='prob13'><a href='#prob14'><span class=red>yć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>7</td><td>7</td><td>[1&nbsp;Blatz][1&nbsp;Fritz][1&nbsp;Mootz][1&nbsp;Peas][1&nbsp;Rioja][1&nbsp;Title][1&nbsp;dworku]</td></tr>
+<tr class='dirAuto'><td><a name='prob12'>y <a href='#prob13'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>17</td><td>2</td><td>[2&nbsp;Y][1&nbsp;nowsze][14&nbsp;y]</td></tr>
+<tr class='dirAuto'><td><a name='prob13'>yć <a href='#prob14'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>7</td><td>7</td><td>[1&nbsp;Blatz][1&nbsp;Fritz][1&nbsp;Mootz][1&nbsp;Peas][1&nbsp;Rioja][1&nbsp;Title][1&nbsp;dworku]</td></tr>
 <tr class='dirAuto'><td>zaadaptować</td><td>zaadaptowani .. </td><td>2</td><td>2</td><td>[1&nbsp;zaadaptowania][1&nbsp;zaadaptowaniu]</td></tr>
 <tr class='dirAuto'><td>zaangażować</td><td>zaangażował .. </td><td>6</td><td>2</td><td>[2&nbsp;Zaangażował][2&nbsp;zaangażował][2&nbsp;zaangażowała]</td></tr>
 <tr class='dirAuto'><td>zaatakować</td><td>zaatakowa .. </td><td>10</td><td>6</td><td>[1&nbsp;Zaatakowane][3&nbsp;zaatakowali][1&nbsp;zaatakowani][1&nbsp;zaatakowania][2&nbsp;zaatakować][2&nbsp;zaatakował]</td></tr>
@@ -4922,8 +4944,8 @@
 <tr class='dirAuto'><td>złączyć</td><td>złącz .. </td><td>2</td><td>2</td><td>[1&nbsp;złączone][1&nbsp;złączyła]</td></tr>
 <tr class='dirAuto'><td>ósmy</td><td>ósm .. </td><td>5</td><td>4</td><td>[1&nbsp;Ósmy][1&nbsp;ósme][1&nbsp;ósmej][2&nbsp;ósmym]</td></tr>
 <tr class='dirAuto'><td>ówczesny</td><td>ówczesn .. </td><td>12</td><td>4</td><td>[3&nbsp;ówczesnego][3&nbsp;ówczesnej][4&nbsp;ówczesnych][2&nbsp;ówczesnym]</td></tr>
-<tr class='dirAuto'><td><a name='prob14'><a href='#prob15'><span class=red>ąć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>27</td><td>15</td><td>[3&nbsp;Bessy][1&nbsp;Boyce][1&nbsp;Coat][2&nbsp;Crusoe][1&nbsp;Gushue][2&nbsp;Joyce][8&nbsp;League][1&nbsp;Monroe][1&nbsp;Morgue][1&nbsp;Statue][1&nbsp;Virtue][1&nbsp;basque][1&nbsp;dawek][2&nbsp;mangue][1&nbsp;époque]</td></tr>
-<tr class='dirAuto'><td><a name='prob15'><a href='#prob16'><span class=red>ć</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>184</td><td><a name='count49.1'><a href='#count49.2'><span class=red>49</span></a></td><td>[1&nbsp;1031][1&nbsp;1231][1&nbsp;1431][2&nbsp;1731][23&nbsp;1931][1&nbsp;Audyt][1&nbsp;Bauby][17&nbsp;Blizzard][1&nbsp;Brydż][3&nbsp;Button][1&nbsp;CIWS][8&nbsp;Detroit][1&nbsp;Gaio][4&nbsp;Girl][1&nbsp;Glenda][1&nbsp;Hosei][2&nbsp;JC31][1&nbsp;Jews][1&nbsp;Konoe][11&nbsp;Londyn][1&nbsp;Metz][3&nbsp;News][1&nbsp;Newy][1&nbsp;Noam][1&nbsp;Pearl][3&nbsp;Praha][1&nbsp;Prosper][1&nbsp;Reich][3&nbsp;Reim][1&nbsp;Revue][3&nbsp;Ryan][1&nbsp;Shingle][1&nbsp;Słota][1&nbsp;Toque][1&nbsp;Wheel][2&nbsp;Wybrzeża][2&nbsp;Wyraz][21&nbsp;XVIII][1&nbsp;baon][1&nbsp;baque][3&nbsp;bazy][1&nbsp;brydż][35&nbsp;celu][1&nbsp;dziób][1&nbsp;ficou][1&nbsp;output][2&nbsp;progi][1&nbsp;slot][2&nbsp;szosą][2&nbsp;wybrzeża][2&nbsp;wyraz][1&nbsp;zakręcie]</td></tr>
+<tr class='dirAuto'><td><a name='prob14'>ąć <a href='#prob15'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>27</td><td>15</td><td>[3&nbsp;Bessy][1&nbsp;Boyce][1&nbsp;Coat][2&nbsp;Crusoe][1&nbsp;Gushue][2&nbsp;Joyce][8&nbsp;League][1&nbsp;Monroe][1&nbsp;Morgue][1&nbsp;Statue][1&nbsp;Virtue][1&nbsp;basque][1&nbsp;dawek][2&nbsp;mangue][1&nbsp;époque]</td></tr>
+<tr class='dirAuto'><td><a name='prob15'>ć <a href='#prob16'><span class=ppsIcon>🅿</span></a></td><td><span class=red>&nbsp; -- &nbsp;</span></td><td>184</td><td><a name='count49.1'><a href='#count49.2'><span class=red>49</span></a></td><td>[1&nbsp;1031][1&nbsp;1231][1&nbsp;1431][2&nbsp;1731][23&nbsp;1931][1&nbsp;Audyt][1&nbsp;Bauby][17&nbsp;Blizzard][1&nbsp;Brydż][3&nbsp;Button][1&nbsp;CIWS][8&nbsp;Detroit][1&nbsp;Gaio][4&nbsp;Girl][1&nbsp;Glenda][1&nbsp;Hosei][2&nbsp;JC31][1&nbsp;Jews][1&nbsp;Konoe][11&nbsp;Londyn][1&nbsp;Metz][3&nbsp;News][1&nbsp;Newy][1&nbsp;Noam][1&nbsp;Pearl][3&nbsp;Praha][1&nbsp;Prosper][1&nbsp;Reich][3&nbsp;Reim][1&nbsp;Revue][3&nbsp;Ryan][1&nbsp;Shingle][1&nbsp;Słota][1&nbsp;Toque][1&nbsp;Wheel][2&nbsp;Wybrzeża][2&nbsp;Wyraz][21&nbsp;XVIII][1&nbsp;baon][1&nbsp;baque][3&nbsp;bazy][1&nbsp;brydż][35&nbsp;celu][1&nbsp;dziób][1&nbsp;ficou][1&nbsp;output][2&nbsp;progi][1&nbsp;slot][2&nbsp;szosą][2&nbsp;wybrzeża][2&nbsp;wyraz][1&nbsp;zakręcie]</td></tr>
 <tr class='dirAuto'><td>ćwiczenie</td><td>ćwiczeni .. </td><td>3</td><td>2</td><td>[1&nbsp;Ćwiczenie][1&nbsp;ćwiczenia][1&nbsp;ćwiczenie]</td></tr>
 <tr class='dirAuto'><td>ćwierćfinałowy</td><td>ćwierćfinałowy .. </td><td>2</td><td>2</td><td>[1&nbsp;ćwierćfinałowych][1&nbsp;ćwierćfinałowym]</td></tr>
 <tr class='dirAuto'><td>łaba</td><td>łab .. </td><td>2</td><td>2</td><td>[1&nbsp;Łaba][1&nbsp;Łabą]</td></tr>
@@ -5027,29 +5049,30 @@
 <tr class='dirAuto'><td>żółty</td><td>żółt .. </td><td>17</td><td>8</td><td>[2&nbsp;żółta][3&nbsp;żółte][2&nbsp;żółtego][1&nbsp;żółto][5&nbsp;żółty][1&nbsp;żółtych][2&nbsp;żółtym][1&nbsp;żółtymi]</td></tr>
 <tr class='dirAuto'><td>żądać</td><td>żąda .. </td><td>2</td><td>2</td><td>[1&nbsp;Żąda][1&nbsp;żądaniom]</td></tr>
 </table>
-<br><a name='prob16'> [Total of 15 potential problem stems]<br>
+<br><a name='prob16'> [Total of 15 potential problem stems] &nbsp; <span class=deemphasized>|</span> &nbsp; <a name='mix1'> [Total of 0 mixed-script groups]<br>
 
 <a name='samplesForReview'><h3>Samples for Speaker Review <a href=#TOC class=TOC>[TOC]</a></h3>
 <b>Random Stemming Groups</b> (10)<br>
 <br>
 
 <table class='vtop'>
-<tr class='dirAuto'><td>11ć</td><td>[1 1181][1 1191]</td></tr>
-<tr class='dirAuto'><td>adolf</td><td>[2 Adolf][3 Adolfa][1 Adolfowi]</td></tr>
-<tr class='dirAuto'><td>czynny</td><td>[1 czynna][1 czynnego][1 czynnie][1 czynny][1 czynnymi]</td></tr>
-<tr class='dirAuto'><td>doktryna</td><td>[1 doktryn][3 doktryny]</td></tr>
-<tr class='dirAuto'><td>filmowiec</td><td>[1 filmowców][3 filmowiec]</td></tr>
-<tr class='dirAuto'><td>gwiezdny</td><td>[1 Gwiezdnych][1 gwiezdny]</td></tr>
-<tr class='dirAuto'><td>moskiewski</td><td>[2 Moskiewski][1 Moskiewskiego][1 Moskiewskim][1 Moskiewską][2 moskiewski][3 moskiewskiego][1 moskiewskiej][2 moskiewskim]</td></tr>
-<tr class='dirAuto'><td>nieznaczny</td><td>[1 nieznacznej][1 nieznacznych]</td></tr>
-<tr class='dirAuto'><td>piaszczysty</td><td>[1 piaszczysta][1 piaszczyste]</td></tr>
-<tr class='dirAuto'><td>pionier</td><td>[2 Pionier][1 Pionierów][1 pioniera][3 pionierów]</td></tr>
+<tr class='dirAuto'><td>lilipuci</td><td>[3 lilipucich][4 lilipucią]</td></tr>
+<tr class='dirAuto'><td>opowiadanie</td><td>[3 Opowiadanie][2 opowiadania][2 opowiadanie][5 opowiadań]</td></tr>
+<tr class='dirAuto'><td>organiczny</td><td>[2 organiczny][2 organicznych]</td></tr>
+<tr class='dirAuto'><td>podstawa</td><td>[1 Podstawy][3 Podstawą][18 podstawie][3 podstawy][2 podstawę]</td></tr>
+<tr class='dirAuto'><td>poległy</td><td>[1 poległego][3 poległych]</td></tr>
+<tr class='dirAuto'><td>rany</td><td>[1 Rana][1 Rany][1 rany]</td></tr>
+<tr class='dirAuto'><td>tria</td><td>[1 Trio][1 tria][3 trio]</td></tr>
+<tr class='dirAuto'><td>widoko</td><td>[1 Widok][4 widok][1 widokami]</td></tr>
+<tr class='dirAuto'><td>zasilać</td><td>[1 zasilanie][1 zasilanych]</td></tr>
+<tr class='dirAuto'><td>zawór</td><td>[1 zawory][1 zawór]</td></tr>
 </table>
 <br>
-<b>Largest Stemming Groups</b> (0 of 1 (1 problem stem omitted))<br>
+<b>Largest Stemming Groups</b> (1 of 1)<br>
 <br>
 
 <table class='vtop'>
+<tr class='dirAuto'><td>ć</td><td>[1 1031][1 1231][1 1431][2 1731][23 1931][1 Audyt][1 Bauby][17 Blizzard][1 Brydż][3 Button][1 CIWS][8 Detroit][1 Gaio][4 Girl][1 Glenda][1 Hosei][2 JC31][1 Jews][1 Konoe][11 Londyn][1 Metz][3 News][1 Newy][1 Noam][1 Pearl][3 Praha][1 Prosper][1 Reich][3 Reim][1 Revue][3 Ryan][1 Shingle][1 Słota][1 Toque][1 Wheel][2 Wybrzeża][2 Wyraz][21 XVIII][1 baon][1 baque][3 bazy][1 brydż][35 celu][1 dziób][1 ficou][1 output][2 progi][1 slot][2 szosą][2 wybrzeża][2 wyraz][1 zakręcie]</td></tr>
 </table>
 <br>
 <b>Potential Problem Stemming Groups</b> (10 of 15)<br>
@@ -5060,12 +5083,12 @@
 <tr class='dirAuto'><td>c</td><td>[26 C][7 County][1 Pieter]</td></tr>
 <tr class='dirAuto'><td>dobrze</td><td>[9 dobrze][3 lepiej][1 najlepiej]</td></tr>
 <tr class='dirAuto'><td>iwać</td><td>[2 Crew][1 Stefa]</td></tr>
+<tr class='dirAuto'><td>ić</td><td>[1 Depo][3 Kest][1 Tima][2 ikoną][1 iloraz][1 meczem]</td></tr>
 <tr class='dirAuto'><td>kać</td><td>[2 Dwory][1 Kaidy][1 Kamy][1 Kania][1 czołgu]</td></tr>
-<tr class='dirAuto'><td>ty</td><td>[1 Ty][1 ciebie][2 ty]</td></tr>
+<tr class='dirAuto'><td>nąć</td><td>[4 Iwatani][1 musicae]</td></tr>
 <tr class='dirAuto'><td>wać</td><td>[1 Wall][1 farm][2 kaszb][1 wisi][1 węży]</td></tr>
 <tr class='dirAuto'><td>y</td><td>[2 Y][1 nowsze][14 y]</td></tr>
 <tr class='dirAuto'><td>ąć</td><td>[3 Bessy][1 Boyce][1 Coat][2 Crusoe][1 Gushue][2 Joyce][8 League][1 Monroe][1 Morgue][1 Statue][1 Virtue][1 basque][1 dawek][2 mangue][1 époque]</td></tr>
-<tr class='dirAuto'><td>ć</td><td>[1 1031][1 1231][1 1431][2 1731][23 1931][1 Audyt][1 Bauby][17 Blizzard][1 Brydż][3 Button][1 CIWS][8 Detroit][1 Gaio][4 Girl][1 Glenda][1 Hosei][2 JC31][1 Jews][1 Konoe][11 Londyn][1 Metz][3 News][1 Newy][1 Noam][1 Pearl][3 Praha][1 Prosper][1 Reich][3 Reim][1 Revue][3 Ryan][1 Shingle][1 Słota][1 Toque][1 Wheel][2 Wybrzeża][2 Wyraz][21 XVIII][1 baon][1 baque][3 bazy][1 brydż][35 celu][1 dziób][1 ficou][1 output][2 progi][1 slot][2 szosą][2 wybrzeża][2 wyraz][1 zakręcie]</td></tr>
 </table>
 <br>
 
@@ -5353,30 +5376,30 @@
 
 <a name='tokenCountFreqTable'><h3>Stemmed Tokens Generated per Input Token <a href=#TOC class=TOC>[TOC]</a></h3>
 <table class='vtop'><tr><th>count</th><th>freq</th><th>example input tokens</th></tr>
-<tr><td>1</td><td>39,392</td><td><span class=ltn title='Latin script'>Cieśniny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Jaco</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dziedzin</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dzienniku</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>jasnożółtej</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>pracownia</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>siedziba</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>skomplikowania</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>vôtre</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>łagodniejszej</span></td></tr>
+<tr class='stemsPer'><td>1</td><td>39,392</td><td><span class=ltn title='Latin script'>Emotions</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Holmenkollen</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Roche</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Tonga</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Trailery</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Zyta</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>garnizonu</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>lokalne</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ląd</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>Środowiskowej</span></td></tr>
 </table>
 
 <a name='typeLengthFreqTable'><h3>Final Type Lengths <a href=#TOC class=TOC>[TOC]</a></h3>
 <table class='vtop'><tr><th>length</th><th>type freq</th><th>token count</th><th>examples</th></tr>
-<tr><td>1</td><td>87</td><td>2,926</td><td>8 &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>n</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>r</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>x</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ć</span> &nbsp; &bull; &nbsp; <span class=cyr title='Cyrillic script'>з</span> &nbsp; &bull; &nbsp; 佳 &nbsp; &bull; &nbsp; 彦 &nbsp; &bull; &nbsp; 源 &nbsp; &bull; &nbsp; 齐</td></tr>
-<tr><td>2</td><td>384</td><td>4,970</td><td>01 &nbsp; &bull; &nbsp; 28 &nbsp; &bull; &nbsp; 73 &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>cf</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dc</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ic</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>jk</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>sp</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>sw</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ty</span></td></tr>
-<tr><td>3</td><td>1,581</td><td>7,334</td><td>351 &nbsp; &bull; &nbsp; 469 &nbsp; &bull; &nbsp; 898 &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>air</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ibm</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kaw</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nvu</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>pmd</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>who</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>łuk</span></td></tr>
-<tr><td>4</td><td>2,368</td><td>13,208</td><td>1625 &nbsp; &bull; &nbsp; 1847 &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>adać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>from</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>jest</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>list</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>mase</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>mała</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>mike</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>muçy</span></td></tr>
-<tr><td>5</td><td>2,926</td><td>12,858</td><td><span class=ltn title='Latin script'>fnacy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ganzá</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>harpy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>hebei</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kazań</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>lotus</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nalot</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>rodos</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>serok</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zbiec</span></td></tr>
-<tr><td>6</td><td>3,454</td><td>14,792</td><td><span class=ltn title='Latin script'>cejlon</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>edurum</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>georga</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>likier</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>metody</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>papuga</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>postać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ruszid</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>serras</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>termin</span></td></tr>
-<tr><td>7</td><td>3,457</td><td>13,010</td><td><span class=ltn title='Latin script'>częsety</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>doctors</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>donneza</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>holotyp</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>najnowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nalegać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nieudać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>problyć</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>welcomy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wyginąć</span></td></tr>
-<tr><td>8</td><td>3,300</td><td>11,318</td><td><span class=ltn title='Latin script'>dorastać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>fabulasy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>krewetki</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>marszowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>medyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>napędzać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>odrzucić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ogrzewać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>polemika</span> &nbsp; &bull; &nbsp; <span class=cyr title='Cyrillic script'>даведнік</span></td></tr>
-<tr><td>9</td><td>2,689</td><td>9,175</td><td><span class=ltn title='Latin script'>faktyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nekropola</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>oddawanie</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>osiedlowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>planetacy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>romasoida</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>rudozłoty</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>sprzeciwo</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wyborczać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zakochanc</span></td></tr>
-<tr><td>10</td><td>2,001</td><td>5,829</td><td><span class=ltn title='Latin script'>dopracować</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dopuszczać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>gromadzona</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kościerski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>rozrywkowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>skorzystać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>sprzedanie</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>szadkowski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wścieklizn</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zodiakalny</span></td></tr>
-<tr><td>11</td><td>1,417</td><td>4,418</td><td><span class=ltn title='Latin script'>devouassoud</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>engenheiros</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>frankiewicz</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nachrichten</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>podejrzewać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>puszczyński</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>tanngrisnir</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>tomaszowski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>uzupełniony</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wsłuchujący</span></td></tr>
-<tr><td>12</td><td>809</td><td>1,864</td><td><span class=ltn title='Latin script'>artylerzysta</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>czorsztyński</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>endokrynolog</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>falkensteina</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>infragromada</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>najdoskonały</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>phragmitetea</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>przesunięcie</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>usbasket</span>.<span class=ltn title='Latin script'>com</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wiśniowiecki</span></td></tr>
-<tr><td>13</td><td>505</td><td>1,177</td><td><span class=ltn title='Latin script'>bezpośrednnąć</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>błogosławiony</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dialektologia</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dramatopisarz</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dziewiętnasta</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>etnograficzny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kilkusetletni</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>madagaskarski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>podkreślający</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zmodernizować</span></td></tr>
-<tr><td>14</td><td>278</td><td>642</td><td><span class=ltn title='Latin script'>antyhabsburski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>biographicalić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dodekafoniczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>muzyka</span>.<span class=ltn title='Latin script'>wp</span>.<span class=ltn title='Latin script'>plić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nieprzygotować</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>połtawszczyzna</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>sociologicalić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>transuranowiec</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>uszczelniający</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zmartwychwstał</span></td></tr>
-<tr><td>15</td><td>144</td><td>302</td><td><span class=ltn title='Latin script'>carmarthenshiry</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>charakterystyka</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dwunastodzielny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>filmpolski</span>.<span class=ltn title='Latin script'>plić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>niekancerogenny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nieprzyjacielić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>programistyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>przedpołudniowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>przedstawiający</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>synchronizujący</span></td></tr>
-<tr><td>16</td><td>95</td><td>174</td><td><span class=ltn title='Latin script'>architektoniczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>bańskobystrzycki</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>foxsports</span>.<span class=ltn title='Latin script'>com</span>.<span class=ltn title='Latin script'>au</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nasłonecznionych</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>niekonkurencyjny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>równowartościowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>szesnastowieczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>transfermarkt</span>.<span class=ltn title='Latin script'>de</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>tytoniowobrązowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zdyskwalifikować</span></td></tr>
-<tr><td>17</td><td>48</td><td>89</td><td><span class=ltn title='Latin script'>baldachogroniasty</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>bazakolejowa</span>.<span class=ltn title='Latin script'>plić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>epistolograficzny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>hydroksyfenylecio</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>izopropenylofenol</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kongregacjonalizm</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>niepodległościowa</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ochsenrückenturmć</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>przyrodoleczniczy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>worldfootball</span>.<span class=ltn title='Latin script'>net</span></td></tr>
-<tr><td>18</td><td>36</td><td>45</td><td><span class=ltn title='Latin script'>antychrześcijański</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>belgianfootball</span>.<span class=ltn title='Latin script'>by</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>eliteprospects</span>.<span class=ltn title='Latin script'>com</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>fernverkehrsstraße</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>heliosynchroniczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>interkontynentalny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>neopozytywistyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>przypieczętowujący</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>rusteam</span>.<span class=ltn title='Latin script'>permian</span>.<span class=ltn title='Latin script'>ru</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>szybkostrzelnośnia</span></td></tr>
-<tr><td>19</td><td>18</td><td>27</td><td><span class=ltn title='Latin script'>buscabiografias</span>.<span class=ltn title='Latin script'>com</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dziewiętnastokrotny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kategoria</span>:<span class=ltn title='Latin script'>wyposażen</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>niepodległościowiey</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>północnobrazylijski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>socjaldemokratyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wschodniofrankijski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>współprzewodniczący</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zachodnioeuropejski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>średniodystansowiec</span></td></tr>
+<tr><td>1</td><td>87</td><td>2,926</td><td>2 &nbsp; &bull; &nbsp; 4 &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>h</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>r</span> &nbsp; &bull; &nbsp; <span class=grk title='Greek script'>α</span> &nbsp; &bull; &nbsp; <span class=han title='Han script'>山</span> &nbsp; &bull; &nbsp; <span class=han title='Han script'>有</span> &nbsp; &bull; &nbsp; <span class=han title='Han script'>江</span> &nbsp; &bull; &nbsp; <span class=han title='Han script'>陈</span> &nbsp; &bull; &nbsp; <span class=han title='Han script'>齐</span></td></tr>
+<tr><td>2</td><td>384</td><td>4,970</td><td>03 &nbsp; &bull; &nbsp; 98 &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>cm</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>gp</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ko</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ou</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wz</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zs</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ąć</span> &nbsp; &bull; &nbsp; <span class=cyr title='Cyrillic script'>св</span></td></tr>
+<tr><td>3</td><td>1,581</td><td>7,334</td><td>108 &nbsp; &bull; &nbsp; 282 &nbsp; &bull; &nbsp; 324 &nbsp; &bull; &nbsp; 331 &nbsp; &bull; &nbsp; 558 &nbsp; &bull; &nbsp; 585 &nbsp; &bull; &nbsp; 915 &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>aro</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ile</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ols</span></td></tr>
+<tr><td>4</td><td>2,368</td><td>13,208</td><td>1744 &nbsp; &bull; &nbsp; 1765 &nbsp; &bull; &nbsp; 1895 &nbsp; &bull; &nbsp; 2,48 &nbsp; &bull; &nbsp; 2290 &nbsp; &bull; &nbsp; 2430 &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>neon</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>rfsa</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>tryb</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>walk</span></td></tr>
+<tr><td>5</td><td>2,926</td><td>12,858</td><td><span class=ltn title='Latin script'>czero</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>donau</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>front</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>janin</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>okres</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>petri</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>samik</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>sands</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>tweeć</span> &nbsp; &bull; &nbsp; <span class=cyr title='Cyrillic script'>тодта</span></td></tr>
+<tr><td>6</td><td>3,454</td><td>14,792</td><td><span class=ltn title='Latin script'>agosti</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>grecja</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>harris</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>lublin</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>miejsc</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>sejmik</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>siergi</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>tayiby</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zbocze</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>znowić</span></td></tr>
+<tr><td>7</td><td>3,457</td><td>13,010</td><td><span class=ltn title='Latin script'>codmana</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>malezja</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>otwockć</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>padlina</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>rakieta</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>spotyka</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>uliczka</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>voetbal</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>walczyk</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wybitny</span></td></tr>
+<tr><td>8</td><td>3,300</td><td>11,318</td><td><span class=ltn title='Latin script'>bolivara</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>espanyol</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>jachtowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kielcach</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>krawczuk</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>lasociny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>podhalyć</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>rozegrać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>sytuacja</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wysokość</span></td></tr>
+<tr><td>9</td><td>2,689</td><td>9,175</td><td><span class=ltn title='Latin script'>krzyżować</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>laukkanen</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>liliowiec</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>obdarować</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>oficerski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>opisujący</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>szachista</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>szczęścia</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>tottenham</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zwycięstw</span></td></tr>
+<tr><td>10</td><td>2,001</td><td>5,829</td><td><span class=ltn title='Latin script'>bookiatryk</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>cyrkulacja</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dotychczas</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>inżynieria</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>katedralny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>lionbacker</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>montrealić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>statistics</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>szydłowaty</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>trentowski</span></td></tr>
+<tr><td>11</td><td>1,417</td><td>4,418</td><td><span class=ltn title='Latin script'>aleksandrow</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>baseballowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>koszykarski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kraniotomia</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nowogrodzki</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>outstanding</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>pięcioletni</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>poświęcenie</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wyświetlacz</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zrozumienie</span></td></tr>
+<tr><td>12</td><td>809</td><td>1,864</td><td><span class=ltn title='Latin script'>beatyfikować</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ceremonialny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>cylindryczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>homologiczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>metropolitan</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>pahkinasaari</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>rijksmuseuma</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>rzeźbiarstwo</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>stachiewicza</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zarezerwować</span></td></tr>
+<tr><td>13</td><td>505</td><td>1,177</td><td><span class=ltn title='Latin script'>dialektologia</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dzięgielewski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>fizykochemika</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>funkcjonujący</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>humanistyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>niezadowolony</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>poprodukcyjny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>przygotowywać</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>sumokształtny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zmodernizować</span></td></tr>
+<tr><td>14</td><td>278</td><td>642</td><td><span class=ltn title='Latin script'>funkcjonariusz</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>indoeuropejski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kolekcjonerski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kremowobrązowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nadtlenoazotyn</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nowogródczyzna</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>sociologicalić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>uszczelniający</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>uzdrowicielski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zmartwychwstać</span></td></tr>
+<tr><td>15</td><td>144</td><td>302</td><td><span class=ltn title='Latin script'>brzeskolitewski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>cholinolityczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dystrybucjonizm</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>gloucestershiry</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kilkumiesięczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>międzypaństwowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>niedopuszczalny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>programistyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>przenajświętszy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>przeprojektować</span></td></tr>
+<tr><td>16</td><td>95</td><td>174</td><td><span class=ltn title='Latin script'>kolektywistyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>międzyregionalny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nasłonecznionych</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>podporządkowujić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ponadgimnazjalny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>promieniotwórczy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>skomercjalizować</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>tytoniowobrązowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>www</span>.<span class=ltn title='Latin script'>warheroes</span>.<span class=ltn title='Latin script'>ru</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zdecentralizować</span></td></tr>
+<tr><td>17</td><td>48</td><td>89</td><td><span class=ltn title='Latin script'>antykomunistyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>latynoamerykański</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>najpopularniejszy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>niepodległościowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>ochsenrückenturmć</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>odwrotniejajowaty</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>trzykondygnacyjny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wewnątrzkomórkowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zachodniopomorski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>zindywidualizować</span></td></tr>
+<tr><td>18</td><td>36</td><td>45</td><td><span class=ltn title='Latin script'>atlaskolejowy</span>.<span class=ltn title='Latin script'>plić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>autodromoimola</span>.<span class=ltn title='Latin script'>com</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dziesięciostrunowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>fernverkehrsstraße</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kardiochirurgiczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>nefrologia</span>.<span class=ltn title='Latin script'>mp</span>.<span class=ltn title='Latin script'>plić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>niekapitalistyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>prawdopodobieństwo</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>promieniotwórczość</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>www</span>.<span class=ltn title='Latin script'>wicklowway</span>.<span class=ltn title='Latin script'>com</span></td></tr>
+<tr><td>19</td><td>18</td><td>27</td><td><span class=ltn title='Latin script'>buscabiografias</span>.<span class=ltn title='Latin script'>com</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>kategoria</span>:<span class=ltn title='Latin script'>wyposażen</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>niepodległościowiey</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>przedchrześcijański</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>północnoamerykański</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>północnobrazylijski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>warszawa</span>.<span class=ltn title='Latin script'>getto</span>.<span class=ltn title='Latin script'>plić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wschodniofrankijski</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>współprzewodniczący</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>średniodystansowiec</span></td></tr>
 <tr><td>20</td><td>5</td><td>7</td><td><span class=ltn title='Latin script'>dziewiętnastowieczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>historycznoliteracki</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>południowoafrykański</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>projects</span>.<span class=ltn title='Latin script'>latimes</span>.<span class=ltn title='Latin script'>com</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>skolopendrokształtny</span></td></tr>
 <tr><td>21</td><td>8</td><td>13</td><td><span class=ltn title='Latin script'>brązowawopomarańczowy</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>dwudziestopięciolecie</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>internacjonalistyczny</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>legioner</span>.<span class=ltn title='Latin script'>kulichki</span>.<span class=ltn title='Latin script'>com</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>multiinstrumentalista</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>niebieskaeskadra</span>.<span class=ltn title='Latin script'>plić</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>trainingswissenschaft</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>wczesnośredniowieczny</span></td></tr>
 <tr><td>22</td><td>3</td><td>3</td><td><span class=ltn title='Latin script'>hipergammaglobulinemia</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>hipergammaglobulinemię</span> &nbsp; &bull; &nbsp; <span class=ltn title='Latin script'>players</span>.<span class=ltn title='Latin script'>pointafter</span>.<span class=ltn title='Latin script'>com</span></td></tr>
@@ -5428,26 +5451,26 @@
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 106 types, 118 tokens (sample of 25)<br>
-<blockquote class=dirAuto>Абсалямов &bull; Александрович &bull; Андрэя &bull; Апостала &bull; апостола &bull; Аркадійович &bull; Божией &bull; Василь &bull; Верховна &bull; Гельфонд &bull; готыкі &bull; другой &bull; З &bull; зелёнка &bull; Икона &bull; печера &bull; Рада &bull; рейха &bull; сельское &bull; Споручница &bull; України &bull; Химитлийски &bull; Шевцова &bull; Эклектыка &bull; і<br>
+<blockquote class=dirAuto>Абдурахманович &bull; Александров &bull; Александрович &bull; Андрей &bull; апостола &bull; Васильевич &bull; Витоша &bull; Волга &bull; готыкі &bull; Ефим &bull; З &bull; Знесіння &bull; Иван &bull; Иванович &bull; Иваново &bull; Касцёл &bull; Матери &bull; общество &bull; Печерск &bull; рейха &bull; Сергей &bull; солдаты &bull; Соснівка &bull; Управление &bull; Химитлийски<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–14, n=106, µ=7.06, σ=2.56</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:4" class=lenHist style="height:4px;"></div><div title="len:2; freq:3" class=lenHist style="height:3px;"></div><div title="len:3; freq:1" class=lenHist style="height:2px;"></div><div title="len:4; freq:4" class=lenHist style="height:4px;"></div><div title="len:5; freq:12" class=lenHist style="height:10px;"></div><div title="len:6; freq:19" class=lenHist style="height:15px;"></div><div title="len:7; freq:20" class=lenHist style="height:16px;"></div><div title="len:8; freq:16" class=lenHist style="height:13px;"></div><div title="len:9; freq:10" class=lenHist style="height:9px;"></div><div title="len:10; freq:8" class=lenHist style="height:7px;"></div><div title="len:11; freq:6" class=lenHist style="height:6px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:1" class=lenHist style="height:2px;"></div><div title="len:14; freq:2" class=lenHist style="height:3px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Cyrillic:</i> 106 types, 118 tokens (sample of 25)<br>
-<blockquote class=dirAuto>андрэя &bull; апостола &bull; аркадьевич &bull; аркадійович &bull; готыкі &bull; емельянов &bull; знесіння &bull; иван &bull; иванович &bull; иваново &bull; икона &bull; ильич &bull; к &bull; костел &bull; кръстев &bull; лилия &bull; общество &bull; организации &bull; поселение &bull; садовский &bull; ст &bull; странник &bull; туз &bull; фёдоровна &bull; євсєєв<br>
+<blockquote class=dirAuto>апостола &bull; бабак &bull; верховна &bull; волга &bull; гори &bull; добронравин &bull; евгений &bull; евсеев &bull; икона &bull; ильич &bull; кръстев &bull; на &bull; нарач &bull; осипович &bull; павлович &bull; рейха &bull; рыжиков &bull; сергей &bull; странник &bull; танев &bull; тодта &bull; фёдоровна &bull; шевцова &bull; эклектыка &bull; ясенски<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–14, n=106, µ=7.06, σ=2.56</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:4" class=lenHist style="height:4px;"></div><div title="len:2; freq:3" class=lenHist style="height:3px;"></div><div title="len:3; freq:1" class=lenHist style="height:2px;"></div><div title="len:4; freq:4" class=lenHist style="height:4px;"></div><div title="len:5; freq:12" class=lenHist style="height:10px;"></div><div title="len:6; freq:19" class=lenHist style="height:15px;"></div><div title="len:7; freq:20" class=lenHist style="height:16px;"></div><div title="len:8; freq:16" class=lenHist style="height:13px;"></div><div title="len:9; freq:10" class=lenHist style="height:9px;"></div><div title="len:10; freq:8" class=lenHist style="height:7px;"></div><div title="len:11; freq:6" class=lenHist style="height:6px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:1" class=lenHist style="height:2px;"></div><div title="len:14; freq:2" class=lenHist style="height:3px;"></div><br>
 </blockquote>
 
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Cyrillic+numbers:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Cyrillic+numbers:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto>1М8<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 3, n=1, µ=3, σ=0</span></blockquote>
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Cyrillic+numbers:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Cyrillic+numbers:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto>1м8<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 3, n=1, µ=3, σ=0</span></blockquote>
 
@@ -5485,14 +5508,14 @@
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Han:</i> 42 types, 48 tokens (sample of 25)<br>
-<blockquote class=dirAuto>主 &bull; 井 &bull; 佳 &bull; 内 &bull; 冲 &bull; 区 &bull; 原 &bull; 天 &bull; 小 &bull; 尔 &bull; 山 &bull; 教 &bull; 昌 &bull; 有 &bull; 水 &bull; 江 &bull; 治 &bull; 源 &bull; 牧 &bull; 翔 &bull; 茹 &bull; 裴 &bull; 谷 &bull; 陈 &bull; 齊<br>
+<blockquote class=dirAuto>主 &bull; 内 &bull; 冲 &bull; 出 &bull; 区 &bull; 原 &bull; 哈 &bull; 士 &bull; 宇 &bull; 尔 &bull; 彦 &bull; 教 &bull; 有 &bull; 治 &bull; 源 &bull; 牧 &bull; 瑪 &bull; 石 &bull; 茹 &bull; 裴 &bull; 谷 &bull; 陈 &bull; 陳 &bull; 騎 &bull; 齐<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 1, n=42, µ=1, σ=0.00</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:42" class=lenHist style="height:16px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Han:</i> 42 types, 48 tokens (sample of 25)<br>
-<blockquote class=dirAuto>主 &bull; 内 &bull; 利 &bull; 原 &bull; 哈 &bull; 士 &bull; 天 &bull; 宇 &bull; 小 &bull; 尔 &bull; 山 &bull; 徹 &bull; 教 &bull; 星 &bull; 水 &bull; 江 &bull; 治 &bull; 源 &bull; 牧 &bull; 瑪 &bull; 监 &bull; 翔 &bull; 茹 &bull; 齊 &bull; 齐<br>
+<blockquote class=dirAuto>主 &bull; 内 &bull; 出 &bull; 区 &bull; 原 &bull; 哈 &bull; 士 &bull; 天 &bull; 宇 &bull; 小 &bull; 尔 &bull; 昌 &bull; 水 &bull; 江 &bull; 治 &bull; 源 &bull; 牧 &bull; 玉 &bull; 瑪 &bull; 茹 &bull; 陈 &bull; 陳 &bull; 騎 &bull; 齊 &bull; 龚<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 1, n=42, µ=1, σ=0.00</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:42" class=lenHist style="height:16px;"></div><br>
 </blockquote>
 
@@ -5514,21 +5537,21 @@
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto>קלנסווה<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 7, n=1, µ=7, σ=0</span></blockquote>
 
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto>קלנסווה<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 7, n=1, µ=7, σ=0</span></blockquote>
 
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>ID-like:</i> 95 types, 128 tokens (sample of 25)<br>
-<blockquote class=dirAuto>1005FL &bull; 15KM &bull; 2001GC000252 &bull; 26CX &bull; 3D &bull; 48E &bull; 9A &bull; B168 &bull; B173 &bull; C5 &bull; DW183 &bull; E211 &bull; E46 &bull; F12 &bull; FA45 &bull; G3 &bull; JC29A &bull; KN250 &bull; M12 &bull; M14 &bull; M19 &bull; M1911A1 &bull; N51F &bull; TW4 &bull; XENON100<br>
+&nbsp;&nbsp;&nbsp;<i><span class=diff>ID-like</span>:</i> 95 types, 128 tokens (sample of 25)<br>
+<blockquote class=dirAuto>1005FL &bull; 101C &bull; 29C &bull; 359MR &bull; 3D &bull; A171101 &bull; A24 &bull; B173 &bull; F111 &bull; F12 &bull; F397 &bull; FA45 &bull; FB62 &bull; M19 &bull; M1918 &bull; M20 &bull; NM149S &bull; NX1 &bull; P50 &bull; RAID1 &bull; TVP1 &bull; VT627 &bull; VT750C &bull; XENON100 &bull; XL125V<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 2–12, n=95, µ=4.18, σ=1.67</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:13" class=lenHist style="height:9px;"></div><div title="len:3; freq:25" class=lenHist style="height:16px;"></div><div title="len:4; freq:19" class=lenHist style="height:12px;"></div><div title="len:5; freq:23" class=lenHist style="height:15px;"></div><div title="len:6; freq:7" class=lenHist style="height:5px;"></div><div title="len:7; freq:5" class=lenHist style="height:4px;"></div><div title="len:8; freq:2" class=lenHist style="height:2px;"></div><div title="len:9; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:10; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:1" class=lenHist style="height:2px;"></div><br>
 </blockquote>
 
@@ -5549,25 +5572,25 @@
 
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto><span class=ltn title='Latin script'>ʒɑ</span>̃<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 3, n=1, µ=3, σ=0</span></blockquote>
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto><span class=ltn title='Latin script'>ʒɑ</span>̃<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 3, n=1, µ=3, σ=0</span></blockquote>
 
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo+mod:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo+mod:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto><span class=ltn title='Latin script'>ʒuɐ</span>ˈ<span class=ltn title='Latin script'>kı</span>̃<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 7, n=1, µ=7, σ=0</span></blockquote>
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo+mod:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo+mod:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto><span class=ltn title='Latin script'>ʒuɐ</span>ˈ<span class=ltn title='Latin script'>kı</span>̃<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 7, n=1, µ=7, σ=0</span></blockquote>
 
@@ -5588,13 +5611,13 @@
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Katakana:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Katakana:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto>シュガシュガルーン<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 9, n=1, µ=9, σ=0</span></blockquote>
 
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Katakana:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Katakana:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto>シュガシュガルーン<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 9, n=1, µ=9, σ=0</span></blockquote>
 
@@ -5602,29 +5625,64 @@
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>Latin:</i> 37,289 types, 93,167 tokens (sample of 25)<br>
-<blockquote class=dirAuto>Babak &bull; Circensis &bull; DUEWAG &bull; granicą &bull; Grobicki &bull; historia &bull; Incomparable &bull; Krzesława &bull; Mayer &bull; ochrowobrązowy &bull; Pużaka &bull; razu &bull; regionalne &bull; rolniczo &bull; Romlilly &bull; savez &bull; sklepienie &bull; skwer &bull; Tarcza &bull; ucieczkę &bull; Veloso &bull; Webb &bull; Wilsona &bull; wręcz &bull; założone<br>
+<blockquote class=dirAuto>Balearów &bull; Bethanien &bull; Biology &bull; cenzury &bull; Colquhouna &bull; debiutanckiego &bull; drużyna &bull; embolada &bull; Insurance &bull; Karhu &bull; Kobylnica &bull; komedii &bull; Moles &bull; Najwybitniejszym &bull; przygotowana &bull; Remar &bull; rolniczej &bull; Scotland &bull; sonetu &bull; urodzin &bull; walijskimi &bull; Webster &bull; wylocie &bull; władze &bull; Żona<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–26, n=37,289, µ=8.12, σ=2.85</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:41" class=lenHist style="height:1px;"></div><div title="len:2; freq:256" class=lenHist style="height:2px;"></div><div title="len:3; freq:898" class=lenHist style="height:4px;"></div><div title="len:4; freq:1,918" class=lenHist style="height:7px;"></div><div title="len:5; freq:3,654" class=lenHist style="height:12px;"></div><div title="len:6; freq:4,617" class=lenHist style="height:14px;"></div><div title="len:7; freq:5,196" class=lenHist style="height:16px;"></div><div title="len:8; freq:5,104" class=lenHist style="height:16px;"></div><div title="len:9; freq:4,674" class=lenHist style="height:14px;"></div><div title="len:10; freq:3,685" class=lenHist style="height:12px;"></div><div title="len:11; freq:2,820" class=lenHist style="height:9px;"></div><div title="len:12; freq:1,830" class=lenHist style="height:6px;"></div><div title="len:13; freq:1,127" class=lenHist style="height:4px;"></div><div title="len:14; freq:667" class=lenHist style="height:3px;"></div><div title="len:15; freq:378" class=lenHist style="height:2px;"></div><div title="len:16; freq:187" class=lenHist style="height:2px;"></div><div title="len:17; freq:99" class=lenHist style="height:1px;"></div><div title="len:18; freq:65" class=lenHist style="height:1px;"></div><div title="len:19; freq:32" class=lenHist style="height:1px;"></div><div title="len:20; freq:17" class=lenHist style="height:1px;"></div><div title="len:21; freq:14" class=lenHist style="height:1px;"></div><div title="len:22; freq:5" class=lenHist style="height:1px;"></div><div title="len:23; freq:3" class=lenHist style="height:1px;"></div><div title="len:24; freq:1" class=lenHist style="height:1px;"></div><div title="len:25; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:26; freq:1" class=lenHist style="height:1px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Latin:</i> 23,576 types, 93,206 tokens (sample of 25)<br>
-<blockquote class=dirAuto>aktyn &bull; konkretny &bull; lambert &bull; longimembris &bull; maoke &bull; maszereć &bull; nfz &bull; normański &bull; northerna &bull; obecność &bull; ozola &bull; partner &bull; pojazd &bull; przyrody &bull; rejowy &bull; repenty &bull; rozwiązanie &bull; rugia &bull; rymować &bull; sachsena &bull; sarkoidoza &bull; screama &bull; traeźć &bull; uczęszczać &bull; wyrzeczenie<br>
+&nbsp;&nbsp;&nbsp;<i>Latin:</i> <span class=diff>23,576 types, 93,206 tokens</span> (sample of 25)<br>
+<blockquote class=dirAuto>buczacz &bull; capitol &bull; cyrax &bull; dobrowolski &bull; greenwi &bull; infn &bull; jazzman &bull; lewicowców &bull; motors &bull; muchać &bull; nazwać &bull; ocenić &bull; pocieszała &bull; reżyseria &bull; royster &bull; rozległy &bull; serra &bull; tavera &bull; togijski &bull; traktować &bull; tutszy &bull; valium &bull; wron &bull; wynalazca &bull; zarastający<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–25, n=23,576, µ=7.51, σ=2.76</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:25" class=lenHist style="height:1px;"></div><div title="len:2; freq:259" class=lenHist style="height:2px;"></div><div title="len:3; freq:1,097" class=lenHist style="height:6px;"></div><div title="len:4; freq:1,644" class=lenHist style="height:8px;"></div><div title="len:5; freq:2,748" class=lenHist style="height:13px;"></div><div title="len:6; freq:3,354" class=lenHist style="height:16px;"></div><div title="len:7; freq:3,373" class=lenHist style="height:16px;"></div><div title="len:8; freq:3,243" class=lenHist style="height:15px;"></div><div title="len:9; freq:2,642" class=lenHist style="height:13px;"></div><div title="len:10; freq:1,957" class=lenHist style="height:10px;"></div><div title="len:11; freq:1,390" class=lenHist style="height:7px;"></div><div title="len:12; freq:790" class=lenHist style="height:5px;"></div><div title="len:13; freq:473" class=lenHist style="height:3px;"></div><div title="len:14; freq:263" class=lenHist style="height:2px;"></div><div title="len:15; freq:134" class=lenHist style="height:2px;"></div><div title="len:16; freq:86" class=lenHist style="height:1px;"></div><div title="len:17; freq:45" class=lenHist style="height:1px;"></div><div title="len:18; freq:26" class=lenHist style="height:1px;"></div><div title="len:19; freq:12" class=lenHist style="height:1px;"></div><div title="len:20; freq:4" class=lenHist style="height:1px;"></div><div title="len:21; freq:6" class=lenHist style="height:1px;"></div><div title="len:22; freq:2" class=lenHist style="height:1px;"></div><div title="len:23; freq:1" class=lenHist style="height:1px;"></div><div title="len:24; freq:1" class=lenHist style="height:1px;"></div><div title="len:25; freq:1" class=lenHist style="height:1px;"></div><br>
 </blockquote>
 
 </div>
 <div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin+acronym-like:</i> 10 types, 46 tokens<br>
+<blockquote class=dirAuto>a.s &bull; j.a &bull; j.w &bull; n.e &bull; n.p.m &bull; o.o &bull; p.n.e &bull; S.c &bull; s.c &bull; t.r<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–5, n=10, µ=3.40, σ=0.80</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:8" class=lenHist style="height:16px;"></div><div title="len:4; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:5; freq:2" class=lenHist style="height:5px;"></div><br>
+</blockquote>
+
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin+acronym-like:</i> <span class=diff>34 types, 78 tokens</span> (sample of 25)<br>
+<blockquote class=dirAuto>a.s &bull; c.a.b &bull; e.a.r.t.h &bull; g.a &bull; g.r &bull; j.a &bull; j.s &bull; m.m &bull; m.o.d &bull; n.e &bull; n.p.m &bull; o.m &bull; o.n.a &bull; o.o &bull; p.e &bull; p.j &bull; p.n.e &bull; s.a &bull; s.c &bull; s.o.d &bull; s.p.q.r &bull; t.d &bull; t.j &bull; t.r &bull; z.s.r.r<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–9, n=34, µ=4.00, σ=1.55</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:22" class=lenHist style="height:16px;"></div><div title="len:4; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:5; freq:8" class=lenHist style="height:6px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:3" class=lenHist style="height:3px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:1" class=lenHist style="height:2px;"></div><br>
+</blockquote>
+
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i><span class=diff>Latin+acronyms</span>:</i> 25 types, 32 tokens<br>
+<blockquote class=dirAuto>C.A.B &bull; D.R.I &bull; E.A.R.T.H &bull; F.C &bull; G.A &bull; G.R &bull; J.R.R &bull; J.S &bull; L.A &bull; M.M &bull; M.O.D &bull; O.M &bull; O.N.A &bull; P.E &bull; P.J &bull; R.T &bull; S.A &bull; S.O.D &bull; S.P.Q.R &bull; T.D &bull; T.J &bull; T.P &bull; T.R.I.P &bull; U.S &bull; Z.S.R.R<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–9, n=25, µ=4.20, σ=1.70</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:15" class=lenHist style="height:16px;"></div><div title="len:4; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:5; freq:6" class=lenHist style="height:7px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:3" class=lenHist style="height:4px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:1" class=lenHist style="height:2px;"></div><br>
+</blockquote>
+
+</div>
+<div class='leftCatDiv'>
 &nbsp;&nbsp;&nbsp;<i>Latin+apos:</i> 140 types, 195 tokens (sample of 25)<br>
-<blockquote class=dirAuto>Allen's &bull; Christie's &bull; d'Avelanne &bull; d'Ormesson &bull; Danny'ego &bull; Dave'a &bull; Devil's &bull; Fisher's &bull; Greco's &bull; Guillaume'em &bull; halfpipe'ie &bull; halfpipe'u &bull; Harry’ego &bull; Henry’ego &bull; Liouville'a &bull; Midwinter’s &bull; O'Malley &bull; Page'em &bull; Price's &bull; Putin’s &bull; Rae's &bull; Sha'ar &bull; Su’ud &bull; Terence'em &bull; Émile’a<br>
+<blockquote class=dirAuto>Be'erotaiym &bull; Christie's &bull; Devil's &bull; Don't &bull; d’arithmétique &bull; d’Armor &bull; Ge'ulim &bull; Hadrian's &bull; Ja'bets &bull; Johnstone'owi &bull; L'Equipe &bull; Nobody's &bull; O'Herlihy &bull; O'Mara &bull; Peter’s &bull; Putin’s &bull; Russia’s &bull; Sha'ar &bull; Spider's &bull; Steele’a &bull; Strike'a &bull; sull’insurrezione &bull; Wayne'a &bull; Weaver's &bull; Yeltsin’s<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–17, n=140, µ=8.20, σ=2.35</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:2px;"></div><div title="len:4; freq:1" class=lenHist style="height:2px;"></div><div title="len:5; freq:13" class=lenHist style="height:8px;"></div><div title="len:6; freq:15" class=lenHist style="height:9px;"></div><div title="len:7; freq:30" class=lenHist style="height:16px;"></div><div title="len:8; freq:26" class=lenHist style="height:14px;"></div><div title="len:9; freq:21" class=lenHist style="height:12px;"></div><div title="len:10; freq:14" class=lenHist style="height:8px;"></div><div title="len:11; freq:8" class=lenHist style="height:5px;"></div><div title="len:12; freq:2" class=lenHist style="height:2px;"></div><div title="len:13; freq:4" class=lenHist style="height:3px;"></div><div title="len:14; freq:3" class=lenHist style="height:3px;"></div><div title="len:15; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:16; freq:1" class=lenHist style="height:2px;"></div><div title="len:17; freq:1" class=lenHist style="height:2px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin+apos:</i> 138 types, 194 tokens (sample of 25)<br>
-<blockquote class=dirAuto>can't &bull; christie's &bull; d'avelanny &bull; dragon's &bull; d’arithmąć &bull; d’orsay &bull; emperor's &bull; ferrari'eon &bull; fisher's &bull; george'ów &bull; george’a &bull; halfpipe'ie &bull; halfpipe'u &bull; johnstone'ów &bull; kate's &bull; l'impressionismy &bull; life’a &bull; neale'a &bull; o'brien &bull; o'mara &bull; performance’ów &bull; rae's &bull; yeltsin’s &bull; you're &bull; zidane'a<br>
+&nbsp;&nbsp;&nbsp;<i>Latin+apos:</i> <span class=diff>138 types, 194 tokens</span> (sample of 25)<br>
+<blockquote class=dirAuto>alexandre'a &bull; apollinaire'em &bull; azri'el &bull; bartholdy'eon &bull; brunel's &bull; dell'adamello &bull; devil's &bull; funk'n &bull; george'em &bull; hitler’s &bull; kate's &bull; labour’s &bull; neale'a &bull; o'banniun &bull; o'mara &bull; offa's &bull; queen's &bull; sha'ar &bull; sotheby's &bull; steve’a &bull; su’ud &bull; tolkien's &bull; wayne'a &bull; zidane'a &bull; zinedine'a<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–16, n=138, µ=8.14, σ=2.24</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:2px;"></div><div title="len:4; freq:1" class=lenHist style="height:2px;"></div><div title="len:5; freq:12" class=lenHist style="height:7px;"></div><div title="len:6; freq:17" class=lenHist style="height:10px;"></div><div title="len:7; freq:29" class=lenHist style="height:16px;"></div><div title="len:8; freq:23" class=lenHist style="height:13px;"></div><div title="len:9; freq:24" class=lenHist style="height:13px;"></div><div title="len:10; freq:13" class=lenHist style="height:8px;"></div><div title="len:11; freq:7" class=lenHist style="height:5px;"></div><div title="len:12; freq:4" class=lenHist style="height:3px;"></div><div title="len:13; freq:3" class=lenHist style="height:3px;"></div><div title="len:14; freq:3" class=lenHist style="height:3px;"></div><div title="len:15; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:16; freq:1" class=lenHist style="height:2px;"></div><br>
+</blockquote>
+
+</div>
+<div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin+name-like:</i> 2 types, 2 tokens<br>
+<blockquote class=dirAuto><span class=ltn title='Latin script'>r</span>.<span class=ltn title='Latin script'>niem</span> &bull; <span class=ltn title='Latin script'>W</span>.<span class=ltn title='Latin script'>Karlicki</span><br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 6–10, n=2, µ=8.00, σ=2.00</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:6; freq:1" class=lenHist style="height:16px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:10; freq:1" class=lenHist style="height:16px;"></div><br>
+</blockquote>
+
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin+name-like:</i> 2 types, 2 tokens<br>
+<blockquote class=dirAuto><span class=ltn title='Latin script'>r</span>.<span class=ltn title='Latin script'>niem</span> &bull; <span class=ltn title='Latin script'>w</span>.<span class=ltn title='Latin script'>karlicki</span><br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 6–10, n=2, µ=8.00, σ=2.00</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:6; freq:1" class=lenHist style="height:16px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:10; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
 
 </div>
@@ -5636,8 +5694,8 @@
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin+numbers:</i> 135 types, 695 tokens (sample of 25)<br>
-<blockquote class=dirAuto>023ć &bull; 105ć &bull; 10ć &bull; 11kwo &bull; 11ć &bull; 1972a &bull; 19ć &bull; 26cx &bull; 2n &bull; 51d &bull; ch9 &bull; e20 &bull; e2ć &bull; fa45 &bull; l413 &bull; m1 &bull; m10 &bull; m1918 &bull; m9 &bull; n5bf &bull; nx1 &bull; sl2 &bull; stg44 &bull; tw4 &bull; xenon10<br>
+&nbsp;&nbsp;&nbsp;<i>Latin+numbers:</i> <span class=diff>135 types, 695 tokens</span> (sample of 25)<br>
+<blockquote class=dirAuto>023ć &bull; 101c &bull; 10ć &bull; 151c &bull; 15ć &bull; 26cx &bull; 9076ć &bull; c2 &bull; c5 &bull; ch9 &bull; f12 &bull; fa45 &bull; g3 &bull; j195509 &bull; kn250 &bull; kwietnia1892 &bull; m10 &bull; m1898 &bull; m19ć &bull; n51f &bull; pp930 &bull; rs800g3 &bull; vt750c &bull; xenon10 &bull; xenon100<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 2–12, n=135, µ=4.16, σ=1.79</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:15" class=lenHist style="height:6px;"></div><div title="len:3; freq:45" class=lenHist style="height:16px;"></div><div title="len:4; freq:26" class=lenHist style="height:10px;"></div><div title="len:5; freq:28" class=lenHist style="height:10px;"></div><div title="len:6; freq:11" class=lenHist style="height:5px;"></div><div title="len:7; freq:4" class=lenHist style="height:2px;"></div><div title="len:8; freq:3" class=lenHist style="height:2px;"></div><div title="len:9; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:10; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:11; freq:1" class=lenHist style="height:1px;"></div><div title="len:12; freq:2" class=lenHist style="height:2px;"></div><br>
 </blockquote>
 
@@ -5657,23 +5715,23 @@
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin, comma-sep+numbers:</i> 6 types, 7 tokens<br>
+&nbsp;&nbsp;&nbsp;<i><span class=diff>Latin, comma-sep+numbers</span>:</i> 6 types, 7 tokens<br>
 <blockquote class=dirAuto>17,8ć &bull; 29,ć &bull; 4,ć &bull; 50,ć &bull; 58,ć &bull; 98,7ć<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–5, n=6, µ=4.17, σ=0.69</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:6px;"></div><div title="len:4; freq:3" class=lenHist style="height:16px;"></div><div title="len:5; freq:2" class=lenHist style="height:11px;"></div><br>
 </blockquote>
 
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin, period-sep:</i> 40 types, 150 tokens (sample of 25)<br>
-<blockquote class=dirAuto>ASGr.Historia &bull; belgianfootball.be &bull; Catholic.by &bull; Ch.Kroeger &bull; com.gn &bull; edu.gn &bull; globus.tut.by &bull; gov.gn &bull; Iat.uni &bull; im.Tadeusza &bull; M.in &bull; odbojka.si &bull; org.gn &bull; otemplario.pt &bull; peterbird.name &bull; pw.Narodzenia &bull; r.niem &bull; red.Stanisława &bull; tys.osób &bull; tzw.Baszta &bull; ul.Cegielnianej &bull; www.system &bull; św.Jana &bull; św.Józefa &bull; św.Wawrzyńca<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 4–18, n=40, µ=9.10, σ=3.33</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:4; freq:3" class=lenHist style="height:7px;"></div><div title="len:5; freq:1" class=lenHist style="height:3px;"></div><div title="len:6; freq:7" class=lenHist style="height:16px;"></div><div title="len:7; freq:5" class=lenHist style="height:12px;"></div><div title="len:8; freq:4" class=lenHist style="height:10px;"></div><div title="len:9; freq:2" class=lenHist style="height:5px;"></div><div title="len:10; freq:5" class=lenHist style="height:12px;"></div><div title="len:11; freq:3" class=lenHist style="height:7px;"></div><div title="len:12; freq:2" class=lenHist style="height:5px;"></div><div title="len:13; freq:4" class=lenHist style="height:10px;"></div><div title="len:14; freq:2" class=lenHist style="height:5px;"></div><div title="len:15; freq:1" class=lenHist style="height:3px;"></div><div title="len:16; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:17; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:18; freq:1" class=lenHist style="height:3px;"></div><br>
+&nbsp;&nbsp;&nbsp;<i>Latin, period-sep:</i> 39 types, 149 tokens (sample of 25)<br>
+<blockquote class=dirAuto>ASGr.Historia &bull; belgianfootball.be &bull; bsdb.be &bull; Catholic.by &bull; edu.gn &bull; gov.gn &bull; Iat.uni &bull; kat.X &bull; kosice.sk &bull; M.in &bull; m.in &bull; Métr.ex &bull; odbojka.si &bull; org.gn &bull; peterbird.name &bull; Ph.D &bull; pw.Narodzenia &bull; Sp.z.o.o &bull; tzw.Baszta &bull; value.Annals &bull; www.sports &bull; www.suiseki &bull; www.system &bull; św.Rocha &bull; św.Wawrzyńca<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 4–18, n=39, µ=9.18, σ=3.33</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:4; freq:3" class=lenHist style="height:9px;"></div><div title="len:5; freq:1" class=lenHist style="height:4px;"></div><div title="len:6; freq:6" class=lenHist style="height:16px;"></div><div title="len:7; freq:5" class=lenHist style="height:14px;"></div><div title="len:8; freq:4" class=lenHist style="height:11px;"></div><div title="len:9; freq:2" class=lenHist style="height:6px;"></div><div title="len:10; freq:5" class=lenHist style="height:14px;"></div><div title="len:11; freq:3" class=lenHist style="height:9px;"></div><div title="len:12; freq:2" class=lenHist style="height:6px;"></div><div title="len:13; freq:4" class=lenHist style="height:11px;"></div><div title="len:14; freq:2" class=lenHist style="height:6px;"></div><div title="len:15; freq:1" class=lenHist style="height:4px;"></div><div title="len:16; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:17; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:18; freq:1" class=lenHist style="height:4px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin, period-sep:</i> 63 types, 205 tokens (sample of 25)<br>
-<blockquote class=dirAuto>adonai.plić &bull; asgr.historia &bull; atlaskolejowy.plić &bull; bsdb.by &bull; cerkiew.plić &bull; edu.gn &bull; filmweb.plić &bull; gov.gn &bull; hero.aspy &bull; iat.uni &bull; im.tadeusz &bull; kosice.sk &bull; lewicowo.plić &bull; moderntalking.plić &bull; muzyka.wp.plić &bull; métr.ex &bull; niebieskaeskadra.plić &bull; peterbird.namy &bull; pw.narodzenie &bull; red.stanisław &bull; reference.infa &bull; senat.plić &bull; teatr.plić &bull; warszawa.getto.plić &bull; św.jan<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 4–21, n=63, µ=11.05, σ=4.11</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:4; freq:2" class=lenHist style="height:4px;"></div><div title="len:5; freq:1" class=lenHist style="height:3px;"></div><div title="len:6; freq:9" class=lenHist style="height:16px;"></div><div title="len:7; freq:4" class=lenHist style="height:8px;"></div><div title="len:8; freq:4" class=lenHist style="height:8px;"></div><div title="len:9; freq:2" class=lenHist style="height:4px;"></div><div title="len:10; freq:9" class=lenHist style="height:16px;"></div><div title="len:11; freq:4" class=lenHist style="height:8px;"></div><div title="len:12; freq:4" class=lenHist style="height:8px;"></div><div title="len:13; freq:7" class=lenHist style="height:13px;"></div><div title="len:14; freq:4" class=lenHist style="height:8px;"></div><div title="len:15; freq:4" class=lenHist style="height:8px;"></div><div title="len:16; freq:1" class=lenHist style="height:3px;"></div><div title="len:17; freq:2" class=lenHist style="height:4px;"></div><div title="len:18; freq:4" class=lenHist style="height:8px;"></div><div title="len:19; freq:1" class=lenHist style="height:3px;"></div><div title="len:20; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:21; freq:1" class=lenHist style="height:3px;"></div><br>
+&nbsp;&nbsp;&nbsp;<i>Latin, period-sep:</i> <span class=diff>61 types, 203 tokens</span> (sample of 25)<br>
+<blockquote class=dirAuto>adonai.plić &bull; asgr.historia &bull; atlaskolejowy.plić &bull; com.gn &bull; culture.plić &bull; edu.gn &bull; globus.tut.by &bull; gov.gn &bull; hero.aspy &bull; kat.x &bull; kodokan.plić &bull; m.in &bull; nefrologia.mp.plić &bull; net.gn &bull; niebieskaeskadra.plić &bull; org.gn &bull; peterbird.namy &bull; ph.d &bull; pw.mat &bull; teatr.plić &bull; ul.cegielniany &bull; value.annalecis &bull; www.sports &bull; www.system &bull; św.jan<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 4–21, n=61, µ=11.15, σ=4.12</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:4; freq:2" class=lenHist style="height:5px;"></div><div title="len:5; freq:1" class=lenHist style="height:3px;"></div><div title="len:6; freq:8" class=lenHist style="height:16px;"></div><div title="len:7; freq:4" class=lenHist style="height:9px;"></div><div title="len:8; freq:4" class=lenHist style="height:9px;"></div><div title="len:9; freq:2" class=lenHist style="height:5px;"></div><div title="len:10; freq:8" class=lenHist style="height:16px;"></div><div title="len:11; freq:4" class=lenHist style="height:9px;"></div><div title="len:12; freq:4" class=lenHist style="height:9px;"></div><div title="len:13; freq:7" class=lenHist style="height:14px;"></div><div title="len:14; freq:4" class=lenHist style="height:9px;"></div><div title="len:15; freq:4" class=lenHist style="height:9px;"></div><div title="len:16; freq:1" class=lenHist style="height:3px;"></div><div title="len:17; freq:2" class=lenHist style="height:5px;"></div><div title="len:18; freq:4" class=lenHist style="height:9px;"></div><div title="len:19; freq:1" class=lenHist style="height:3px;"></div><div title="len:20; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:21; freq:1" class=lenHist style="height:3px;"></div><br>
 </blockquote>
 
 </div>
@@ -5685,7 +5743,7 @@
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin, period-sep+numbers:</i> 6 types, 8 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Latin, period-sep+numbers:</i> <span class=diff>6 types, 8 tokens</span><br>
 <blockquote class=dirAuto>23.09.20ć &bull; 6.09.19ć &bull; 90minut.plić &bull; vt628.0 &bull; vt628.2 &bull; vt628.4<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 7–12, n=6, µ=8.33, σ=1.80</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:7; freq:3" class=lenHist style="height:16px;"></div><div title="len:8; freq:1" class=lenHist style="height:6px;"></div><div title="len:9; freq:1" class=lenHist style="height:6px;"></div><div title="len:10; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:1" class=lenHist style="height:6px;"></div><br>
 </blockquote>
@@ -5706,43 +5764,20 @@
 
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin, underscore-sep+numbers:</i> 1 types, 2 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Latin, underscore-sep+numbers:</i> 1 type, 2 tokens<br>
 <blockquote class=dirAuto>2003_PB2002<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 11, n=1, µ=11, σ=0</span></blockquote>
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin, underscore-sep+numbers:</i> 1 types, 2 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Latin, underscore-sep+numbers:</i> 1 type, 2 tokens<br>
 <blockquote class=dirAuto>2003_pb2002<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 11, n=1, µ=11, σ=0</span></blockquote>
 
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>acronym-like:</i> 10 types, 46 tokens<br>
-<blockquote class=dirAuto>a.s &bull; j.a &bull; j.w &bull; n.e &bull; n.p.m &bull; o.o &bull; p.n.e &bull; S.c &bull; s.c &bull; t.r<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–5, n=10, µ=3.40, σ=0.80</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:8" class=lenHist style="height:16px;"></div><div title="len:4; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:5; freq:2" class=lenHist style="height:5px;"></div><br>
-</blockquote>
-
-</div>
-<div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>acronym-like:</i> 34 types, 78 tokens (sample of 25)<br>
-<blockquote class=dirAuto>a.s &bull; c.a.b &bull; e.a.r.t.h &bull; g.a &bull; j.r.r &bull; j.s &bull; j.w &bull; l.a &bull; m.m &bull; m.o.d &bull; n.e &bull; n.p.m &bull; o.m &bull; o.n.a &bull; o.o &bull; p.e &bull; p.n.e &bull; r.t &bull; s.c &bull; s.o.d &bull; s.p.q.r &bull; t.r &bull; t.r.i.p &bull; u.s &bull; z.s.r.r<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–9, n=34, µ=4.00, σ=1.55</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:22" class=lenHist style="height:16px;"></div><div title="len:4; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:5; freq:8" class=lenHist style="height:6px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:3" class=lenHist style="height:3px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:1" class=lenHist style="height:2px;"></div><br>
-</blockquote>
-
-</div>
-<br style='clear:both'>
-<div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>acronyms:</i> 25 types, 32 tokens<br>
-<blockquote class=dirAuto>C.A.B &bull; D.R.I &bull; E.A.R.T.H &bull; F.C &bull; G.A &bull; G.R &bull; J.R.R &bull; J.S &bull; L.A &bull; M.M &bull; M.O.D &bull; O.M &bull; O.N.A &bull; P.E &bull; P.J &bull; R.T &bull; S.A &bull; S.O.D &bull; S.P.Q.R &bull; T.D &bull; T.J &bull; T.P &bull; T.R.I.P &bull; U.S &bull; Z.S.R.R<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–9, n=25, µ=4.20, σ=1.70</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:15" class=lenHist style="height:16px;"></div><div title="len:4; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:5; freq:6" class=lenHist style="height:7px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:3" class=lenHist style="height:4px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:1" class=lenHist style="height:2px;"></div><br>
-</blockquote>
-
-</div>
-<br style='clear:both'>
-<div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>chemical formula:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i><span class=diff>chemical formula</span>:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto>N5BF<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 4, n=1, µ=4, σ=0</span></blockquote>
 
@@ -5756,7 +5791,7 @@
 
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>file types:</i> 4 types, 4 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>file types:</i> <span class=diff>4 types, 4 tokens</span><br>
 <blockquote class=dirAuto>index.html &bull; index.shtml &bull; pechersk.html &bull; traktat.html<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 10–13, n=4, µ=11.50, σ=1.12</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:10; freq:1" class=lenHist style="height:16px;"></div><div title="len:11; freq:1" class=lenHist style="height:16px;"></div><div title="len:12; freq:1" class=lenHist style="height:16px;"></div><div title="len:13; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
@@ -5765,94 +5800,99 @@
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>measurements:</i> 27 types, 33 tokens (sample of 25)<br>
-<blockquote class=dirAuto>100m &bull; 11153ha &bull; 124cm &bull; 142M &bull; 146M &bull; 155x &bull; 18m &bull; 1x &bull; 2.32m &bull; 20m &bull; 217M &bull; 231M &bull; 296M &bull; 2km &bull; 2x &bull; 300km &bull; 398M &bull; 3x &bull; 40x50 &bull; 4kB &bull; 4m &bull; 50m &bull; 6x42 &bull; 9MB &bull; V8<br>
+<blockquote class=dirAuto>100m &bull; 11153ha &bull; 124cm &bull; 125cm &bull; 142M &bull; 146M &bull; 155x &bull; 18m &bull; 1x &bull; 2.32m &bull; 20m &bull; 217M &bull; 296M &bull; 2km &bull; 2x &bull; 300km &bull; 38544ha &bull; 398M &bull; 3x &bull; 40x50 &bull; 4kB &bull; 4m &bull; 50m &bull; 9MB &bull; V8<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 2–7, n=27, µ=3.81, σ=1.33</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:5" class=lenHist style="height:9px;"></div><div title="len:3; freq:6" class=lenHist style="height:11px;"></div><div title="len:4; freq:9" class=lenHist style="height:16px;"></div><div title="len:5; freq:5" class=lenHist style="height:9px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:2" class=lenHist style="height:4px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>measurements:</i> 27 types, 33 tokens (sample of 25)<br>
-<blockquote class=dirAuto>100m &bull; 11153ha &bull; 124cm &bull; 125cm &bull; 142m &bull; 146m &bull; 155x &bull; 15km &bull; 18m &bull; 1x &bull; 2.32m &bull; 20m &bull; 231m &bull; 296m &bull; 2km &bull; 2x &bull; 300km &bull; 38544ha &bull; 398m &bull; 3x &bull; 40x50 &bull; 4kb &bull; 4m &bull; 50m &bull; 6x42<br>
+<blockquote class=dirAuto>100m &bull; 11153ha &bull; 125cm &bull; 142m &bull; 146m &bull; 155x &bull; 15km &bull; 18m &bull; 1x &bull; 2.32m &bull; 20m &bull; 217m &bull; 231m &bull; 296m &bull; 2km &bull; 2x &bull; 300km &bull; 38544ha &bull; 398m &bull; 40x50 &bull; 4kb &bull; 4m &bull; 50m &bull; 6x42 &bull; v8<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 2–7, n=27, µ=3.85, σ=1.33</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:5" class=lenHist style="height:9px;"></div><div title="len:3; freq:5" class=lenHist style="height:9px;"></div><div title="len:4; freq:10" class=lenHist style="height:16px;"></div><div title="len:5; freq:5" class=lenHist style="height:9px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:2" class=lenHist style="height:4px;"></div><br>
 </blockquote>
 
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>name-like:</i> 1 types, 1 tokens<br>
-<blockquote class=dirAuto><span class=ltn title='Latin script'>W</span>.<span class=ltn title='Latin script'>Karlicki</span><br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type length: 10, n=1, µ=10, σ=0</span></blockquote>
-
-</div>
-<br style='clear:both'>
-<div class='leftCatDiv newCat'>
 &nbsp;&nbsp;&nbsp;<i>web domains:</i> 96 types, 150 tokens (sample of 25)<br>
-<blockquote class=dirAuto>bahamstrack.com &bull; BDFutbol.com &bull; cerkiew.pl &bull; chidlovski.net &bull; FIFA.com &bull; Gcatholic.org &bull; hierarchy.org &bull; IrishTrails.ie &bull; itsrugby.co.uk &bull; kodokan.pl &bull; legabasket.it &bull; muzyka.wp.pl &bull; projects.latimes.com &bull; Reference.com &bull; rugby.com.au &bull; scout.com &bull; shakhterstat.by.ru &bull; sportresult.com &bull; tblstat.net &bull; teams.com &bull; transfermarkt.de &bull; waratahs.com.au &bull; WIKISKY.ORG &bull; worldfootball.net &bull; www.warheroes.ru<br>
+<blockquote class=dirAuto>assn.gr.jp &bull; buscabiografias.com &bull; chidlovski.net &bull; Discogs.com &bull; enard.org.ar &bull; espn.go.com &bull; Eurohockey.net &bull; hierarchy.org &bull; IrishTrails.ie &bull; itftennis.com &bull; libr.ru &bull; nationaltrail.co.uk &bull; players.pointafter.com &bull; Reference.com &bull; reference.com &bull; rugby.com.au &bull; senat.pl &bull; shakhterstat.by.ru &bull; tanuki.pl &bull; teatr.pl &bull; UEFA.com &bull; waratahs.com.au &bull; worldfootball.net &bull; www.warheroes.ru &bull; www.wicklowway.com<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 6–22, n=96, µ=13.08, σ=3.62</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:6; freq:2" class=lenHist style="height:3px;"></div><div title="len:7; freq:3" class=lenHist style="height:4px;"></div><div title="len:8; freq:7" class=lenHist style="height:8px;"></div><div title="len:9; freq:5" class=lenHist style="height:6px;"></div><div title="len:10; freq:9" class=lenHist style="height:9px;"></div><div title="len:11; freq:7" class=lenHist style="height:8px;"></div><div title="len:12; freq:7" class=lenHist style="height:8px;"></div><div title="len:13; freq:16" class=lenHist style="height:16px;"></div><div title="len:14; freq:7" class=lenHist style="height:8px;"></div><div title="len:15; freq:7" class=lenHist style="height:8px;"></div><div title="len:16; freq:10" class=lenHist style="height:10px;"></div><div title="len:17; freq:2" class=lenHist style="height:3px;"></div><div title="len:18; freq:6" class=lenHist style="height:7px;"></div><div title="len:19; freq:5" class=lenHist style="height:6px;"></div><div title="len:20; freq:1" class=lenHist style="height:2px;"></div><div title="len:21; freq:1" class=lenHist style="height:2px;"></div><div title="len:22; freq:1" class=lenHist style="height:2px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>web domains:</i> 71 types, 94 tokens (sample of 25)<br>
-<blockquote class=dirAuto>battle.net &bull; cqranking.com &bull; draftexpress.com &bull; en.wikipedia.org &bull; ffnatation.fr &bull; fifa.com &bull; foeldeak.com &bull; foxsports.com &bull; grwar.ru &bull; hierarchy.org &bull; iaaf.org &bull; itftennis.com &bull; legioner.kulichki.com &bull; leipzig.de &bull; libr.ru &bull; lnb.fr &bull; nationaltrail.co.uk &bull; rotoworld.com &bull; ski.com &bull; sportresult.com &bull; tblstat.net &bull; tilastopaja.org &bull; transfermarkt.de &bull; worldfootball.net &bull; www.wicklowway.com<br>
+&nbsp;&nbsp;&nbsp;<i>web domains:</i> <span class=diff>71 types, 94 tokens</span> (sample of 25)<br>
+<blockquote class=dirAuto>autodromoimola.com &bull; battle.net &bull; bdfutbol.com &bull; discogs.com &bull; draftexpress.com &bull; fifa.com &bull; fila.com &bull; formula1monaco.com &bull; hierarchy.org &bull; itftennis.com &bull; libr.ru &bull; nbadraft.net &bull; parishonline.com &bull; players.pointafter.com &bull; radzima.org &bull; rugby.com.au &bull; rusteam.permian.ru &bull; sportresult.com &bull; tilastopaja.org &bull; transfermarkt.de &bull; waratahs.com.au &bull; wimbledon.com &bull; www.fallingrain.com &bull; www.tug.org &bull; www.warheroes.ru<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 6–22, n=71, µ=13.37, σ=3.71</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:6; freq:1" class=lenHist style="height:2px;"></div><div title="len:7; freq:3" class=lenHist style="height:5px;"></div><div title="len:8; freq:5" class=lenHist style="height:7px;"></div><div title="len:9; freq:3" class=lenHist style="height:5px;"></div><div title="len:10; freq:4" class=lenHist style="height:6px;"></div><div title="len:11; freq:6" class=lenHist style="height:9px;"></div><div title="len:12; freq:6" class=lenHist style="height:9px;"></div><div title="len:13; freq:12" class=lenHist style="height:16px;"></div><div title="len:14; freq:5" class=lenHist style="height:7px;"></div><div title="len:15; freq:5" class=lenHist style="height:7px;"></div><div title="len:16; freq:7" class=lenHist style="height:10px;"></div><div title="len:17; freq:1" class=lenHist style="height:2px;"></div><div title="len:18; freq:6" class=lenHist style="height:9px;"></div><div title="len:19; freq:4" class=lenHist style="height:6px;"></div><div title="len:20; freq:1" class=lenHist style="height:2px;"></div><div title="len:21; freq:1" class=lenHist style="height:2px;"></div><div title="len:22; freq:1" class=lenHist style="height:2px;"></div><br>
 </blockquote>
 
 </div>
 <div class='leftCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>＃ dates:</i> 6 types, 6 tokens<br>
+<blockquote class=dirAuto>1.09.1980 &bull; 18.09.1939 &bull; 23.09.2011 &bull; 24.06.2008 &bull; 6.09.1971 &bull; 9.04.1979<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 9–10, n=6, µ=9.50, σ=0.50</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:9; freq:3" class=lenHist style="height:16px;"></div><div title="len:10; freq:3" class=lenHist style="height:16px;"></div><br>
+</blockquote>
+
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>＃ dates:</i> <span class=diff>4 types, 4 tokens</span><br>
+<blockquote class=dirAuto>1.09.1980 &bull; 18.09.1939 &bull; 24.06.2008 &bull; 9.04.1979<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 9–10, n=4, µ=9.50, σ=0.50</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:9; freq:2" class=lenHist style="height:16px;"></div><div title="len:10; freq:2" class=lenHist style="height:16px;"></div><br>
+</blockquote>
+
+</div>
+<div class='leftCatDiv'>
 &nbsp;&nbsp;&nbsp;<i>＃ decimals:</i> 39 types, 43 tokens (sample of 25)<br>
-<blockquote class=dirAuto>0.1 &bull; 10.1029 &bull; 10.5 &bull; 11.0 &bull; 12.000 &bull; 14.00 &bull; 15.00 &bull; 15.000 &bull; 17.00 &bull; 18.00 &bull; 20.00 &bull; 28.06 &bull; 3.5 &bull; 30.000 &bull; 4.00 &bull; 4.2 &bull; 4.3 &bull; 40.000 &bull; 43.19 &bull; 50.39 &bull; 628.0 &bull; 65.5 &bull; 7.00 &bull; 8.00 &bull; 80.000<br>
+<blockquote class=dirAuto>10.5 &bull; 11.0 &bull; 12.00 &bull; 12.000 &bull; 15.00 &bull; 15.000 &bull; 16.00 &bull; 17.00 &bull; 18.00 &bull; 2.3 &bull; 21.08 &bull; 22.3 &bull; 241.65 &bull; 25.000 &bull; 28.99 &bull; 4.00 &bull; 4.2 &bull; 4.3 &bull; 40.000 &bull; 43.19 &bull; 50.39 &bull; 65.5 &bull; 8.00 &bull; 80.000 &bull; 9.00<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–7, n=39, µ=4.74, σ=1.08</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:6" class=lenHist style="height:7px;"></div><div title="len:4; freq:9" class=lenHist style="height:10px;"></div><div title="len:5; freq:15" class=lenHist style="height:16px;"></div><div title="len:6; freq:7" class=lenHist style="height:8px;"></div><div title="len:7; freq:2" class=lenHist style="height:3px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv'>
 &nbsp;&nbsp;&nbsp;<i>＃ decimals:</i> 39 types, 43 tokens (sample of 25)<br>
-<blockquote class=dirAuto>0.1 &bull; 10.00 &bull; 10.5 &bull; 12.00 &bull; 12.000 &bull; 14.00 &bull; 15.000 &bull; 16.00 &bull; 2.0 &bull; 2.3 &bull; 20.00 &bull; 21.08 &bull; 215.000 &bull; 22.3 &bull; 25.000 &bull; 3.5 &bull; 30.000 &bull; 4.2 &bull; 40.000 &bull; 43.19 &bull; 53.7 &bull; 65.5 &bull; 8.00 &bull; 80.000 &bull; 9.00<br>
+<blockquote class=dirAuto>0.1 &bull; 10.00 &bull; 10.1029 &bull; 11.0 &bull; 12.000 &bull; 15.00 &bull; 15.000 &bull; 16.00 &bull; 17.00 &bull; 2.0 &bull; 2.3 &bull; 20.00 &bull; 21.08 &bull; 215.000 &bull; 25.000 &bull; 28.99 &bull; 3.000 &bull; 3.5 &bull; 4.00 &bull; 4.2 &bull; 4.3 &bull; 628.0 &bull; 7.00 &bull; 80.000 &bull; 9.00<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–7, n=39, µ=4.74, σ=1.08</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:6" class=lenHist style="height:7px;"></div><div title="len:4; freq:9" class=lenHist style="height:10px;"></div><div title="len:5; freq:15" class=lenHist style="height:16px;"></div><div title="len:6; freq:7" class=lenHist style="height:8px;"></div><div title="len:7; freq:2" class=lenHist style="height:3px;"></div><br>
 </blockquote>
 
 </div>
 <div class='leftCatDiv'>
 &nbsp;&nbsp;&nbsp;<i>＃ integers:</i> 1,193 types, 9,747 tokens (sample of 25)<br>
-<blockquote class=dirAuto>00921 &bull; 03221 &bull; 1038 &bull; 1068 &bull; 1305 &bull; 1395 &bull; 1462 &bull; 1823 &bull; 1877 &bull; 1909 &bull; 1928 &bull; 1952 &bull; 196 &bull; 1985 &bull; 2002 &bull; 2315 &bull; 277000 &bull; 28 &bull; 3 &bull; 309 &bull; 349 &bull; 44 &bull; 67 &bull; 73700 &bull; 86<br>
+<blockquote class=dirAuto>084 &bull; 1021 &bull; 12 &bull; 1666 &bull; 167 &bull; 1679 &bull; 1711 &bull; 1712 &bull; 1818 &bull; 1833 &bull; 1851 &bull; 1914 &bull; 1917 &bull; 1984 &bull; 1988 &bull; 2188 &bull; 2360 &bull; 330 &bull; 369 &bull; 385 &bull; 577 &bull; 580 &bull; 74 &bull; 921 &bull; 9780786680955<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–13, n=1,193, µ=3.67, σ=1.15</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:10" class=lenHist style="height:1px;"></div><div title="len:2; freq:100" class=lenHist style="height:3px;"></div><div title="len:3; freq:358" class=lenHist style="height:9px;"></div><div title="len:4; freq:636" class=lenHist style="height:16px;"></div><div title="len:5; freq:55" class=lenHist style="height:2px;"></div><div title="len:6; freq:21" class=lenHist style="height:1px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:1" class=lenHist style="height:1px;"></div><div title="len:10; freq:6" class=lenHist style="height:1px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:6" class=lenHist style="height:1px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>＃ integers:</i> 1,127 types, 9,175 tokens (sample of 25)<br>
-<blockquote class=dirAuto>090 &bull; 1115 &bull; 167 &bull; 1709 &bull; 1759 &bull; 1816 &bull; 1852 &bull; 1929 &bull; 1966 &bull; 1986 &bull; 246 &bull; 281 &bull; 300 &bull; 349 &bull; 353 &bull; 377 &bull; 3985 &bull; 469 &bull; 521 &bull; 760 &bull; 7780 &bull; 8000 &bull; 803 &bull; 816 &bull; 919<br>
+&nbsp;&nbsp;&nbsp;<i>＃ integers:</i> <span class=diff>1,127 types, 9,175 tokens</span> (sample of 25)<br>
+<blockquote class=dirAuto>1230 &bull; 130 &bull; 140 &bull; 1435 &bull; 15 &bull; 1557 &bull; 15733 &bull; 1588 &bull; 1724 &bull; 1772 &bull; 1853 &bull; 1885 &bull; 1887 &bull; 1977 &bull; 2012 &bull; 2345 &bull; 243 &bull; 293 &bull; 353 &bull; 470 &bull; 54 &bull; 6240 &bull; 633 &bull; 839 &bull; 984<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–13, n=1,127, µ=3.64, σ=1.17</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:10" class=lenHist style="height:1px;"></div><div title="len:2; freq:100" class=lenHist style="height:4px;"></div><div title="len:3; freq:358" class=lenHist style="height:10px;"></div><div title="len:4; freq:579" class=lenHist style="height:16px;"></div><div title="len:5; freq:48" class=lenHist style="height:2px;"></div><div title="len:6; freq:19" class=lenHist style="height:1px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:1" class=lenHist style="height:1px;"></div><div title="len:10; freq:6" class=lenHist style="height:1px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:6" class=lenHist style="height:1px;"></div><br>
 </blockquote>
 
 </div>
 <div class='leftCatDiv'>
 &nbsp;&nbsp;&nbsp;<i>＃ integers, comma-sep:</i> 179 types, 210 tokens (sample of 25)<br>
-<blockquote class=dirAuto>0,09 &bull; 0,70 &bull; 0,95 &bull; 1,3 &bull; 10,64 &bull; 116,76 &bull; 12,7 &bull; 2,33 &bull; 2,93 &bull; 4,0 &bull; 4,95 &bull; 5,4 &bull; 5,9 &bull; 5,97 &bull; 50,61 &bull; 52,90 &bull; 58,61 &bull; 64,70 &bull; 64,77 &bull; 7,39 &bull; 83,3 &bull; 9,03 &bull; 9,1 &bull; 90,23 &bull; 92,4<br>
+<blockquote class=dirAuto>0,23 &bull; 0,26 &bull; 0,97 &bull; 1,02 &bull; 1,8 &bull; 103,5 &bull; 12,4 &bull; 12,7 &bull; 14,60 &bull; 2,07 &bull; 2,4,7,9,10,12 &bull; 2,48 &bull; 23,2 &bull; 27,9 &bull; 28,7 &bull; 3,8 &bull; 3,90 &bull; 40,64 &bull; 58,61 &bull; 6,5 &bull; 7,39 &bull; 71,95 &bull; 79,14 &bull; 96,14 &bull; 98,5<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–15, n=179, µ=4.26, σ=1.36</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:37" class=lenHist style="height:7px;"></div><div title="len:4; freq:88" class=lenHist style="height:16px;"></div><div title="len:5; freq:45" class=lenHist style="height:9px;"></div><div title="len:6; freq:5" class=lenHist style="height:2px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:1" class=lenHist style="height:1px;"></div><div title="len:9; freq:1" class=lenHist style="height:1px;"></div><div title="len:10; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:1" class=lenHist style="height:1px;"></div><div title="len:14; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:15; freq:1" class=lenHist style="height:1px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>＃ integers, comma-sep:</i> 168 types, 197 tokens (sample of 25)<br>
-<blockquote class=dirAuto>0,23 &bull; 0,38 &bull; 1,4 &bull; 1,8 &bull; 12,7 &bull; 14,3 &bull; 147,2 &bull; 17,8 &bull; 2,03 &bull; 2,4,7,9,10,12 &bull; 2,93 &bull; 21,5 &bull; 23,2 &bull; 3,12 &bull; 3,8 &bull; 48,8 &bull; 5,2 &bull; 52,07 &bull; 6,4 &bull; 6,62 &bull; 6,9 &bull; 604,7 &bull; 86,6 &bull; 9,1 &bull; 94,7<br>
+&nbsp;&nbsp;&nbsp;<i>＃ integers, comma-sep:</i> <span class=diff>168 types, 197 tokens</span> (sample of 25)<br>
+<blockquote class=dirAuto>0,97 &bull; 1,3 &bull; 1,8 &bull; 11,66 &bull; 11,9 &bull; 12,7 &bull; 1227,985 &bull; 13,3 &bull; 18,8 &bull; 2,73 &bull; 2,9 &bull; 2,93 &bull; 207,9 &bull; 24,77 &bull; 25,8 &bull; 27,9 &bull; 28,7 &bull; 4,30 &bull; 5,7 &bull; 50,6 &bull; 6,4 &bull; 6,9 &bull; 64,77 &bull; 77,5 &bull; 9,1<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–15, n=168, µ=4.25, σ=1.40</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:37" class=lenHist style="height:8px;"></div><div title="len:4; freq:82" class=lenHist style="height:16px;"></div><div title="len:5; freq:40" class=lenHist style="height:8px;"></div><div title="len:6; freq:5" class=lenHist style="height:2px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:1" class=lenHist style="height:1px;"></div><div title="len:9; freq:1" class=lenHist style="height:1px;"></div><div title="len:10; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:1" class=lenHist style="height:1px;"></div><div title="len:14; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:15; freq:1" class=lenHist style="height:1px;"></div><br>
 </blockquote>
 
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>＃ integers, period-sep:</i> 7 types, 7 tokens<br>
-<blockquote class=dirAuto>1.09.1980 &bull; 18.09.1939 &bull; 23.09.2011 &bull; 24.06.2008 &bull; 3.1.4 &bull; 6.09.1971 &bull; 9.04.1979<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–10, n=7, µ=8.86, σ=1.64</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:1" class=lenHist style="height:6px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:3" class=lenHist style="height:16px;"></div><div title="len:10; freq:3" class=lenHist style="height:16px;"></div><br>
-</blockquote>
+&nbsp;&nbsp;&nbsp;<i>＃ integers, period-sep:</i> 1 type, 1 token<br>
+<blockquote class=dirAuto>3.1.4<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type length: 5, n=1, µ=5, σ=0</span></blockquote>
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>＃ integers, period-sep:</i> 5 types, 5 tokens<br>
-<blockquote class=dirAuto>1.09.1980 &bull; 18.09.1939 &bull; 24.06.2008 &bull; 3.1.4 &bull; 9.04.1979<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–10, n=5, µ=8.60, σ=1.85</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:1" class=lenHist style="height:9px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:9; freq:2" class=lenHist style="height:16px;"></div><div title="len:10; freq:2" class=lenHist style="height:16px;"></div><br>
-</blockquote>
+&nbsp;&nbsp;&nbsp;<i>＃ integers, period-sep:</i> 1 type, 1 token<br>
+<blockquote class=dirAuto>3.1.4<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type length: 5, n=1, µ=5, σ=0</span></blockquote>
 
 </div>
 <div class='leftCatDiv'>
@@ -5863,7 +5903,7 @@
 
 </div>
 <div class='rightCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>＃ numbers with digit groups:</i> 13 types, 15 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>＃ numbers with digit groups:</i> <span class=diff>13 types, 15 tokens</span><br>
 <blockquote class=dirAuto>0,137 &bull; 10,000 &bull; 10,127 &bull; 103,203 &bull; 2,262 &bull; 23,196 &bull; 23,988 &bull; 24,000 &bull; 30,000 &bull; 500,000 &bull; 53,750 &bull; 75,000 &bull; 865,744<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–7, n=13, µ=6.08, σ=0.62</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:2" class=lenHist style="height:5px;"></div><div title="len:6; freq:8" class=lenHist style="height:16px;"></div><div title="len:7; freq:3" class=lenHist style="height:7px;"></div><br>
 </blockquote>

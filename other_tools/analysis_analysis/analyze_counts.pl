@@ -27,7 +27,7 @@ our ($opt_a, $opt_d, $opt_h, $opt_i, $opt_p, $opt_t, $opt_1, $opt_2);
 getopts('a:d:h:i:p:t:12');
 
 my %default_config = (
-	'host' => 'elasticsearch',
+	'host' => 'localhost',
 	'port' => '9200',
 	'index' => 'my_wiki_content',
 	'analyzer' => 'text',
@@ -83,6 +83,7 @@ my $counts_file = '';       # output file with mapping between original and fina
 my $tok_counts_file = '';   # input/output file with original tokens and counts
 my $tok_stem_file = '';     # input/output file with one normalized token per line
 
+my $pipe_esc = chr(3);      # used to escape pipe characters in counts file
 
 my $line_cnt = 0;
 my %final_count = ();
@@ -171,8 +172,10 @@ else {
 		my $start_line_cnt = $line_cnt;
 
 		# ~30x speed up to process 100 lines at a time.
+		# Get a mere 25–30% further speed up by allowing up
+		# to 300 lines at a time (under 30K char limit).
 		my $line_len = length($line);
-		foreach my $i (1..99) {
+		foreach my $i (1..299) {
 			my $new_line = <INPUTTEXTFILE>;
 			if ($new_line) {
 				chomp $new_line;
@@ -221,25 +224,25 @@ else {
 
 		foreach my $jline (split(/\n\s*/, $json)) {
 			if ($jline =~ /^"token" : "(.*)",$/) {
-				$token = $1;
+				$token = count_esc($1);
 				}
 			elsif ($jline =~ /^"start_offset" : (\d+),$/) {
 				$start = $1;
 				}
 			elsif ($jline =~ /^"end_offset" : (\d+),$/) {
 				$end = $1;
-				my $otoken = substr($line, $start, $end - $start);
+				my $otoken = count_esc(substr($line, $start, $end - $start));
 				$otoken =~ s/$pad//g; # remove any ^A padding from actual tokens
 				$tokens{"$start|$end|$otoken"}{$token}++;
 				}
 			}
 
-		foreach my $info (sort keys %tokens) {
+		foreach my $info (keys %tokens) {
 			my ($s, $e, $otoken) = split /\|/, $info, 3;
 			my $mapto = join('|', sort keys %{$tokens{$info}});
-			$final_count{$otoken}{$mapto}++;
-			foreach my $token (sort keys %{$tokens{$info}}) {
-				$reverse{$token}{$otoken}++;
+			foreach my $token (keys %{$tokens{$info}}) {
+				$final_count{$otoken}{$mapto} += $tokens{$info}{$token};
+				$reverse{$token}{$otoken} += $tokens{$info}{$token};
 				}
 			}
 		}
@@ -270,7 +273,7 @@ else {
 
 	print COUNTSFILE "original tokens mapped to final tokens\n";
 	foreach my $otoken (sort keys %final_count) {
-		print COUNTSFILE "$otoken\n";
+		print COUNTSFILE count_unesc($otoken), "\n";
 		foreach my $mapto (sort keys %{$final_count{$otoken}}) {
 			print COUNTSFILE "\t$final_count{$otoken}{$mapto}\t$mapto\n";
 			}
@@ -280,7 +283,7 @@ else {
 
 	print COUNTSFILE "final tokens mapped to original tokens\n";
 	foreach my $token (sort keys %reverse) {
-		print COUNTSFILE "$token\n";
+		print COUNTSFILE count_unesc($token), "\n";
 		foreach my $otoken (sort keys %{$reverse{$token}}) {
 			print COUNTSFILE "\t$reverse{$token}{$otoken}\t$otoken\n";
 			}
@@ -290,6 +293,24 @@ else {
 	}
 
 exit;
+
+###############
+# add pipe escape char following pipes
+#
+sub count_esc {
+	my ($str) = @_;
+	$str =~ s/\|/\|$pipe_esc/g;
+	return $str;
+	}
+
+###############
+# remove pipe escape char following pipes
+#
+sub count_unesc {
+	my ($str) = @_;
+	$str =~ s/\|$pipe_esc/\|/g;
+	return "$str";
+	}
 
 sub urlize {
 	my ($rv) = @_;

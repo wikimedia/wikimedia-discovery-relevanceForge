@@ -1,6 +1,6 @@
 # Trey's Language Analyzer Analysis Tools
 
-October 2022
+November 2024
 
 These are the tools I use to do analysis of Elasticsearch language analyzers and custom analysis
 chains. Most of
@@ -82,7 +82,7 @@ Here's the usage for reference:
         -d <dir>   directory output files should be written to
                      (default: same as <input_file>.txt or <input_stemmed>.txt)
 
-        -h <host>  specify host for analysis (default: elasticsearch)
+        -h <host>  specify host for analysis (default: localhost)
         -p <port>  specify port for analysis (default: 9200)
         -i <index> specify index for analysis (default: my_wiki_content)
         -a <analyzer>
@@ -125,7 +125,7 @@ Here's the usage for reference:
     helps keep the counts for "see", "also", and "references" at more typical levels for
     general text.
   * It is more efficient for `analyze_counts.pl` to batch up lines of text and send them to
-    Elasticsearch together. Up to 100 lines can be grouped together, up to around 30,000
+    Elasticsearch together. Up to 300 lines can be grouped together, up to around 30,000
     characters (over 50K seems to cause problems). If your input file has lots of individual
     lines with significantly more than 10K characters per line, you could have trouble.
     * As of Elasticsearch 7, there is a default limit for API calls to `_analyze` to return no
@@ -143,10 +143,13 @@ Here's the usage for reference:
       pre-emptively configure the limit to be arbitrarily high—say, 100K—with this command:
 
         ```
-        curl -X PUT "elasticsearch:9200/my_wiki_content/_settings?pretty" \
+        curl -X PUT "localhost:9200/my_wiki_content/_settings?pretty" \
          -H 'Content-Type: application/json' \
          -d'{ "index" : { "analyze" : { "max_token_count" : 100000 }}}'
         ```
+
+      (I have this command in the script I use for reindexing locally, so it gets run every time I
+      change or update the analysis chain I'm using.)
 
 * The output file, which I call a "counts file", is pretty self-explanatory, but very long, so
   note that there are two sections: *original tokens mapped to final tokens* and *final tokens
@@ -160,7 +163,7 @@ Here's the usage for reference:
     reformat them into the format output by `analyze_counts.pl` and then use
     `compare_counts.pl` to analyze them. (See also [Using an External
     Stemmer](#UsinganExternalStemmer) below.)
-* The default host:port, index, analyzer combo is `elasticsearch:9200`, `my_wiki_content`, and
+* The default host:port, index, analyzer combo is `localhost:9200`, `my_wiki_content`, and
   `text`, which are the defaults used in Mediawiki Docker, our current preferred dev
   environment. You can override any or all of these with `-h`, `-p`, `-i`, and `-a`.
 * While the program is running, dots and numbers are output to STDERR as a progress indicator.
@@ -339,11 +342,14 @@ Post-Analysis, so you can get a sense of what you've got, and what the analysis 
 * Tokens in the *mixed, unknown, IPA-ish, Tonal Transcription,* and *name-like* categories, as
   well as those in the "Stemmed Tokens Generated per Input Token" and "Final Type Lengths"
   sections also have script colorization applied to (so far):
-  <span style='color:#107896; font-weight:bold'>Bengali</span>,
   <span style='color:#ff0000; font-weight:bold'>Cyrillic</span>,
-  <span style='color:#e68d2e; font-weight:bold'>Devanagari</span>,
   <span style='color:#0000ff; font-weight:bold'>Greek</span>,
-  <span style='color:#007700; font-weight:bold'>Latin</span>,
+  <span style='color:#007700; font-weight:bold'>Latin</span>;
+  <span style='color:#996600; font-weight:bold'>Han</span>,
+  <span style='color:#999900; font-weight:bold'>Hiragana</span>,
+  <span style='color:#e68d2e; font-weight:bold'>Katakana</span>;
+  <span style='color:#107896; font-weight:bold'>Bengali</span>,
+  <span style='color:#cc00cc; font-weight:bold'>Devanagari</span>,
   <span style='color:#9400D3; font-weight:bold'>Thai</span>,
   and <span style='color:#808080; font-weight:bold'>Unicode</span>,
   with more detail available on hover. A general key is also provided for invisibles and script
@@ -359,8 +365,8 @@ Post-Analysis, so you can get a sense of what you've got, and what the analysis 
 * If you have a really big category, only a randomly chosen sub-sample is shown. Currently, 100
   samples are shown for Lost/Found categories in a Comparison Analysis, and 25 samples are shown for
   most Self Analysis categories (100 for the *unknown* category).
-* The 25 most frequent tokens in each category that occur more than 1000 times are re-listed with
-  their counts on a separate line labeled "hi-freq tokens".
+* Up to 25 of the most frequent tokens in each category that occur more than 1000 times are
+  re-listed with their counts on a separate line labeled "hi-freq tokens".
 * A small statistical summary of type lengths (i.e., counting distinct words once each) is also
   given, including the range (e.g., 1–5), count (n), mean (µ), and standard deviation (σ),
   along with a small histogram of length information. Hovering over a column in the histogram
@@ -389,14 +395,14 @@ Among the details reported are:
 
 * The **number of tokens** found by the tokenizers. If this changes, then the tokenizer is
   breaking up your input text differently, or a filter is discarding tokens (like stop words).
-* **"Pre"** and **"Post"** types and tokens. "Pre" and "Post" refer to pre-analysis and
+* **"Pre"** and **"Post"** type and token stats. "Pre" and "Post" refer to pre-analysis and
   post-analysis. The language analyzer drops some tokens (usually stop words, affecting type
   and token counts) and munges others (affecting type counts). So, if the tokenizer finds *dog*
   and *dogs,* we have two types. After analysis, though, they could both become *dog,* so now
   we only have one type.
   * We also try to categorize the number of types and tokens that are unchanged by the analysis.
     Three big categories (which overlap) are *unchanged* (token in, token out: *dog*
-    stays *dog*), *lc_unchanged* (only difference is case, so *DoGgO* becomes *doggo*), and *number*
+    stays *dog*), *lc_unchanged* (only difference is case, so *DOGGO* becomes *doggo*), and *number*
     (strings of digits—not including commas or periods—tend to remain unchanged).
 * **Collisions and Splits:** The original purpose of the distant progenitor of
   `compare_counts.pl` was to look for new collisions, that is, words that are grouped together
@@ -420,13 +426,13 @@ Among the details reported are:
     and the total types involved are also reported. Total tokens "involved" are not reported because
     token counts for a given type can change, and that's more complicated than it's worth. A
     "Narrative" section summarizes the stats in a way that's easy to copy into a report, because I
-    do that a lot.
+    used to do that a lot.
       * So, if a pre-analysis type with one token (i.e., a word that appeared exactly once) gets
-        newly indexed with 9 other one-token types, we have 1 post-analysis type and 10 pre-analysis
-        types in a collision, with one token added. If a 10-token type merges with a 100-token type,
-        that's 1 pre-analysis type and 2 post-analysis types in the collision, with 10 new tokens.
-        This doesn't tell you whether changes are good or not, but does indicate the relative impact
-        of the changes.
+        newly indexed into a group of nine other one-token types, we have 1 post-analysis type, and
+        we have 10 pre-analysis types in a collision, with one token added. If a 10-token type
+        merges with a 100-token type, that's 2 pre-analysis types and 1 post-analysis type in the
+        collision, with 10 new tokens. This doesn't tell you whether changes are good or not, but
+        does indicate the relative impact of the changes.
   * The split part of the report is only included if there are splits. Percentages are reported
     relative to the "old" token and type counts.
 * **Token Count Increases and Decreases:** Individual post-analysis types can increase or
@@ -459,13 +465,25 @@ Among the details reported are:
         "lost".
       * Tokens in each category that occur more than 1000 times are re-listed with their counts on a
         separate line labeled "hi-freq tokens".
+  * Categories that exist only in the Lost *or* Found column are lightly highlighted in yellow for
+    ease of identification, like this: *<span
+    style='background-color:#ffffe8'>mixed-Cyrillic-Latin</span>.* Categories that exist in both the
+    Lost *and* Found columns, but which have different numbers of types or tokens, have the types
+    and token counts highlighted in the Found column, like this: <span
+    style='background-color:#ffffe8'>36 types, 45 tokens</span>.
 * After the Lost and Found Tokens, **Changed Groups** are listed, divided up into new collisions and
   token count increases (**Net Gains**) and new splits and token count decreases (**Net Losses**).
   If the changes are not all in one direction, they are shown as **Mixed.**
-  * There is a link to "High Impact Changes" at the top of each section of the **Changed Groups**.
-    This links to the next group that added or removed 10+ types, and each group has a link to the
-    next. The last high impact change (or if there are none, the initial link) takes you to the
-    bottom of the section.
+  * There is a link to "<font color=red>High Impact Changes 🅸</font>" at the top of each section of
+    the **Changed Groups**. This links to the next group that added or removed 10+ types, and each
+    group has another <font color=red>🅸</font>, which links to the next. The last high impact
+    change (or if there are none, the initial link) takes you to the bottom of the section.
+  * There is also link to "<font color=green>Mixed-Script Groups 🅼</font>" at the top of each
+    section of the **Changed Groups**. This links to the next mixed-script group. Mixed-script
+    groups can have either individual mixed-script tokens, or separate tokens in different scripts.
+    Each mixed-script group has another <font color=green>🅼</font>, which links to the next. The
+    last mixed-script group (or if there are none, the initial link) takes you to the bottom of the
+    section.
   * Diffs between old and new groups are lightly highlighted in yellow for ease of identification,
     like this: <span style='background-color:#ffffe8'>[1 xyz]</span>
   * Individual high-frequency (1000+) tokens are bold and in blue, like this: <span
@@ -582,7 +600,7 @@ changed:
     the command line to see what's happening to them to explain why they are lost. With
     folding, there are a handful of tokens in several different categories, because there are
     non-canonical forms of letters in several scripts that can get "regularized".
-       * e.g., `curl -sk elasticsearch:9200/my_wiki_content/_analyze?pretty -H 'Content-Type: application/json' -d '{"analyzer": "text", "text" : "xÿz" }'`
+       * e.g., `curl -sk localhost:9200/my_wiki_content/_analyze?pretty -H 'Content-Type: application/json' -d '{"analyzer": "text", "text" : "xÿz" }'`
   * Stop words can be lost if you've enabled a language-specific analyzer where there was none
     before.
   * [IPA](https://en.wikipedia.org/wiki/International_Phonetic_Alphabet)—which is common in
@@ -593,26 +611,26 @@ changed:
   * The type length stats and histogram can point to some interesting surprises, like
     unexpected outliers (i.e., many more long or short types than you expect for a given
     category). You can also get a sense of changes from before to after. For example,
-    regularizing final sigma (ς) to regular sigma (σ) should have no effect on the stats.
+    regularizing Greek final sigma (ς) to regular sigma (σ) should have no effect on the stats.
 * Changed Groups, Net Losses/Gains—I like to skim through these and then re-run with folding
   enabled. Review of all of these or a sizable random sample of these by a fluent speaker is often
   helpful.
   * Even if you want to review all the changes, enabling folding and looking at the residue can
     highlight different kinds of changes from the basic folded changes.
-* I think it's good to take into account the "main" language you are working in when reviewing
-  collisions. For example, English pretty much ignores accents. There are a few examples, like
-  *resumé, fiancée,* and *Zöe,* where accents are relatively common or even important, but not
-  many. So, when working on data from English Wikipedia, I don't really care that German words
-  or Russian words are getting folded in a way that a German or Russian speaker wouldn't like.
-  Lots of English speakers can't type the *ö* in German *quadratförmig,* so *quadratformig*
-  should match—on English-language projects.
+* I think it's sometimes helpful to take into account the "main" language you are working in when
+  reviewing collisions. For example, English pretty much ignores accents. There are a few examples,
+  like *resumé, fiancée,* and *Zöe,* where accents are relatively common or even important, but not
+  many. So, when working on data from English Wikipedia, I don't really care that German words or
+  Russian words are getting folded in a way that a German or Russian speaker wouldn't like. Lots of
+  English speakers can't type the *ö* in German *quadratförmig,* so *quadratformig* should match—on
+  English-language projects.
   * In general I expect and accept folding of characters that aren't part of the main language of
     the corpus being analyzed. In English—*fold them all!* In Swedish, folding *å, ä,* and *ö*
     is suspect—it might be acceptable, but probably not (it wasn't—see
     [T160562](https://phabricator.wikimedia.org/T160562))—but folding anything else is probably
     fine. On the other hand, the default German language analyzer folds common umlauts! I was
     originally very surprised! The general heuristic I've settled on is that diacritical characters
-    that are part of a languages alphabet should not be folded, while others should. There are
+    that are part of a language's alphabet should not be folded, while others should. There are
     exceptions, of course (like Slovak!—see [T223787](https://phabricator.wikimedia.org/T223787)).
 
 <a name="SelfAnalysis"></a>
@@ -644,14 +662,14 @@ Among the details reported are:
       beginning and ending substrings, but I'm going to use *beginning* and *ending* because I'm
       already using *prefix* and *suffix* with their linguistic/grammar sense.</sup>
 
-      * Groups with no common beginning or ending are potentially problems. In the Table of
-        Contents, you'll see **Potential Problem Stems** as a sub-item under **Stemming Results.**
-        This links to the first group in the table with no common beginning or ending substring. The
-        *stem* and *common* " -- " will be red, and the stem itself will be a link to the next group
-        with no common beginning or ending substring. The stem in the last group with no common
-        beginning or ending substring (or if there are none, the initial link) takes you to the
-        bottom of the **Stemming Results** table, so you know you are done. There is a note there
-        giving the total number of potential problem stems in the list.
+      * Groups with no common beginning or ending are potentially problems. At the top of the table
+        you'll see "<font color=red>Potential Problem Stems 🅿</font>". This links to the first
+        group in the table with no common beginning or ending substring. The *common* "
+        -- " will be red, and the stem itself will be followed by <font color=red>🅿</font>, which
+        is a link to the next group with no common beginning or ending substring. The stem in the
+        last group with no common beginning or ending substring (or if there are none, the initial
+        link) takes you to the bottom of the **Stemming Results** table, so you know you are done.
+        There is a note there giving the total number of potential problem stems in the list.
 
   * *group total:* This is the total number of tokens (instances of a word, more or less) in this
     group.
@@ -680,20 +698,16 @@ Among the details reported are:
   token, plus possibly an all-Latin or all-Cyrillic version). Very rarely, a token is stemmed to the
   empty string (giving a count of 0). Anything other than a count of 1 is probably unexpected. Up to
   10 tokens are listed under "example input tokens", and they have script colorization applied to
-  make the homoglyphs stand out.
-  * There is currently a bug that will result in tokens with the normalization of the rare phonetic
-    characters [ǀ and ǁ](https://en.wikipedia.org/wiki/Click_letter) colliding with my internal
-    representation and then being shown as having more stemmed tokens than they really do. It's
-    fairly rare and fairly obvious, so I haven't gotten around to addressing it yet. (See
-    [Stuff Yet To Do](#StuffYetToDo), below)
+  make the homoglyphs and mixed-CJK tokens stand out.
 
 * **Final Type Lengths:** This is a frequency table, with examples, of the length of tokens found by
-  the analyzer. Up to ten examples are randomly selected from the list of tokens of a given length.
-  Common long strings include German compounds, and strings from languages that don't have spaces
-  (when parsed by analyzers for other languages—e.g., applying the English analyzer to Thai text). A
-  sometimes unexpected source of long tokens is \u-encoded strings for multibyte characters (e.g.,
-  \uD803\uDC18\uD803\uDC03\uD803\uDC15 for Old Turkic 𐰘𐰃𐰕), where the length of the \u-encoded
-  string is typically 12x (6 characters x 2 bytes) the length of the original.
+  the analyzer. Up to ten examples (with script colorization applied) are randomly selected from the
+  list of tokens of a given length. Common long strings include German compounds, and strings from
+  languages that don't have spaces (when parsed by analyzers for other languages—e.g., applying the
+  `standard` tokenizer to Thai text). A sometimes unexpected source of long tokens is \u-encoded
+  strings for multibyte characters (e.g., \uD803\uDC18\uD803\uDC03\uD803\uDC15 for Old Turkic
+  𐰘𐰃𐰕), where the length of the \u-encoded string is typically 12x (6 characters x 2 bytes) the
+  length of the original.
 
 * **Token Samples by Category:** This is similar to the **Lost and Found Tokens** in a Comparison
 Analysis, except that *all* tokens in the corpus are sampled, pre- and post-analysis.
@@ -714,7 +728,7 @@ folding config is normally loaded and used in the Stemming Results as a last-dit
 common substring.
 
 As with Comparison Analysis, additional language configs can be supplied. Use `-d` to specify the
-directory and `-l` to specify a comma-separated list, though usually only one language is needed.
+directory and `-͏l` to specify a comma-separated list, though usually only one language is needed.
 (**NB:** "default" is normally loaded, but it can be disabled by specifying "-default" with `-l`;
 see Serbian example under **Folding across character sets** below.) To specify that
 `langdata/polish.txt` should be loaded, use `-d langdata -l polish`. All language config files
@@ -959,7 +973,7 @@ Count Files** and use the provided English count files, `samples/output/en.count
 `samples/output/en.counts.folded.txt`.
 
 To generate the count files, `analyze_counts.pl` needs access to the English language analyzer;
-it assumes Elasticsearch is running on host `elasticsearch` at port `9200`, with an index called
+it assumes Elasticsearch is running on host `localhost` at port `9200`, with an index called
 `my_wiki_content` and a properly configured analyzer called `text`, which are the defaults when
 using Docker. You can change these assumptions as necessary when running `analyze_counts.pl` by
 using `-h`, `-p`, `-i`, and `-a`.
@@ -968,10 +982,10 @@ using `-h`, `-p`, `-i`, and `-a`.
 #### Re-Configure MediaWiki/Elasticsearch for English *Without* Folding Enabled  <small>[ [TOC](#TOC) ]</small>
 
 * in `LocalSettings.php` set `$wgLanguageCode = "en";`
-* in `AnalysisConfigBuilder.php` remove `'asciifolding'` from the `filters` list in the function
-  `customize()` under `case 'english'`
-* inside the Docker shell (i.e., do `docker compose exec mediawiki bash` first), run:
-  * `php /var/www/html/w/extensions/CirrusSearch/maintenance/UpdateSearchIndexConfig.php --reindexAndRemoveOk --indexIdentifier now`
+* in `AnalysisConfigBuilder.php` remove `'asciifolding'` from the list in the `withFilters()` method
+  in the function `customize()` under `case 'english'`
+* reindex; with docker:
+  * `docker compose exec mediawiki php maintenance/run.php /var/www/html/w/extensions/CirrusSearch/maintenance/UpdateSearchIndexConfig --reindexAndRemoveOk --indexIdentifier now`
 
 **Note:** If you have the `analysis-icu` plugin installed, the `lowercase` filter will be replaced
 with `icu_normalizer` filter. This is the setup I'm running with.
@@ -983,12 +997,12 @@ page for *"text"* (with quotes) to see the current analyzer config.
 <a name="GeneratetheBeforeUnfoldedCountsFile"></a>
 #### Generate the "Before"/Unfolded Counts File  <small>[ [TOC](#TOC) ]</small>
 
-* inside vagrant, run: `./analyze_counts.pl -t unfolded -d samples/output/ samples/data/en.txt`
+* run: `./analyze_counts.pl -t unfolded -d samples/output/ samples/data/en.txt`
   * STDERR output: `..... 5385`
 
 `samples/output/en.counts.unfolded.txt` now contains the counts for normalized tokens found by the
 English analyzer *without* ASCII/ICU folding. It maps both original tokens (found in the text) to
-final tokens (those that would be indexed).
+final tokens (those that would be indexed), and vice versa.
 
 <a name="ReConfigureMediaWikiElasticsearchforEnglishWithFoldingEnabled"></a>
 #### Re-Configure MediaWiki/Elasticsearch for English *With* Folding Enabled  <small>[ [TOC](#TOC) ]</small>
@@ -996,13 +1010,13 @@ final tokens (those that would be indexed).
 Some of the steps and info are the same as above, but are repeated here for completeness.
 
 * in `LocalSettings.php`, you should still have `$wgLanguageCode = "en";`
-* in `AnalysisConfigBuilder.php` re-add `'asciifolding'` to the `filters` list (between `'stop'` and
-  `'kstem'`) in the function `customize()` under `case 'english'`
-* inside the Docker shell (i.e., do `docker compose exec mediawiki bash` first), run:
-  * `php /var/www/html/w/extensions/CirrusSearch/maintenance/UpdateSearchIndexConfig.php --reindexAndRemoveOk --indexIdentifier now`
+* in `AnalysisConfigBuilder.php` re-add `'asciifolding'` to the list in the `withFilters()` method
+  (between `'stop'` and `'kstem'`) in the function `customize()` under `case 'english'`
+* reindex; with docker:
+  * `docker compose exec mediawiki php maintenance/run.php /var/www/html/w/extensions/CirrusSearch/maintenance/UpdateSearchIndexConfig --reindexAndRemoveOk --indexIdentifier now`
 
-Note: If you have the `analysis-icu` plugin installed, the `lowercase` filter will be replaced with
-`icu_normalizer` and the `asciifolding` filter will be replaced with `icu_folding`. This is the
+**Note:** If you have the `analysis-icu` plugin installed, the `lowercase` filter will be replaced
+with `icu_normalizer` and the `asciifolding` filter will be replaced with `icu_folding`. This is the
 setup I'm running with.
 
 You can check on your config after running `updateSearchIndexConfig.php` above and going to
@@ -1012,7 +1026,7 @@ page for *"text"* (with quotes) to see the current analyzer config.
 <a name="GeneratetheAfterFoldedCountsFile"></a>
 #### Generate the "After"/Folded Counts File  <small>[ [TOC](#TOC) ]</small>
 
-* inside vagrant, run: `./analyze_counts.pl -t folded -d samples/output/ samples/data/en.txt`
+* run: `./analyze_counts.pl -t folded -d samples/output/ samples/data/en.txt`
   * STDERR output: `..... 5385`
 
 The output to STDERR is the same—it's just a progress indicator on the number of lines in the input
@@ -1024,9 +1038,12 @@ folding.
 <a name="ComparisonAnalysisoftheUnfoldedandFoldedCountFiles"></a>
 ### Comparison Analysis of the Unfolded and Folded Count Files  <small>[ [TOC](#TOC) ]</small>
 
-(**NB:** I have `icu-analysis` installed, so I'm using `icu_normalizer/icu_folding` rather than
-`lowercase/asciifolding`, so if you regenerated the counts files without them, your results will
-vary.)
+(**NB:** I have `icu-analysis` and `extra-analysis-textify` installed, so I'm using
+`icu_normalizer/icu_folding` rather than `lowercase/asciifolding`, and the `textify_icu_tokenizer`
+with `icu_token_repair` rather than the `icu_tokenizer` alone or the `standard` tokenizer. I also am
+using the most current analyzer configs with lots of generic processing (to handle homoglyphs,
+acronyms, camelCase, etc.). If you regenerated the counts files without any of those installed or
+enabled, your results will vary.)
 
 <a name="BaselineAnalysis"></a>
 #### Baseline Analysis  <small>[ [TOC](#TOC) ]</small>
@@ -1066,12 +1083,6 @@ we see:
       * IPA doesn't show up in the found tokens, because IPA symbols are either dropped if they are
         diacritic-like or converted to plain Latin letters if they are letter-like.
         e.g., *ˈeːijaˌfjœrðʏr̥* becomes *eijafjoerdyr.*
-          * Under *IPA-ish+mod*—where *mod* indicates a modifier character—we have *ˈɡrabuf.*
-            While that looks like an apostrophe, it's really an IPA stress mark. One of my favorite
-            things about English Wikipedia is that you can search for almost any character and land
-            on a page that tells you what that character is. Since I wouldn't expect an apostrophe
-            to result in something being in the other category, [searching Wikipedia for the
-            character](https://en.wikipedia.org/wiki/ˈ) tells us what it is.
       * Kannada [ashkara](https://en.wikipedia.org/wiki/Kannada_alphabet#Akshara) are converted from
         diacritics to full forms (e.g., ಸಂಕೇ**ಶ್ವ**ರ becomes ಸಂಕೇ**ಶವ**ರ).
       * Katakana [dakuten](https://en.wikipedia.org/wiki/Dakuten_and_handakuten) are removed (e.g.,
@@ -1095,24 +1106,31 @@ Gains** list. Otherwise, the only difference in the report would be the **New Co
 Stats** showing a number of folded collisions.
 
 With terseness set to 2, the obvious difference is in the **Net Gains** section. There are now only
-8 gains/collisions instead of 70. The other 62 were the "expected" ones, based on the folding rules
+10 gains/collisions instead of 68. The other 58 were the "expected" ones, based on the folding rules
 specified in `langdata/default.txt`.
 
-Two of the eight are the Hebrew words with niqqud that we saw earlier. Four of the remaining six,
-reformatted, are:
+Two of the eight are the Hebrew words with niqqud that we saw earlier (and one with two invisible
+left-to-right marks). Four of the remaining six, reformatted, are:
 
-        g     [1 ɢ]      ->  [23 G][35 g]
-        ku    [3 ḵu]     ->  [1 ku]
-        kun   [1 ḵun]    ->  [1 kun]
-        re    [1 ʁɛ̃]     ->  [3 Re][26 re]
+        g   [1 ɢ]   -> [18 G][3 g]
+        ku  [3 ḵu]  -> [1 ku]
+        kun [1 ḵun] -> [1 kun]
+        re  [1 ʁɛ̃]  -> [3 Re][24 re]
 
 Those are all quite reasonable. It seems that `langdata/default.txt` doesn't include certain
 combining diacritics and variants with rare diacritics. Nothing much to see here.
 
+Another two show diacriticized words that also happen to have possessive apostrophe (one plain, one
+curly) + *s,* where there is no undiacriticized possessive.
+
+        glogow [1 Głogów's] -> [1 GLOGOW][12 Głogów]
+        rene   [1 René’s]   -> [2 Rene][11 René]
+
+
 The remaining two, though, show something interesting:
 
-        gab   [1 Gábor]  ->  [1 Gabes][1 gabions]
-        worn  [2 Wörner] ->  [6 worn]
+        gab  [1 Gábor]  -> [1 Gabes][1 gabions]
+        worn [2 Wörner] -> [6 worn]
 
 If you look in `AnalysisConfigBuilder.php` you'll see that `asciifolding` is configured to happen
 right before `kstem`, which does the actual stemming for English. With diacritics, *gábor* and
@@ -1135,41 +1153,51 @@ is on MediaWiki.org.
 
 For this Self Analysis we'll use the same folded English count file (with `-n`) that we used in the
 Comparison Analysis, enable the "explore" option (`-x`) for automatic prefix/suffix detection,
-and include the English language config (`-l english`) to see what it knows.
+include the English language config (`-l english`) to see what it knows, and ask for a small sample
+of 10 (`-S 10`) for speaker review.
 
-* `./compare_counts.pl -n samples/output/en.counts.folded.txt -x -l english > samples/output/en.comp.folded_self.html`
+* `./compare_counts.pl -n samples/output/en.counts.folded.txt -x -l english -S 10 > samples/output/en.comp.folded_self.html`
 
 Open `samples/output/en.comp.folded_self.html` in your favorite browser. In the Table of Contents,
-click on **Potential Problem Stems,** which will take you to the first group that doesn't have
-either a common beginning or ending substring.
+click on **Stemming Results,** and then <font color=red>Potential Problem Stems 🅿</font>, which
+will take you to the first group that doesn't have either a common beginning or ending substring.
 
-1. The stem *dutch* includes tokens *Dutch* and *Holland.* Neat! Click on red *dutch* to
-   continue...
+1. The stem *committee* includes *<font color=red>с</font><font color=green>ommittee</font>,* where
+   the first letter, <font color=red>с</font>, is actually Cyrillic. Click on <font
+   color=red>🅿</font> to continue...
+1. The stem *dutch* includes tokens *Dutch* and *Holland.* Neat! Continuing...
 1. Stem *g* and IPA token *ɢ.* Nothing to see here...
 1. Stem *philippines* includes tokens *Filipino* and *Philippines.* Neat again...
 
-... and that's it. Clicking on the last one takes you to the end of the **Stemming Results** where
-there is a small summary: "[Total of 3 potential problem stems]". If you scroll up a bit, you can
-see the last two items, which are in Hebrew.
+... and that's it. Clicking on the last <font color=red>🅿</font> takes you to the end of the
+**Stemming Results** where there is a small summary: "[Total of 4 potential problem stems]". If you
+scroll up a bit, you can see the last two items, which are in Hebrew.
 
 Nothing terrible, and we learned that there are some specific lexical exceptions in the English
 stemmer. And so searching for
 *[**holland** east india company](https://en.wikipedia.org/w/index.php?search=holland+east+india+company)*
 on English Wikipedia gets you the right thing.
 
+You will also see a link for <font color=green>Mixed-Script Groups 🅼</font> next to <font
+color=red>Potential Problem Stems 🅿</font>. In this case, clicking on that will take you to the
+*<font color=red>с</font><font color=green>ommittee</font>* example above, which is the only
+mixed-script token in this sample. Clicking on <font color=green>🅼</font> takes you to the end of
+the **Stemming Results** where there is a small summary: "[Total of 1 mixed-script group]".
+
 The **Samples for Speaker Review** start with a random collection of stemming groups. In this small
 sample of English Wikipedia articles, the most common number of words in a group is just two. There
 aren't any stemming groups large enough to be counted among the "largest" stemming groups, and the
-three potential problem stems from above are gathered together for easy sharing with a speaker.
+four potential problem stems from above are gathered together for easy sharing with a speaker.
 
 Next up, English doesn't have any **Common Prefix Alternations,** but it has lots of **Common Suffix
-Alternations.** Many of them are in the English language config, but some are not yet. Silent *e,*
-as in *hope/hoped/hopes* is responsible for the *-/d* and *d/s* alternations (the first two in red).
-Pluralizing words ending in *-y* often does indeed give *-ies.* There's some good stuff at the top
-of the list. Towards the bottom we see a small number of semi-spurious alternations that are caused
-by doubling final letters before adding *-ing* or *-ed.* And some weird but understandable stuff,
-like *iness/y* (from _empt**iness**/empt**y**_ and _lonel**iness**/lonel**y**,_ but fortunately
-*not* _bus**iness**/bus**y**!_).
+Alternations.** Many of them are in the English language config, but some are not yet. The first
+item in red is the possessive *-/'s* alternation; there is a lot more of *'s* throughout the list.
+Silent *e,* as in *hope/hoped/hopes* is responsible for the *-/d* and *d/s* alternations (the next
+two in red). Pluralizing words ending in *-y* often does indeed give *-ies.* There's some good stuff
+at the top of the list. Towards the bottom we see a small number of semi-spurious alternations that
+are caused by doubling final letters before adding *-ing* or *-ed.* And some weird but
+understandable stuff, like *iness/y* (from _empt**iness**/empt**y**_ and
+_lonel**iness**/lonel**y**,_ but fortunately *not* _bus**iness**/bus**y**!_).
 
 Mining these isn't going to do much for English because the stemmer here doesn't seem to know any
 prefixes, so common beginning substrings are usually easy to find. But for languages with both
@@ -1177,25 +1205,33 @@ prefixes and suffixes (like Polish) this helps us find regular alternations that
 number of items with no common beginning or ending substrings—or odd alternations that might
 indicate something weird or unexpected is going on.
 
-The **Case-Insensitive Type Group Counts** shows that we skipped 14,580 singletons (which you can
+The **Case-Insensitive Type Group Counts** shows that we skipped 14,620 singletons (which you can
 get see with the `-1` option if you want them).
 
 The overly-verbosely titled **Stemmed Tokens Generated per Input Token** shows that the English
-analyzer is generally one-token-in, one-token-out.
+analyzer is generally one-token-in, one-token-out, modulo tokens with Cyrillic/Latin homoglyphs.
 
-The **Final Type Lengths** shows that there are lots of 1-character CJK types,
-and that the longest types are generally technical and/or German. Most types are 3–10 characters
-long, and most tokens are 3–8 characters long. More or less as expected.
+The **Final Type Lengths** shows <s>that there are lots of 1-character CJK types,
+and</s><sup>‖</sup> that the longest types are generally technical and/or German. Most types are
+3–10 characters long, and most tokens are 3–8 characters long. More or less as expected.
+
+<sup>‖ There *used* to be lots of 1-character CJK types, but English has been upgraded to the
+`textify_icu_tokenizer`, which does a decent or better job with tokenizing several spaceless East
+Asian languages. </sup>
 
 The **Token Samples by Category** show a few interesting things that didn't show up in the unfolded
 vs folded Comparative Analysis because they don't change:
 * The *mixed-Cyrillic-Latin* category includes the mixed-script token *<font color=red>с</font><font
-  color=green>ommittee</font>.* Pesky homoglyphs! Since this example was created before
-  `homoglyph_norm` was available, no extra all-Latin *<font color=green>committee</font>* token was
-  created.
-* In the *known symbols* and *measurements* categories, we have two tokens with *µ* (the micro sign,
-  U+00B5): *µ* and *µm.* It gets converted to *μ* (Greek mu, U+03BC) by ICU normalization. *μ* by
-  itself shows up as a post-analysis Greek token, and *μm* remains in the *measurements* category.
+  color=green>ommittee</font>.* Pesky homoglyphs!
+* The *Arabic+bidi,* *Hebrew+bidi,* and *Latin+nbsp* categories only exist on the Pre-analysis side
+  because many invisible characters (so many left-to-right marks!) get normalized away.
+* The *Latin+acronym-like* and *Latin+acronyms* categories also only exist on the Pre-analysis side
+  because acronyms now get their dots removed.
+* *Latin, grave-sep* disappears because the naked grave is normalized to an apostrophe by the newish
+  `globo_norm` filter, which subsumed the former `apostrophe_norm` filter.
+* In the *known symbols* and category, we have the token *µ* (the micro sign, U+00B5). It gets
+  converted to *μ* (Greek mu, U+03BC) by ICU normalization. *μ* by itself shows up as a
+  post-analysis Greek token.
 * There are lots of other categories—Greek, Gujarati, Hangul, Ideographic, Tibetan, integers—that
   have tokens that are unchanged by folding, so seeing them here lets us know they exist, and their
   relative proportions.
@@ -1216,10 +1252,11 @@ pointing back to my notes on MediaWiki.org.
   [unpacking the default analyzers](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html)
   into their constituent parts for customization. We expected the unpacked analyzer to be
   identical; I tested it primarily to make sure I'd configured the unpacked version
-  correctly. Turns out, there are some
+  correctly. Turns out, there were some
   [minor differences](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes/Adding_Ascii-Folding_to_French_Wikipedia#Unexpected_Differences_in_Unpacked_Analysis_Chain)
   triggered by our automatic analysis chain "enhancements" that come out in large corpus
-  testing!
+  testing! (There are now *lots* of differences that result from all the automatic upgrades we apply
+  to non-monolithic analysis chains.)
 
 * **Upgrading to a real Polish analyzer:** The analysis revealed that the Stempel Polish analyzer
   was unexpectedly
@@ -1377,11 +1414,6 @@ Here are a bunch of things I should probably do, but may never get around to:
       * Add samples to Common Prefix/Suffix Alternations.
       * Expose the hidden parameters.
       * Add a random seed so random examples are consistent between runs (useful during dev).
-      * Properly handle tokens with pipes in them. | is usually treated as punctuation, so I use it
-        internally to separate tokens in the counts files. However,
-        [ǀ and ǁ](https://en.wikipedia.org/wiki/Click_letter) (U+01C0 and U+01C1) get normalized to
-        | and || (U+007C and U+007C x2) by ICU normalization, so a token like "ǁχ" gets normalized
-        to "||χ", which looks like three tokens—two empty tokens, and "χ".
    * *New Features*
       * Add support for matching root against inflected forms to look for "problem" stems. Very
         simple longest affix matching can get confused, especially when stems include common affix

@@ -24,6 +24,7 @@ use Encode;
 use Getopt::Std;
 use Unicode::UCD 'charscript';
 use List::Util qw( max );
+use File::Compare;
 
 # set up output
 *STDOUT->autoflush();
@@ -77,6 +78,8 @@ my $hi_freq_cutoff = 1000;
 my $hi_freq_sample = 25;
 my $hi_impact_cutoff = 10;
 
+my $pipe_esc = chr(3); # used to escape pipe characters in counts file
+
 # get to work
 lang_specific_setup();
 process_token_count_file($old_file, 'old') if $old_file;
@@ -92,19 +95,28 @@ my $red_close = '</span>';
 my $cr = "<br>\n";
 my $cr_all = "<br style='clear:both'>\n";
 my $indent = '&nbsp;&nbsp;&nbsp;';
+my $sep_bar = ' &nbsp; <span class=deemphasized>|</span> &nbsp; ';
 my $block_open = '<blockquote class=dirAuto>';
 my $block_close = '</blockquote>';
 my $ul_open = '<ul><li>';
 my $ul_close = '</ul>';
 
+my $hic_icon = "<span class=hicIcon>\x{1F178}</span>";
+my $mix_icon = "<span class=mixIcon>\x{1F17C}</span>";
+my $pps_icon = "<span class=ppsIcon>\x{1F17F}</span>";
+
 # token categorization constants and data
 my %seps = (
-	' ' => 'space',        '_' => 'underscore',     '－' => 'fullwidth hyphen',
-	'-' => 'hyphen minus', '‐' => 'hyphen hyphen',  '–' => 'en dash',
-	'—' => 'em dash',      '―' => 'horizontal bar', ',' => 'comma',
-	';' => 'semicolon',    ':' => 'colon',          '：' => 'fullwidth colon',
-	'.' => 'period',       '·' => 'middot',         '‧' => 'hyphenation point',
-	'|' => 'vertical line',
+	' ' => 'space',         '_' => 'underscore',     '－' => 'fullwidth hyphen',
+	'-' => 'hyphen minus',  '‐' => 'hyphen hyphen',  '–' => 'en dash',
+	'—' => 'em dash',       '―' => 'horizontal bar', ',' => 'comma',
+	';' => 'semicolon',     ':' => 'colon',          '：' => 'fullwidth colon',
+	'.' => 'period',        '·' => 'middot',         '‧' => 'hyphenation point',
+	'´' => 'acute',         '`' => 'grave',          '!' => 'exclamation point',
+	'/' => 'slash',         '․' => 'one dot leader', '։' => 'Armenian full stop',
+	'|' => 'vertical line', '′' => 'prime',          '″' => 'double prime',
+	'،' => 'Arabic comma',  '٬' => 'Arabic thousands sep',
+	'・' => 'katakana middle dot', '･' => 'halfwidth katakana middle dot',
 	);
 my $sep_pat = join('', sort keys %seps);
 $sep_pat =~ s/-//g; $sep_pat .= '-'; # with hypen-minus on the list, order matters
@@ -116,6 +128,7 @@ my $tld_pat = '(bh|biz|ca|ch|com|cn|cz|de|dk|edu|eu|fi|fr|gov|ie|info|io|is|it|j
 my $file_type_pat = '(7z|aif|aspx?|avi|bat|bin|bmp|cfm|cgi|cpp|css|csv|dll|dmg|docx?|exe|flv|gif|gz|h264|m?html?|htmx|ico|ini|iso|jar|java|jpe?g|js|jsp|m4v|midi|mkv|mov|mp3|mp4|mpa|mpe?g|msi|odp|ods|odt|ogg|otf|pdf|php|pkg|png|ppt|pptx?|rar|rmp|rss|rtfd?|shtml?|svg|swf|sys|tar|tiff?|tmp|tsv|ttf|txt|wav|wma|wmv|woff2?|xhtml?|xlsx?|xml|zip)';
 my $IPA_chars = 'ƈħɩƙŋƥƭȶʓǀǁǂǃ‿';
 my $IPA_mods = 'ʰʲʷˤˡʱʵʳʴʶˢʸⁿˠˑː̝̞̪͡‿';
+my $IPA_singles = "βγɢɪɴʀʁʏʙʛʜᴃᴄᴅᴇᴊᴋᴌᴍᴎᴐᴕᴙᴡᴢᴣᵾɶʟᴁᴆᴏᴘᴚᴛᴜᴠᵻ";
 
 my $num_pat = '(\d+([.,]\d\d\d)*([.,]\d+)?)';
 # no single letters in unit_pat_multi
@@ -123,6 +136,11 @@ my $unit_pat_multi = '[µμ]?([ap]\.?m|[AP]\.?M|°|°C|°F|Ca|cc|cm|eV|fps|[GkKM
 my $unit_pat = $unit_pat_multi . '|[gkKLmºsWxΩM])';
 $unit_pat_multi .= ")";
 my $chem_pat = '(([HBCNOFPSKVYIWU]|He|Li|Be|Ne|Na|Mg|Al|Si|Cl|Ar|Ca|Sc|Ti|Cr|Mn|Fe|Co|Ni|Cu|Zn|Ga|Ge|As|Se|Br|Kr|Rb|Sr|Zr|Nb|Mo|Tc|Ru|Rh|Pd|Ag|Cd|In|Sn|Sb|Te|Xe|Cs|Ba|La|Hf|Ta|Re|Os|Ir|Pt|Au|Hg|Tl|Pb|Bi|Po|At|Rn|Fr|Ra|Ac|Rf|Db|Sg|Bh|Hs|Mt|Ds|Rg|Cn|Nh|Fl|Mc|Lv|Ts|Og|Ce|Pr|Nd|Pm|Sm|Eu|Gd|Tb|Dy|Ho|Er|Tm|Yb|Lu|Th|Pa|Np|Pu|Am|Cm|Bk|Cf|Es|Fm|Md|No|Lr)(1?\d|₁?[₀-₉])?[·‧]?)';
+
+# date parts
+my $dayPat = '(?:0?[1-9]|[12]\d|3[01])';
+my $monPat = '(?:0?[1-9]|1[012])';
+my $yearPat = '(?:[12]\d)?\d\d';
 
 # category label constants (to discourage typos)
 my $GREEK = 'Greek';
@@ -145,21 +163,23 @@ my @script_colors = (
 	[ 'Unicode',           '(\\\\u[0-9A-F]{4})+', 'uni', '#808080' ],
 	# Latin comes before so it doesn't highlight the highlights of the others
 	[ 'Latin script',      '\p{Latin}+',        'ltn', '#007700' ],
-	[ 'Bengali script',    '\p{Bengali}+',      'ben', '#107896' ],
 	[ 'Cyrillic script',   '\p{Cyrillic}+',     'cyr', '#ff0000' ],
-	[ 'Devanagari script', '\p{Devanagari}+',   'dev', '#e68d2e' ],
 	[ 'Greek script',      '\p{Greek}+',        'grk', '#0000ff' ],
+
+	[ 'Han script',        '\p{Han}+',          'han', '#996600' ],
+	[ 'Hiragana script',   '\p{Hiragana}+',    'hira', '#999900' ],
+	[ 'Katakana script',   '\p{Katakana}+',    'kata', '#e68d2e' ],
+
+	[ 'Bengali script',    '\p{Bengali}+',      'ben', '#107896' ],
+	[ 'Devanagari script', '\p{Devanagari}+',   'dev', '#cc00cc' ],
 	[ 'Thai script',       '\p{Thai}+',        'thai', '#9400D3' ],
-	# likely useful future colors
-	# 	[ 'xxx script',        '\p{xxx}+',        'xxx', '#999900' ],
-	# 	[ 'xxx script',        '\p{xxx}+',        'xxx', '#FF00FF' ],
 	);
 
 # report meta/style ifo
 my $HTMLmeta = <<HTML;
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
-    body { font-family:Helvetica, Noto Sans CJK JP; font-size:115%; }
+    body { font-family:Helvetica, Arial, Noto Sans CJK JP; font-size:115%; }
     th, td { text-align:left; border: 1px solid black; padding:2px 3px; }
     table { border-collapse: collapse; }
     .vtop tr td, .vtop tr th { vertical-align:top; }
@@ -178,7 +198,24 @@ my $HTMLmeta = <<HTML;
     .TOC { font-size:60%; }
     .diff { background-color:#ffffdd; }
     .bigNum { color:blue; }
+    .hicIcon { color:red; }
+    .mixIcon { color:green; }
+    .ppsIcon { color:red; }
     .dirAuto, .dirAuto td { text-align: start; unicode-bidi: plaintext; }
+	.stemsPer td:nth-of-type(1) { width:3em; }
+	.stemsPer td:nth-of-type(2) { width:5em; }
+	.stemsPer td:nth-of-type(3) { max-width:calc(100vw - 10em); word-wrap:break-word;  }
+	.longToken td:nth-of-type(1) { width:3em; }
+	.longToken td:nth-of-type(2) { width:4em; }
+	.longToken td:nth-of-type(3) { width:5em; }
+	.longToken td:nth-of-type(4) { max-width:calc(100vw - 14em); word-wrap:break-word;  }
+	.stemRes td { word-wrap:break-word; }
+	.stemRes td:nth-of-type(1), .stemRes td:nth-of-type(2) { max-width:calc((100vw - 9em)*.18) }
+	.stemRes td:nth-of-type(3), .stemRes td:nth-of-type(4) { width:4em; }
+	.stemRes td:nth-of-type(5) { max-width:calc((100vw - 9em)*.62); }
+	.collision td { word-wrap:break-word; }
+	.collision td:nth-of-type(1) { max-width:min(20vw, 15em); }
+	.collision td:nth-of-type(2) { max-width:calc(98vw - 1.5em - min(20vw, 15em)) ; }
     .deemphasized { color:#C0C0C0; }
     .lenStats { font-size: 75%; color:#999; }
     .lenHist, .lenHist0, .lenHistNone { width:0.5em; display:inline-block; margin-top:8px; cursor:help; }
@@ -199,12 +236,13 @@ $HTMLmeta .= "\t" . join (', ',
 
 # info on invisible chars
 my %invis_symbol = (
-	"\x{00A0}" => '⎵',	"\x{200B}" => '⎵',	"\x{202F}" => '⎵',	"\x{FEFF}" => '⎵',
+	"\x{00A0}" => '⎵',	"\x{200B}" => '⎵',	"\x{202F}" => '⎵',	"\x{FEFF}" => '⎵',	"\x{3000}" => '⎵',
 	"\x{00AD}" => '–',	"\x{0009}" => '→',	"\x{200D}" => '+',	"\x{2060}" => '+',
 	"\x{200C}" => '⋮',	"\x{2063}" => '⋮',
 	"\x{061C}" => '«',	"\x{200F}" => '«',	"\x{202B}" => '«',	"\x{202E}" => '«',	"\x{2067}" => '«',
 	"\x{200E}" => '»',	"\x{202A}" => '»',	"\x{202D}" => '»',	"\x{2066}" => '»',
 	"\x{202C}" => '↥',	"\x{2069}" => '↥',	"\x{2068}" => '∷',
+	"\x{2061}" => '⋆',	"\x{2062}" => '⋆',	"\x{2063}" => '⋆',	"\x{2064}" => '⋆',
 	);
 
 my %invis_desc = (
@@ -212,6 +250,7 @@ my %invis_desc = (
 	"\x{200B}" => 'ZERO WIDTH SPACE',
 	"\x{202F}" => 'NARROW NO-BREAK SPACE',
 	"\x{FEFF}" => 'ZERO WIDTH NO-BREAK SPACE',
+	"\x{3000}" => 'IDEOGRAPHIC SPACE',
 	"\x{00AD}" => 'SOFT HYPHEN',                # '–' invisible hyphen
 	"\x{0009}" => 'TAB',                        # '→' tab
 	"\x{200D}" => 'ZERO WIDTH JOINER',          # '+' joiners
@@ -230,6 +269,10 @@ my %invis_desc = (
 	"\x{202C}" => 'POP DIRECTIONAL FORMATTING', # '↥' pop bidi
 	"\x{2069}" => 'POP DIRECTIONAL ISOLATE',
 	"\x{2068}" => 'FIRST STRONG ISOLATE',       # '∷' FSI
+	"\x{2061}" => 'FUNCTION APPLICATION',       # '⋆' invisible math functions
+	"\x{2062}" => 'INVISIBLE TIMES',
+	"\x{2063}" => 'INVISIBLE SEPARATOR',
+	"\x{2064}" => 'INVISIBLE PLUS',
 	);
 
 # Add info for 256 variation selectors
@@ -247,6 +290,11 @@ foreach my $varsel (1..256) {
 my $invis_pat = '[' . join('', sort keys %invis_symbol) . ']';
 
 if ($old_file) {
+	if (compare($old_file, $new_file) == 0) {
+		print_old_v_new_report(1);
+		exit;
+		}
+
 	my %is_overlap = ();
 
 	foreach my $final (keys %mapping) {
@@ -729,6 +777,15 @@ sub lang_specific_setup {
 	}
 
 ###############
+# remove pipe escape char following pipes
+#
+sub count_unesc {
+	my ($str) = @_;
+	$str =~ s/\|$pipe_esc/\|/g;
+	return "$str";
+	}
+
+###############
 # process token count file
 #
 sub process_token_count_file {
@@ -755,7 +812,7 @@ sub process_token_count_file {
 			if (/^\t/) {
 				# final tokens
 				my ($empty, $cnt, $tokens) = split(/\t/, $_, 3);
-				my $token_cnt = scalar(split(/\|/, $tokens));
+				my $token_cnt = scalar(split(/\|(?!\x{3})/, $tokens));
 				push @{$statistics{token_cnt}{$old_new}[$token_cnt]}, $orig unless $old_file;
 				}
 			else {
@@ -767,6 +824,7 @@ sub process_token_count_file {
 				# original tokens
 				my ($empty, $cnt);
 				($empty, $cnt, $orig) = split(/\t/, $_, 3);
+				$orig = count_unesc($orig);
 				count_tokens($orig, $final, $cnt, $old_new);
 				$statistics{type_count}{orig}{$old_new}++;
 				$statistics{total_tokens}{$old_new} += $cnt;
@@ -914,12 +972,19 @@ sub fold {
 # generate final report for old vs new analysis
 #
 sub print_old_v_new_report {
+	my ($bail) = @_;
 
 	print $HTMLmeta;
 
 	# config info header
 	print $bold_open, "Processing $old_file as 'old'.", $bold_close, $cr;
 	print $bold_open, "Processing $new_file as 'new'.", $bold_close, $cr;
+
+	if ($bail) {
+		print "\n<h3>&#x1F6D1; old file and new file are identical.</h3>\n";
+		return;
+		}
+
 	if (0 < keys %{$config{lang}}) {
 		print $bold_open, 'Language processing: ', $bold_close,
 			join(', ', sort keys %{$config{lang}}), $cr;
@@ -1212,6 +1277,7 @@ sub print_collision_key {
 		'<span class=diff>[1 diff]</span>', 'diffs between old and new sets',
 		'<b class=bigNum>[1000 freq]</b>', 'high-frequency terms'
 		);
+	return;
 	}
 
 ###############
@@ -1224,21 +1290,18 @@ sub print_category_stats {
 	my $new_cat_left = '';
 	my $new_cat_right = '';
 
-	my $has_both = $left_cfg->{types} && $right_cfg->{types};
-
 	print "&bull; $left_cfg->{desc} types/tokens: ",  comma($left_cfg->{types}), ' / ',
 		comma($left_cfg->{tokens}), $cr;
 	print "&bull; $right_cfg->{desc} types/tokens: ", comma($right_cfg->{types}), ' / ',
 		comma($right_cfg->{tokens}), $cr;
 	print $cr;
 
-	print "<div class=leftCatDiv>\n" if $has_both;
-	print "$bold_open $left_cfg->{desc} tokens by category$bold_close" if $left_cfg->{types};
-	print "\n</div>\n<div class=rightCatDiv>\n" if $has_both;
-	print "$bold_open $right_cfg->{desc} tokens by category$bold_close" if $right_cfg->{types};
-	print "\n</div>\n" if $has_both;
+	print "<div class=leftCatDiv>\n";
+	print "$bold_open $left_cfg->{desc} tokens by category$bold_close";
+	print "\n</div>\n<div class=rightCatDiv>\n";
+	print "$bold_open $right_cfg->{desc} tokens by category$bold_close";
+	print "\n</div>\n";
 	print $cr_all;
-	print $cr unless $has_both;
 
 	my @cats = sort {$a cmp $b} uniq(keys %{$left_cfg->{token_list}},
 		keys %{$right_cfg->{token_list}});
@@ -1251,21 +1314,22 @@ sub print_category_stats {
 			$last_cat = $base_cat;
 			$new_cat_left = $new_cat_right = ' newCat';
 			}
+		my $left_stats = '--';
 		if ($left_cfg->{types} && $left_cfg->{token_list}{$category}) {
-			print "<div class='leftCatDiv$new_cat_left'>\n" if $has_both;
-			print_script_category($left_cfg, $category, $samp_limit);
-			print "\n</div>\n" if $has_both;
+			print "<div class='leftCatDiv$new_cat_left'>\n";
+			$left_stats = print_script_category($left_cfg, '', $category, $samp_limit, $right_cfg->{token_list}{$category});
+			print "\n</div>\n";
 			$new_cat_left = '';
 			}
 		if ($right_cfg->{types} && $right_cfg->{token_list}{$category}) {
-			print "<div class='rightCatDiv$new_cat_right'>\n" if $has_both;
-			print_script_category($right_cfg, $category, $samp_limit);
-			print "\n</div>\n" if $has_both;
+			print "<div class='rightCatDiv$new_cat_right'>\n";
+			print_script_category($right_cfg, $left_stats, $category, $samp_limit, $left_cfg->{token_list}{$category});
+			print "\n</div>\n";
 			$new_cat_right = '';
 			}
 		}
 
-	print $cr_all if $has_both;
+	print $cr_all;
 	print $cr;
 
 	return;
@@ -1275,7 +1339,7 @@ sub print_category_stats {
 # output just one script category
 #
 sub print_script_category {
-	my ($cfg, $category, $samp_limit) = @_;
+	my ($cfg, $other_stats, $category, $samp_limit, $other_cat_cnt) = @_;
 	my $orig_final = $cfg->{orig_final};
 	my $old_new = $cfg->{old_new};
 	my $token_list_ref = $cfg->{token_list}{$category};
@@ -1303,8 +1367,18 @@ sub print_script_category {
 		}
 
 	my $type_tot = scalar(@{$token_list_ref});
-	print $indent, $italic_open, $category, ':', $italic_close, ' ',
-		comma($type_tot), ' types, ', comma($token_tot), ' tokens',
+	my $type_s = $type_tot == 1 ? '' : 's';
+	my $token_s = $token_tot == 1 ? '' : 's';
+	my $main_stats = comma($type_tot) . " type$type_s, " . comma($token_tot) . " token$token_s";
+	my $stats_delta = ($other_stats ne '' && $other_cat_cnt && $main_stats ne $other_stats);
+	print $indent, $italic_open,
+		$other_cat_cnt ? '' : '<span class=diff>',
+		$category,
+		$other_cat_cnt ? '' : '</span>',
+		':', $italic_close, ' ',
+		$stats_delta ? '<span class=diff>' : '',
+		$main_stats,
+		$stats_delta ? '</span>' : '',
 		($type_tot > $samp_limit) ? " (sample of $samp_limit)" : '', $cr;
 
 	my $colorize = $category =~ /^  unknown|IPA|Tonal|^ mixed|Unicode|name-like/;
@@ -1357,7 +1431,7 @@ sub print_script_category {
 
 	print $block_close, "\n";
 
-	return;
+	return $main_stats;
 	}
 
 ###############
@@ -1385,6 +1459,7 @@ sub print_type_len_hist {
 			' style="height:', $h+1, 'px;"></div>';
 		}
 	print $cr;
+	return;
 	}
 
 ###############
@@ -1413,7 +1488,6 @@ sub print_new_report {
 	print <<HTML;
 <a name='TOC'><h3>Table of Contents</h3>
 <a href='#stemmingResults'>Stemming Results</a><br>
-$indent<a href="#prob1">Potential Problem Stems</a><br>
 HTML
 	print <<HTML if $config{Sample};
 <a href='#samplesForReview'>Samples for Speaker Review</a><br>
@@ -1441,13 +1515,17 @@ HTML
 	print '-- indicates ', ($config{lang} ? 'affix-stripped and ' : ''), 'folded matches', $cr;
 	print $cr;
 
+	print $indent, "<a href='#prob1'><span class=ppsIcon>Potential Problem Stems $pps_icon</span></a>", $sep_bar,
+		"<a href='#mix1'><span class=mixIcon>Mixed-Script Groups $mix_icon</span></a>", $cr, $cr;
+
 	# stemming results table
 	my $prob_ref_cnt = 1;
+	my $mix_ref_cnt = 1;
 	my %type_ref_cnt = ();
 	my @problem_sample = ();
 	my @large_sample = ();
 	my @random_sample = ();
-	print_table_head('stem', 'common', 'group total', 'distinct types', 'types (counts)');
+	print_table_head_class('vtop stemRes', 'stem', 'common', 'group total', 'distinct types', 'types (counts)');
 	foreach my $aref (@stemming_results) {
 		my ($final, $token_count, $common, $type_cnt) = @$aref;
 
@@ -1455,11 +1533,19 @@ HTML
 		my $display_type_cnt = $type_cnt;
 		if ($common =~ /^ .. $/) {
 			$display_final = "<a name='prob" . $prob_ref_cnt . "'>";
-			$display_final .= "<a href='#prob" .
-				++$prob_ref_cnt . "'>" . $red_open . $final . $red_close . '</a>';
+			$display_final .= ($final ne '' ? too_long($final) : "[ &nbsp; ]") . " <a href='#prob" . ++$prob_ref_cnt . "'>$pps_icon</a>";
 			$common = $red_open . "&nbsp;$common&nbsp;" . $red_close;
 			push @problem_sample, $aref if $config{Sample};
 			}
+
+		my $the_mapping = $mapping{$final}{new};
+		my $colorize = 0;
+		if (is_mixed_script_list($the_mapping)) {
+			$display_final .= "<a name='mix" . $mix_ref_cnt . "'>";
+			$display_final .= " <a href='#mix" . ++$mix_ref_cnt . "'>$mix_icon</a>";
+			$colorize = 1;
+			}
+
 		if ($type_cnt >= $min_freqtable_link) {
 			if (!$type_ref_cnt{$type_cnt}) {
 				$type_ref_cnt{$type_cnt} = 1;
@@ -1470,8 +1556,8 @@ HTML
 				$red_open . $type_cnt . $red_close . '</a>';
 			push @large_sample, $aref if $config{Sample};
 			}
-		my $the_mapping = $mapping{$final}{new};
-		$the_mapping =~ s/ /&nbsp;/g;
+		$the_mapping = color_scripts($the_mapping) if $colorize;
+		$the_mapping =~ s/(\[\d+) /$1&nbsp;/g;
 		$the_mapping = show_invisibles($the_mapping);
 
 		print_table_row([$display_final, $common, comma($token_count), $display_type_cnt,
@@ -1479,7 +1565,9 @@ HTML
 		}
 	print_table_foot();
 	print "<br><a name='prob", $prob_ref_cnt, "'> [Total of ", ($prob_ref_cnt - 1),
-		' potential problem stem', ($prob_ref_cnt == 2 ? '' : 's'), "]<br>\n";
+		' potential problem stem', ($prob_ref_cnt == 2 ? '' : 's'), ']', $sep_bar,
+		"<a name='mix", $mix_ref_cnt, "'> [Total of ", ($mix_ref_cnt - 1),
+		' mixed-script group', ($mix_ref_cnt == 2 ? '' : 's'), ']', $cr;
 
 	if ($config{Sample}) {
 		# Samples for Speaker Review
@@ -1570,7 +1658,7 @@ HTML
 				@examples = @{$aref->[$i]};
 				}
 			print_table_row([$i, comma($freq), show_invisibles(join($joiner, map {color_scripts($_)}
-				sort @examples))]);
+				sort @examples))], 'stemsPer');
 			}
 		}
 	print_table_foot();
@@ -1591,10 +1679,10 @@ HTML
 				}
 			print_table_row([$len, comma($freq), comma($statistics{token_length}{$len}),
 				show_invisibles(join($joiner,
-					map { /^(\\u[0-9A-F]{4})+$/i ?
+					map { /\\u[0-9A-F]{4}/i ?
 							too_long(color_scripts(defrag($_), $LATIN)) :
 							color_scripts($_) }
-					sort @examples))]);
+					sort @examples))], $len >= 50 ? 'longToken' : '');
 			}
 		}
 	print_table_foot();
@@ -1761,35 +1849,70 @@ sub print_sampled_collisions {
 # print just the table highlighting collisions and splits
 #
 sub print_collision_table {
-	my ($coll_ref, $incr_decr, $arr, $show_hic) = @_;
+	my ($coll_ref, $incr_decr, $arr, $show_links) = @_;
 
 	my $div_open = '<div class=hang>';
 	my $div_close = '</div>';
 
-	my $hic = 1;
-	print "<a href='#hic_$incr_decr\_1'><b>High Impact Changes</b></a><br><br>\n" if $show_hic;
+	my $hic_ref_cnt = 1;
+	my $mix_ref_cnt = 1;
+	if ($show_links) {
+		print $indent;
+		print "<a href='#hic_$incr_decr\_1'><span class=hicIcon>High Impact Changes</span> $hic_icon</a>$sep_bar";
+		print "<a href='#mix_$incr_decr\_1'><span class=mixIcon>Mixed-Script Groups</span> $mix_icon</a>$cr$cr";
+		}
 
-	print_table_head();
+	print_table_head_class('vtop collision');
 	foreach my $final (@{$coll_ref}) {
 		my $impact = $old_v_new_results{magnitude}{$final};
-		my $hic_open = '';
-		my $hic_close = '';
-		if ($impact >= $hi_impact_cutoff && $show_hic) {
-			$hic_open = "<a name='hic_$incr_decr\_$hic'><a href='#hic_$incr_decr\_" . ++$hic . "'>";
-			$hic_close = '</a>';
+		my $hic_link = '';
+		my $mix_link = '';
+		if ($impact >= $hi_impact_cutoff && $show_links) {
+			$hic_link = " <a name='hic_$incr_decr\_$hic_ref_cnt'><a href='#hic_$incr_decr\_" . ++$hic_ref_cnt . "'>$hic_icon</a>";
 			}
 		my $oldmap = $mapping{$final}{old};
 		my $newmap = $mapping{$final}{new};
+		# look for mixed-script mappings
+		if (is_mixed_script_list($oldmap, $newmap)) {
+			$oldmap = color_scripts($oldmap);
+			$newmap = color_scripts($newmap);
+			$mix_link = " <a name='mix_$incr_decr\_$mix_ref_cnt'><a href='#mix_$incr_decr\_" . ++$mix_ref_cnt . "'>$mix_icon</a>" if $show_links;
+			}
+
 		($oldmap, $newmap) = highlight_diffs($oldmap, $newmap);
-		print_table_row(["<nobr>$hic_open" . show_invisibles(too_long($final)) .
-			" $arr $impact$hic_close</nobr>",
+		print_table_row([show_invisibles(too_long($final)) .
+			" $arr $impact" . $hic_link . $mix_link,
 			$div_open . 'o: ' . show_invisibles(color_by_count($oldmap)) . $div_close .
 			$div_open . 'n: ' . show_invisibles(color_by_count($newmap)) . $div_close
 			]);
 		}
 	print_table_foot();
-	print "<a name='hic_$incr_decr\_$hic'>\n" if $show_hic;
+	if ($show_links) {
+		print "<a name='hic_$incr_decr\_$hic_ref_cnt'>\n";
+		print "<a name='mix_$incr_decr\_$mix_ref_cnt'>\n";
+		}
 	print $cr;
+	return;
+	}
+
+###############
+# simple test for mixed-script token lists
+#
+sub is_mixed_script_list {
+	my $text = join('', @_);
+	# [33 input][17 is][1 list][22 like][8 this]
+	$text =~ s/[\[\]0-9\s]//g; # remove brackets, numbers, and whitespace
+	my $lastcat = '';
+	foreach my $char (split(/|/, $text)) {
+		$charscript_cache{$char} ||= charscript(ord($char));
+		next if ($charscript_cache{$char} eq 'Common');
+		next if ($charscript_cache{$char} eq 'Inherited');
+		$lastcat ||= $charscript_cache{$char};
+		if ($charscript_cache{$char} ne $lastcat) {
+			return 1;
+			}
+		}
+	return 0;
 	}
 
 ###############
@@ -1914,27 +2037,29 @@ sub token_category {
 
 	# remove invisibles and weird whitespace before categorizing
 	$token = find_and_label($token, \%mod_seen,
-		'tab',  qr/\t/,
-		'cr',   qr/\n/,
-		'shy',  qr/\x{00AD}/,
-		'zwsp', qr/\x{200B}/,
-		'zwnj', qr/\x{200C}/,
-		'zwj',  qr/\x{200D}/,
-		'wj',   qr/\x{2060}/,
-		'invis_sep', qr/\x{2063}/,
-		'nnbsp', qr/\x{202F}/,
-		'nbsp',  qr/[\x{FEFF}\x{00A0}]/,
-		'var',   qr/[\x{FE00}-\x{FE0F}\x{E0100}-\x{E01EF}]/,
-		'bidi',  qr/[\x{200E}\x{200F}\x{202A}\x{202B}\x{202C}\x{202D}]/,
-		'bidi',  qr/[\x{202E}\x{2066}\x{2067}\x{2068}\x{2069}\x{061C}]/,
+		'tab',        qr/\t/,
+		'cr',         qr/\n/,
+		'shy',        qr/\x{00AD}/,
+		'zwsp',       qr/\x{200B}/,
+		'zwnj',       qr/\x{200C}/,
+		'zwj',        qr/\x{200D}/,
+		'wj',         qr/\x{2060}/,
+		'invis_sep',  qr/\x{2063}/,
+		'nnbsp',      qr/\x{202F}/,
+		'nbsp',       qr/[\x{FEFF}\x{00A0}]/,
+		'var',        qr/[\x{FE00}-\x{FE0F}\x{E0100}-\x{E01EF}]/,
+		'bidi',       qr/[\x{200E}\x{200F}\x{202A}\x{202B}\x{202C}\x{202D}]/,
+		'bidi',       qr/[\x{202E}\x{2066}\x{2067}\x{2068}\x{2069}\x{061C}]/,
+		'invis_math', qr/[\x{2061}-\x{2064}]/,
+		'whitesp',    qr/\x{3000}/,
 		);
 
 	# look for tell-tale hints of IPA-ish-ness before we start stripping stuff out
 	# identify, but don't delete.
 	if ($token =~ /[$IPA_mods]|[lrn][̩̥]/) { $cat_seen{$IPA_ISH} = 1; }
-	# Also look for signs of non-IPA-ish-ness—digits, capital letters, β or γ alone or
+	# Also look for signs of non-IPA-ish-ness: digits, capital letters, β, γ, or small caps alone or
 	# set-off by hypens or whatever. Also don't delete.
-	if ($token =~ /[0-9\p{Lu}]|\b[βγ]\b/) { $cat_seen{$NON_IPA} = 1; }
+	if ($token =~ /[0-9\p{Lu}]|\b[$IPA_singles]\b/) { $cat_seen{$NON_IPA} = 1; }
 
 	# some complicated all-consuming patterns
 	#   chemical only if there is a number somewhere and at least two letters
@@ -1947,7 +2072,7 @@ sub token_category {
 	# sorts nicely
 	$token = find_and_label($token, \%cat_seen,
 		'＃ hex',  qr/^0x[0-9A-F]+$/i, # bleeds measurements
-		'coords', qr/^\d\d?'\d\d?(\.\d+)?[A-Z]?$/i,
+		'coords', qr/^\d\d?['′]\d\d?([.,]\d+)?[A-Z]?$/i,
 		'coords', qr/^[A-Z]?\d\d?[º°]\d\d?(\.\d\d?)?('\d\d?[,.]\d\d?)?[A-Z]?$/i,
 		'coords', qr/^\d\d?\.\d{3,}[NEWS]$/,
 
@@ -1958,6 +2083,9 @@ sub token_category {
 		'measurements', qr/^\d+[°º](\d+(['‘’]\d+)?)?$/i,
 		'measurements', qr/^v[0-9.]+$/i,
 
+		'＃ dates',       qr/^$dayPat(\.|\/|⁄)$monPat\1$yearPat$/, # euro-style
+		'＃ dates',       qr/^$monPat(\.|\/|⁄)$dayPat\1$yearPat$/, # us-style
+		'＃ dates',       qr/^$yearPat(\.|\/|⁄)$monPat\1$dayPat$/, # yet another
 		'＃ ordinals',    qr/^(№|n\.?[ªº])\d+$/i,
 		'＃ decimals',    qr/^[+-]?\d+(,\d{3})*\.\d+$/,
 		'＃ percentages', qr/^[+-]?\d+(,\d{3})*(\.\d+)?%$/,
@@ -1965,16 +2093,33 @@ sub token_category {
 		'＃ numbers with digit groups', qr/^[+-]?\d{1,3}\.(\d\d\d,)*\d\d\d(\,\d+)?$/,
 		'＃ numbers with digit groups', qr/^[+-]?\d{1,2}\,(\d\d,)*\d\d\d(\.\d+)?$/,
 		'＃ numbers with digit groups', qr/^[+-]?\d{1,2}\.(\d\d,)*\d\d\d(\,\d+)?$/,
+		'＃ fractions',    qr/^[+-]?(\d+ ?)*[\d⁰¹²³⁴⁵⁶⁷⁸⁹,.]+[⁄\/][\d₀-₉,.]+$/i,
+		'＃ fractions',    qr/^[+-]?(\d+ ?)*([¼-¾⅐-⅞↉]+|⅟[\d₀-₉]+)$/i,
+
 		'file types',   qr/^(\S+\.)+$file_type_pat$/i,
-		'acronyms',     qr/^([A-Z]\.)+[A-Z]\.?$/,
-		'acronym-like', qr/^([A-Z]\.)+[A-Z]\.?$/i,
-		'name-like',    qr/^(\p{Lu}\.){1,3}\p{Lu}\p{L}{2,}$/,
-		'name-like',    qr/^(Mr|Dr|Ms|Mrs|St)\.(\p{Lu}\.){0,3}\p{Lu}\p{L}{2,}$/,
 		'web domains',  qr/^www\.([a-z0-9-]+\.)+[a-z0-9-]{2,3}$/i,
 		'web domains',  qr/^([a-z0-9-]+\.)+$tld_pat$/i,
 		'web domains',  qr/^([a-z0-9-]+\.)+(co|com|edu|gov|net|org|mil)\..{2,3}$/i,
 		'punctuation',  qr/^\p{Punctuation}+$/,
 		);
+
+
+	if ($token =~ /^(\p{Lu}\p{M}*\.)+\p{Lu}\p{M}*\.?$/) {
+		$token =~ s/\.//g;
+		$mod_seen{'acronyms'} = 1;
+		}
+	elsif ($token =~ /^(\p{L}\p{M}*\.)+\p{L}\p{M}*\.?$/) {
+		$token =~ s/\.//g;
+		$mod_seen{'acronym-like'} = 1;
+		}
+	elsif ($token =~ /^(\p{L}\p{M}*\.){1,3}(\p{L}\p{M}*){3,}$/) {
+		$token =~ s/\.//g;
+		$mod_seen{'name-like'} = 1;
+		}
+	elsif ($token =~ /^(Mr|Dr|Ms|Mrs|St)\.(\p{L}\p{M}*\.){0,3}(\p{L}\p{M}*){3,}$/i) {
+		$token =~ s/\.//g;
+		$mod_seen{'name-like'} = 1;
+		}
 
 	#   ID-like only if there are both numbers and digits
 	if ($token =~ /[A-Z]/ && $token =~ /[0-9]/ && $token =~ s/^[A-Z0-9-]+$//) {
@@ -1989,6 +2134,8 @@ sub token_category {
 		'dquot', qr/\\?["“”]/,
 		'mod',   qr/\p{Block: Modifier_Letters}/,
 		'combo', qr/\p{Block: Combining_Diacritical_Marks}/,
+		'combo', qr/\p{Block: Combining_Half_Marks}/,
+		'combo', qr/\p{Block: Combining_Diacritical_Marks_Supplement}/,
 		);
 
 	# identify and remove separators
@@ -2002,8 +2149,6 @@ sub token_category {
 		$TONAL,       qr/^[$tone_incl_pat]*[$tone_id_pat][$tone_incl_pat]*$/i,
 		'＃ integers', qr/^[+-]?\d+$/,
 		'＃ ordinals', qr/^\d*(1st|2nd|3rd|\dth|\d[ªº])$/i,
-		'fractions',  qr/^[+-]?\d+[⁄\/]\d+$/i,
-		'fractions',  qr/^[+-]?\d*([¼-¾⅐-⅞↉]+|⅟\d+)$/i,
 		'Math Latin', qr/[𝐀-𝚥ℎℬℰℱℋℐℒℳℛℓℯℊℴℭℌℑℜℨℂℍℕℙℚℝℤ]/i,
 			# some characters are not in the expected block: math italic h; script
 			# BEFHILMRlego; frak CHIRZ; double-struck CHNPQRZ
@@ -2018,7 +2163,7 @@ sub token_category {
 		# unicode blocks that don't get identified
 		'Currency',         qr/[\x{20A0}-\x{20C0}]/,
 		'Arrows',           qr/[\x{2190}-\x{21FF}\x{27F0}-\x{27FF}\x{2900}-\x{297F}]/,
-		'Math Operators',   qr/[\x{2200}-\x{22FF}\x{2A00}-\x{2AFF}]/,
+		'Math Operators',   qr/[¬±×÷\x{2200}-\x{22FF}\x{2A00}-\x{2AFF}]/,
 		'Misc Symbols',     qr/[\x{2300}-\x{23FF}\x{2600}-\x{26FF}]/,
 		'Geometric Shapes', qr/[\x{25A0}-\x{25FF}]/,
 		'Dingbats',         qr/[\x{2700}-\x{27BF}]/,
@@ -2041,6 +2186,9 @@ sub token_category {
 		'Misc Symbols',     qr/[\x{1F300}-\x{1F5FF}\x{1F900}-\x{1F9FF}\x{1FA70}-\x{1FAFF}]/,
 		'Emoticons',        qr/[\x{1F600}-\x{1F64F}]/,
 		'Han',              qr/[\x{20000}-\x{2EBEF}\x{2F800}-\x{2FA1F}\x{30000}-\x{3134F}]/,
+		'Misc Symbols',     qr/\p{Block: Transport_And_Map_Symbols}/,
+		'Alchemical Symbols', qr/\p{Block: Alchemical_Symbols}/,
+		'Enclosed Alphanumerics', qr/\p{Block: Enclosed_Alphanumerics}/,
 
 		# hack some language bits that don't play nice
 		'Arabic',     qr/\p{Block: Arabic}|\p{Arabic_Ext_A}|\p{Arabic_Supplement}|\p{Arabic_Presentation Forms-A}|\p{Arabic_Presentation Forms-B}/,
@@ -2085,7 +2233,10 @@ sub token_category {
 
 	# If probably not IPA, delete IPA-ish and convert IPA-Greek to just Greek
 	if ($cat_seen{$NON_IPA}) {
-		delete $cat_seen{$IPA_ISH};
+		if ($cat_seen{$IPA_ISH}) {
+			delete $cat_seen{$IPA_ISH};
+			$cat_seen{$LATIN} = 1;
+			}
 		if ($cat_seen{$IPA_GREEK}) {
 			delete $cat_seen{$IPA_GREEK};
 			$cat_seen{$GREEK} = 1;
@@ -2223,26 +2374,32 @@ sub print_highlight_key {
 		'color', 'script', '', 'color', 'script');
 	print_table_row([show_invisibles("\t"), 'tab',
 		'', show_invisibles("\x{200E}"), 'LTR bidi (200E, 202A, 202D, 2066)',
-		'', color_scripts('বাংলা'), 'Bengali',
-		'', color_scripts('อักษรไทย'), 'Thai',
-		], 'key');
-	print_table_row([show_invisibles("\x{00AD}"), 'soft-hyphen (00AD)',
-		'', show_invisibles("\x{200F}"), 'RTL bidi (200F, 202B, 202E, 2067, 061C)',
 		'', color_scripts('Кириллица'), 'Cyrillic',
-		'', color_scripts('\uFFFD'), 'Unicode',
+		'', color_scripts('বাংলা'), 'Bengali',
+		], 'key');
+	print_table_row([show_invisibles("\x{00AD}"), 'soft hyphen (00AD)',
+		'', show_invisibles("\x{200F}"), 'RTL bidi (200F, 202B, 202E, 2067, 061C)',
+		'', color_scripts('Ελληνικά'), 'Greek',
+		'', color_scripts('देवनागरी'), 'Devanagari',
 		], 'key');
 	print_table_row([show_invisibles("\x{200C}"), 'non-joiner (200C, 2063)',
 		'', show_invisibles("\x{2068}"), 'first strong isolate bidi (2068)',
-		'', color_scripts('देवनागरी'), 'Devanagari',
-		'', color_scripts('あ가កᎹیא'), 'unlabelled',
+		'', color_scripts('Latin'), 'Latin',
+		'', color_scripts('อักษรไทย'), 'Thai',
 		], 'key');
-	print_table_row([show_invisibles("\x{200D}"), 'joiner (200D)',
+	print_table_row([show_invisibles("\x{200D}"), 'joiner (200D, 2060)',
 		'', show_invisibles("\x{2069}"), 'pop bidi (2069, 202C)',
-		'', color_scripts('Ελληνικά'), 'Greek'
+		'', color_scripts('漢字'), 'Han',
+		'', color_scripts('\uFFFD'), 'Unicode',
 		], 'key');
 	print_table_row([show_invisibles("\x{FE00}"), 'variation selector<br>(FE00-FE0F, E0100-E01EF)',
-		'', show_invisibles("\x{200B}"), 'whitespace (200B, 202F, FEFF, 00A0)',
-		'', color_scripts('Latin'), 'Latin',
+		'', show_invisibles("\x{200B}"), 'whitespace<br>(200B, 202F, 3000, FEFF, 00A0)',
+		'', color_scripts('ひらがな'), 'Hiragana',
+		'', color_scripts('가កᎹیא'), 'unlabelled',
+		], 'key');
+	print_table_row([show_invisibles("\x{2061}"), 'invisible math (2061-2064)',
+		'', '', '',
+		'', color_scripts('カタカナ'), 'Katakana',
 		], 'key');
 
 	print_table_foot();
@@ -2260,6 +2417,9 @@ sub speaker_sample {
 	foreach my $aref (@samples) {
 		my ($final, $token_count, $common, $type_cnt) = @$aref;
 		my $the_mapping = $mapping{$final}{new};
+		if (is_mixed_script_list($the_mapping)) {
+			$the_mapping = color_scripts($the_mapping);
+			}
 		$the_mapping = show_invisibles($the_mapping);
 		print_table_row(["$final", "$the_mapping"], 'dirAuto');
 		}

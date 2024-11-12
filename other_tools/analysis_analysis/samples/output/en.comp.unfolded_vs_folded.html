@@ -1,6 +1,6 @@
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
-    body { font-family:Helvetica, Noto Sans CJK JP; font-size:115%; }
+    body { font-family:Helvetica, Arial, Noto Sans CJK JP; font-size:115%; }
     th, td { text-align:left; border: 1px solid black; padding:2px 3px; }
     table { border-collapse: collapse; }
     .vtop tr td, .vtop tr th { vertical-align:top; }
@@ -19,7 +19,24 @@
     .TOC { font-size:60%; }
     .diff { background-color:#ffffdd; }
     .bigNum { color:blue; }
+    .hicIcon { color:red; }
+    .mixIcon { color:green; }
+    .ppsIcon { color:red; }
     .dirAuto, .dirAuto td { text-align: start; unicode-bidi: plaintext; }
+	.stemsPer td:nth-of-type(1) { width:3em; }
+	.stemsPer td:nth-of-type(2) { width:5em; }
+	.stemsPer td:nth-of-type(3) { max-width:calc(100vw - 10em); word-wrap:break-word;  }
+	.longToken td:nth-of-type(1) { width:3em; }
+	.longToken td:nth-of-type(2) { width:4em; }
+	.longToken td:nth-of-type(3) { width:5em; }
+	.longToken td:nth-of-type(4) { max-width:calc(100vw - 14em); word-wrap:break-word;  }
+	.stemRes td { word-wrap:break-word; }
+	.stemRes td:nth-of-type(1), .stemRes td:nth-of-type(2) { max-width:calc((100vw - 9em)*.18) }
+	.stemRes td:nth-of-type(3), .stemRes td:nth-of-type(4) { width:4em; }
+	.stemRes td:nth-of-type(5) { max-width:calc((100vw - 9em)*.62); }
+	.collision td { word-wrap:break-word; }
+	.collision td:nth-of-type(1) { max-width:min(20vw, 15em); }
+	.collision td:nth-of-type(2) { max-width:calc(98vw - 1.5em - min(20vw, 15em)) ; }
     .deemphasized { color:#C0C0C0; }
     .lenStats { font-size: 75%; color:#999; }
     .lenHist, .lenHist0, .lenHistNone { width:0.5em; display:inline-block; margin-top:8px; cursor:help; }
@@ -30,20 +47,23 @@
     .vertCont { display:inline-block; vertical-align:top; }
 	.uni { color:#808080 }
 	.ltn { color:#007700 }
-	.ben { color:#107896 }
 	.cyr { color:#ff0000 }
-	.dev { color:#e68d2e }
 	.grk { color:#0000ff }
+	.han { color:#996600 }
+	.hira { color:#999900 }
+	.kata { color:#e68d2e }
+	.ben { color:#107896 }
+	.dev { color:#cc00cc }
 	.thai { color:#9400D3 }
-	.uni, .ltn, .ben, .cyr, .dev, .grk, .thai { cursor:help; }
+	.uni, .ltn, .cyr, .grk, .han, .hira, .kata, .ben, .dev, .thai { cursor:help; }
 </style>
 
 <b>Processing samples/output/en.counts.unfolded.txt as 'old'.</b><br>
 <b>Processing samples/output/en.counts.folded.txt as 'new'.</b><br>
 <b>Language processing: </b>default<br>
 <br>
-<b>Total old tokens: </b>116,241<br>
-<b>Total new tokens: </b>116,241<br>
+<b>Total old tokens: </b>114,169<br>
+<b>Total new tokens: </b>114,169<br>
 &nbsp;&nbsp;&nbsp;<b>Token delta: </b>0 (0%)<br>
 
 <a name='TOC'><h3>Table of Contents <a href=#TOC class=TOC>[TOC]</a></h3>
@@ -61,36 +81,37 @@
 &nbsp;&nbsp;&nbsp;<a href='#changed_collisions_increased'>Net Gains</a><br>
 <h3>Invisibles and Script Colors <a href=#TOC class=TOC>[TOC]</a></h3>
 <table class='vcent'><tr><th>symbol</th><th>invisible chars</th><th></th><th>symbol</th><th>invisible chars</th><th></th><th>color</th><th>script</th><th></th><th>color</th><th>script</th></tr>
-<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=ben title='Bengali script'>বাংলা</span></td><td>Bengali</td><td></td><td><span class=thai title='Thai script'>อักษรไทย</span></td><td>Thai</td></tr>
-<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft-hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td><td></td><td><span class=uni title='Unicode'>\uFFFD</span></td><td>Unicode</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C, 2063)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>∷</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=dev title='Devanagari script'>देवनागरी</span></td><td>Devanagari</td><td></td><td>あ가កᎹیא</td><td>unlabelled</td></tr>
-<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td></tr>
-<tr class='key'><td><span class=invis title='VARIATION SELECTOR-1'>∵</span></td><td>variation selector<br>(FE00-FE0F, E0100-E01EF)</td><td></td><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace (200B, 202F, FEFF, 00A0)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td></tr>
+<tr class='key'><td><span class=invis title='TAB'>→</span></td><td>tab</td><td></td><td><span class=invis title='LEFT-TO-RIGHT MARK'>»</span></td><td>LTR bidi (200E, 202A, 202D, 2066)</td><td></td><td><span class=cyr title='Cyrillic script'>Кириллица</span></td><td>Cyrillic</td><td></td><td><span class=ben title='Bengali script'>বাংলা</span></td><td>Bengali</td></tr>
+<tr class='key'><td><span class=invis title='SOFT HYPHEN'>–</span></td><td>soft hyphen (00AD)</td><td></td><td><span class=invis title='RIGHT-TO-LEFT MARK'>«</span></td><td>RTL bidi (200F, 202B, 202E, 2067, 061C)</td><td></td><td><span class=grk title='Greek script'>Ελληνικά</span></td><td>Greek</td><td></td><td><span class=dev title='Devanagari script'>देवनागरी</span></td><td>Devanagari</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH NON-JOINER'>⋮</span></td><td>non-joiner (200C, 2063)</td><td></td><td><span class=invis title='FIRST STRONG ISOLATE'>∷</span></td><td>first strong isolate bidi (2068)</td><td></td><td><span class=ltn title='Latin script'>Latin</span></td><td>Latin</td><td></td><td><span class=thai title='Thai script'>อักษรไทย</span></td><td>Thai</td></tr>
+<tr class='key'><td><span class=invis title='ZERO WIDTH JOINER'>+</span></td><td>joiner (200D, 2060)</td><td></td><td><span class=invis title='POP DIRECTIONAL ISOLATE'>↥</span></td><td>pop bidi (2069, 202C)</td><td></td><td><span class=han title='Han script'>漢字</span></td><td>Han</td><td></td><td><span class=uni title='Unicode'>\uFFFD</span></td><td>Unicode</td></tr>
+<tr class='key'><td><span class=invis title='VARIATION SELECTOR-1'>∵</span></td><td>variation selector<br>(FE00-FE0F, E0100-E01EF)</td><td></td><td><span class=invis title='ZERO WIDTH SPACE'>⎵</span></td><td>whitespace<br>(200B, 202F, 3000, FEFF, 00A0)</td><td></td><td><span class=hira title='Hiragana script'>ひらがな</span></td><td>Hiragana</td><td></td><td>가កᎹیא</td><td>unlabelled</td></tr>
+<tr class='key'><td><span class=invis title='FUNCTION APPLICATION'>⋆</span></td><td>invisible math (2061-2064)</td><td></td><td></td><td></td><td></td><td><span class=kata title='Katakana script'>カタカナ</span></td><td>Katakana</td></tr>
 </table>
 
 <a name='PPTTS'><h3>Pre/Post Type & Token Stats <a href=#TOC class=TOC>[TOC]</a></h3>
 <div style='display:inline-block; margin-right:3em'>
 <b>
 Old File Info</b><br>
-&nbsp;&nbsp;&nbsp; pre-analysis types: 23,813<br>
-&nbsp;&nbsp;&nbsp;post-analysis types: 17,367<br>
+&nbsp;&nbsp;&nbsp; pre-analysis types: 24,576<br>
+&nbsp;&nbsp;&nbsp;post-analysis types: 17,690<br>
 <br>
 <table class='vtop'><tr><th>type</th><th>token</th><th>change_type</th></tr>
-<tr><td>8,680</td><td>62,824</td><td>unchanged</td></tr>
-<tr><td>17,862</td><td>96,867</td><td>lc_unchanged</td></tr>
-<tr><td>1,019</td><td>8,465</td><td>number</td></tr>
+<tr><td>8,840</td><td>60,670</td><td>unchanged</td></tr>
+<tr><td>18,024</td><td>93,680</td><td>lc_unchanged</td></tr>
+<tr><td>920</td><td>7,425</td><td>number</td></tr>
 </table>
 </div>
 <div style='display:inline-block; margin-right:3em'>
 <b>
 New File Info</b><br>
-&nbsp;&nbsp;&nbsp; pre-analysis types: 23,813<br>
-&nbsp;&nbsp;&nbsp;post-analysis types: 17,292<br>
+&nbsp;&nbsp;&nbsp; pre-analysis types: 24,576<br>
+&nbsp;&nbsp;&nbsp;post-analysis types: 17,618<br>
 <br>
 <table class='vtop'><tr><th>type</th><th>token</th><th>change_type</th></tr>
-<tr><td>8,547</td><td>62,673</td><td>unchanged</td></tr>
-<tr><td>17,371</td><td>96,193</td><td>lc_unchanged</td></tr>
-<tr><td>1,019</td><td>8,465</td><td>number</td></tr>
+<tr><td>8,714</td><td>60,528</td><td>unchanged</td></tr>
+<tr><td>17,543</td><td>93,027</td><td>lc_unchanged</td></tr>
+<tr><td>920</td><td>7,425</td><td>number</td></tr>
 </table>
 </div>
 <br>
@@ -99,18 +120,18 @@ New File Info</b><br>
 <div class=hang>&nbsp;&nbsp;&nbsp;<b>unchanged:</b> pre-analysis token is the same as post-analysis token</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>lc_unchanged:</b> pre-analysis token is the same as post-analysis token after lowercasing</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>number:</b> pre-analysis token is all numerical digits</div>Categories overlap. Numbers are usually unchanged, and all lc_unchanged are also unchanged.<br>
 
 <a name='new_collision_stats'><h3>New Collision Stats <a href=#TOC class=TOC>[TOC]</a></h3>
-New collisions: 70 (0.403% of post-analysis types)<br>
-&nbsp;&nbsp;&nbsp;added types: 73 (0.307% of pre-analysis types)<br>
-&nbsp;&nbsp;&nbsp;added tokens: 123 (0.106% of tokens)<br>
-&nbsp;&nbsp;&nbsp;total types in collisions: 179 (0.752% of pre-analysis types)<br>
+New collisions: 68 (0.384% of post-analysis types)<br>
+&nbsp;&nbsp;&nbsp;added types: 72 (0.293% of pre-analysis types)<br>
+&nbsp;&nbsp;&nbsp;added tokens: 119 (0.104% of tokens)<br>
+&nbsp;&nbsp;&nbsp;total types in collisions: 174 (0.708% of pre-analysis types)<br>
 <br>
-Narrative: 73 pre-analysis types (0.307% of pre-analysis types) / 123 tokens (0.106% of tokens) were added to 70 groups (0.403% of post-analysis types), affecting a total of 179 pre-analysis types (0.752% of pre-analysis types) in those groups.<br>
+Narrative: 72 pre-analysis types (0.293% of pre-analysis types) / 119 tokens (0.104% of tokens) were added to 68 groups (0.384% of post-analysis types), affecting a total of 174 pre-analysis types (0.708% of pre-analysis types) in those groups.<br>
 <br>
 Note: All percentages are relative to old token/type counts.<br>
 
 <a name='new_collision_near_match_stats'><h3>New Collision Near Match Stats <a href=#TOC class=TOC>[TOC]</a></h3>
 <table class='vtop'><tr><th>type</th><th>token</th><th>kind</th></tr>
-<tr><td>73</td><td>123</td><td>other</td></tr>
+<tr><td>72</td><td>119</td><td>other</td></tr>
 </table>
 <br>
 <b>Key</b><br>
@@ -122,8 +143,8 @@ New collision type is a near match for a type already in the group after...<br>
 <a name='lost_and_found_pre'><h4>Pre_analysis Lost and Found <a href=#TOC class=TOC>[TOC]</a></h4>
 
 <a name='lost_and_found_post'><h4>Post_analysis Lost and Found <a href=#TOC class=TOC>[TOC]</a></h4>
-&bull; Lost (old only) post-analysis types/tokens: 484 / 674<br>
-&bull; Found (new only) post-analysis types/tokens: 409 / 551<br>
+&bull; Lost (old only) post-analysis types/tokens: 480 / 668<br>
+&bull; Found (new only) post-analysis types/tokens: 408 / 549<br>
 <br>
 <div class=leftCatDiv>
 <b> Lost (old only) post-analysis tokens by category</b>
@@ -133,16 +154,16 @@ New collision type is a near match for a type already in the group after...<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Arabic:</i> 6 types, 6 tokens<br>
-<blockquote class=dirAuto>أبو &bull; جمعية &bull; عودة &bull; هزارگی &bull; کرمی &bull; یوسف<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–6, n=6, µ=4.33, σ=0.94</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:6px;"></div><div title="len:4; freq:3" class=lenHist style="height:16px;"></div><div title="len:5; freq:1" class=lenHist style="height:6px;"></div><div title="len:6; freq:1" class=lenHist style="height:6px;"></div><br>
+&nbsp;&nbsp;&nbsp;<i>Arabic:</i> 3 types, 3 tokens<br>
+<blockquote class=dirAuto>أبو &bull; جمعية &bull; عودة<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–5, n=3, µ=4.00, σ=0.82</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:16px;"></div><div title="len:4; freq:1" class=lenHist style="height:16px;"></div><div title="len:5; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Arabic:</i> 6 types, 6 tokens<br>
-<blockquote class=dirAuto>ابو &bull; جمعيه &bull; عوده &bull; كرمي &bull; هزارگي &bull; يوسف<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–6, n=6, µ=4.33, σ=0.94</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:6px;"></div><div title="len:4; freq:3" class=lenHist style="height:16px;"></div><div title="len:5; freq:1" class=lenHist style="height:6px;"></div><div title="len:6; freq:1" class=lenHist style="height:6px;"></div><br>
+&nbsp;&nbsp;&nbsp;<i>Arabic:</i> 3 types, 3 tokens<br>
+<blockquote class=dirAuto>ابو &bull; جمعيه &bull; عوده<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–5, n=3, µ=4.00, σ=0.82</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:16px;"></div><div title="len:4; freq:1" class=lenHist style="height:16px;"></div><div title="len:5; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
 
 </div>
@@ -185,7 +206,7 @@ New collision type is a near match for a type already in the group after...<br>
 
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> 2 types, 2 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Hebrew:</i> <span class=diff>2 types, 2 tokens</span><br>
 <blockquote class=dirAuto>ישראליות &bull; לירות<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–8, n=2, µ=6.50, σ=1.50</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:1" class=lenHist style="height:16px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:1" class=lenHist style="height:16px;"></div><br>
 </blockquote>
@@ -193,41 +214,34 @@ New collision type is a near match for a type already in the group after...<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish:</i> 4 types, 4 tokens<br>
-<blockquote class=dirAuto><span class=ltn title='Latin script'>flœʁ</span> &bull; <span class=ltn title='Latin script'>pɛl</span> &bull; <span class=ltn title='Latin script'>ɢ</span> &bull; <span class=ltn title='Latin script'>ɨ</span><br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–4, n=4, µ=2.25, σ=1.30</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:2" class=lenHist style="height:16px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:9px;"></div><div title="len:4; freq:1" class=lenHist style="height:9px;"></div><br>
+&nbsp;&nbsp;&nbsp;<i><span class=diff>IPA-ish</span>:</i> 6 types, 6 tokens<br>
+<blockquote class=dirAuto><span class=ltn title='Latin script'>flœʁ</span> &bull; <span class=ltn title='Latin script'>pɛl</span> &bull; <span class=ltn title='Latin script'>veɾð</span> &bull; <span class=ltn title='Latin script'>vilɐ</span> &bull; <span class=ltn title='Latin script'>ɡrabuf</span> &bull; <span class=ltn title='Latin script'>ɨ</span><br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–6, n=6, µ=3.67, σ=1.49</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:1" class=lenHist style="height:6px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:6px;"></div><div title="len:4; freq:3" class=lenHist style="height:16px;"></div><div title="len:5; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:6; freq:1" class=lenHist style="height:6px;"></div><br>
 </blockquote>
 
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo:</i> 1 types, 1 tokens<br>
-<blockquote class=dirAuto><span class=ltn title='Latin script'>ʁɛ</span>̃<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type length: 3, n=1, µ=3, σ=0</span></blockquote>
-
-</div>
-<div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish+combo+mod:</i> 3 types, 3 tokens<br>
-<blockquote class=dirAuto><span class=ltn title='Latin script'>ɡɔ</span>ˈ<span class=ltn title='Latin script'>ʂɨt</span>͡<span class=ltn title='Latin script'>sɛ</span> &bull; ˈ<span class=ltn title='Latin script'>e</span>ː<span class=ltn title='Latin script'>ija</span>ˌ<span class=ltn title='Latin script'>fjœrðʏr</span>̥ &bull; ˈ<span class=ltn title='Latin script'>ɕt</span>͡<span class=ltn title='Latin script'>ɕeɡnɨ</span><br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 9–15, n=3, µ=11.00, σ=2.83</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:9; freq:2" class=lenHist style="height:16px;"></div><div title="len:10; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:14; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:15; freq:1" class=lenHist style="height:9px;"></div><br>
+&nbsp;&nbsp;&nbsp;<i><span class=diff>IPA-ish+combo</span>:</i> 3 types, 3 tokens<br>
+<blockquote class=dirAuto><span class=ltn title='Latin script'>ɕt</span>͡<span class=ltn title='Latin script'>ɕeɡnɨ</span> &bull; <span class=ltn title='Latin script'>ɡɔʂɨt</span>͡<span class=ltn title='Latin script'>sɛ</span> &bull; <span class=ltn title='Latin script'>ʁɛ</span>̃<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 3–8, n=3, µ=6.33, σ=2.36</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:2; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:3; freq:1" class=lenHist style="height:9px;"></div><div title="len:4; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:5; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:8; freq:2" class=lenHist style="height:16px;"></div><br>
 </blockquote>
 
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>IPA-ish+mod:</i> 3 types, 3 tokens<br>
-<blockquote class=dirAuto>ˈ<span class=ltn title='Latin script'>veɾð</span> &bull; ˈ<span class=ltn title='Latin script'>vilɐ</span> &bull; ˈ<span class=ltn title='Latin script'>ɡrabuf</span><br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–7, n=3, µ=5.67, σ=0.94</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:2" class=lenHist style="height:16px;"></div><div title="len:6; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:7; freq:1" class=lenHist style="height:9px;"></div><br>
-</blockquote>
+&nbsp;&nbsp;&nbsp;<i><span class=diff>IPA-ish+combo+mod</span>:</i> 1 type, 1 token<br>
+<blockquote class=dirAuto><span class=ltn title='Latin script'>e</span>ː<span class=ltn title='Latin script'>ijafjœrðʏr</span>̥<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type length: 13, n=1, µ=13, σ=0</span></blockquote>
 
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Kannada:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Kannada:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto>ಸಂಕೇಶ್ವರ<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 8, n=1, µ=8, σ=0</span></blockquote>
 
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Kannada:</i> 1 types, 1 tokens<br>
+&nbsp;&nbsp;&nbsp;<i>Kannada:</i> 1 type, 1 token<br>
 <blockquote class=dirAuto>ಸಂಕೇಶವರ<br>
 </blockquote><blockquote class=dirAuto><span class="lenStats">type length: 7, n=1, µ=7, σ=0</span></blockquote>
 
@@ -249,23 +263,31 @@ New collision type is a near match for a type already in the group after...<br>
 </div>
 <br style='clear:both'>
 <div class='leftCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Latin:</i> 451 types, 640 tokens (sample of 100)<br>
-<blockquote class=dirAuto>abū &bull; adésio &bull; alexandrín &bull; apatzingán &bull; bahá &bull; bengoué &bull; bjørgvin &bull; bucurești &bull; béla &bull; città &bull; cristóvão &bull; créole &bull; crépin &bull; cárdenas &bull; efraín &bull; ejército &bull; fernández &bull; fiancé &bull; fnjóská &bull; gjögurtá &bull; grenivík &bull; grímsey &bull; grímsson &bull; guillén &bull; gábor &bull; gérard &bull; góra &bull; haendŭp &bull; hlavní &bull; hlaváček &bull; hörgá &bull; imrûz &bull; imām &bull; intégration &bull; itäinen &bull; jiří &bull; jüdische &bull; jürgen &bull; kaposvár &bull; khairābād &bull; kocmyrzów &bull; kraków &bull; kärryseppiä &bull; kōgen &bull; loué &bull; lucía &bull; manjirō &bull; michoacán &bull; munților &bull; mácha &bull; méxico &bull; mê &bull; møre &bull; nygårdshaug &bull; opéra &bull; patiția &bull; penélope &bull; petőfi &bull; polatlı &bull; protégés &bull; póšum &bull; române &bull; româniei &bull; santé &bull; seán &bull; shāfī &bull; siglufjörður &bull; sącz &bull; tecnológico &bull; telepacífico &bull; théâtre &bull; toruń &bull; tájékoztató &bull; tête &bull; varietäten &bull; varèse &bull; worî &bull; yši &bull; zadié &bull; zihlbrücke &bull; zoltán &bull; zöllner &bull; à &bull; árpád &bull; árskógssandur &bull; åsegrenda &bull; étoile &bull; ólafsfjörður &bull; øre &bull; øyvind &bull; český &bull; čiz &bull; ēm &bull; ściegny &bull; šaydi &bull; šuda &bull; șaguna &bull; ḵot &bull; ḵāh &bull; ẓefirah<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–19, n=451, µ=6.76, σ=2.85</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:8" class=lenHist style="height:3px;"></div><div title="len:2; freq:15" class=lenHist style="height:4px;"></div><div title="len:3; freq:25" class=lenHist style="height:6px;"></div><div title="len:4; freq:49" class=lenHist style="height:11px;"></div><div title="len:5; freq:54" class=lenHist style="height:12px;"></div><div title="len:6; freq:77" class=lenHist style="height:16px;"></div><div title="len:7; freq:61" class=lenHist style="height:13px;"></div><div title="len:8; freq:55" class=lenHist style="height:12px;"></div><div title="len:9; freq:42" class=lenHist style="height:9px;"></div><div title="len:10; freq:18" class=lenHist style="height:5px;"></div><div title="len:11; freq:21" class=lenHist style="height:5px;"></div><div title="len:12; freq:8" class=lenHist style="height:3px;"></div><div title="len:13; freq:8" class=lenHist style="height:3px;"></div><div title="len:14; freq:4" class=lenHist style="height:2px;"></div><div title="len:15; freq:3" class=lenHist style="height:2px;"></div><div title="len:16; freq:2" class=lenHist style="height:1px;"></div><div title="len:17; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:18; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:19; freq:1" class=lenHist style="height:1px;"></div><br>
+&nbsp;&nbsp;&nbsp;<i>Latin:</i> 446 types, 632 tokens (sample of 100)<br>
+<blockquote class=dirAuto>adésio &bull; ají &bull; alexandrín &bull; angélica &bull; arê &bull; aýlagy &bull; bartolomé &bull; blatný &bull; brașov &bull; buṭ &bull; béla &bull; bílý &bull; bălan &bull; créole &bull; crépin &bull; dépistage &bull; eheverhältnisse &bull; eyjafjarðardalur &bull; eyjafjarðará &bull; eyjafjörður &bull; fehér &bull; fernández &bull; fnjóská &bull; guérard &bull; győr &bull; gábor &bull; hamlagrøvatnet &bull; hrál &bull; hrísey &bull; hälströmin &bull; jiří &bull; jóhanna &bull; jüdischen &bull; keflavík &bull; khairābād &bull; käerjéng &bull; kōgen &bull; luziânia &bull; löf &bull; martynów &bull; niérika &bull; nyström &bull; nyströmøya &bull; nyynäinen &bull; nāga &bull; ogooué &bull; oldřich &bull; olléon &bull; paweł &bull; penélope &bull; perényi &bull; polatlı &bull; polgár &bull; prémonition &bull; páramos &bull; póšum &bull; păun &bull; sekä &bull; seán &bull; shā &bull; siglufjörður &bull; snälla &bull; spånga &bull; sącz &bull; tréteaux &bull; tájékoztató &bull; tène &bull; tête &bull; umeå &bull; varietät &bull; vemmelsääri &bull; veslování &bull; vieuchêne &bull; vikør &bull; värmland &bull; värnamo &bull; vítězslav &bull; worî &bull; władysław &bull; zadié &bull; zeleném &bull; zöllner &bull; à &bull; árskógssandur &bull; å &bull; écus &bull; évêque &bull; ólafsfjörður &bull; östers &bull; û &bull; červenka &bull; český &bull; člůnků &bull; łaszcz &bull; řeckého &bull; țurcan &bull; țăranu &bull; ḍ &bull; ḵona &bull; ḵot<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–19, n=446, µ=6.77, σ=2.85</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:8" class=lenHist style="height:3px;"></div><div title="len:2; freq:15" class=lenHist style="height:4px;"></div><div title="len:3; freq:24" class=lenHist style="height:6px;"></div><div title="len:4; freq:48" class=lenHist style="height:10px;"></div><div title="len:5; freq:54" class=lenHist style="height:12px;"></div><div title="len:6; freq:76" class=lenHist style="height:16px;"></div><div title="len:7; freq:60" class=lenHist style="height:13px;"></div><div title="len:8; freq:55" class=lenHist style="height:12px;"></div><div title="len:9; freq:42" class=lenHist style="height:9px;"></div><div title="len:10; freq:18" class=lenHist style="height:5px;"></div><div title="len:11; freq:20" class=lenHist style="height:5px;"></div><div title="len:12; freq:8" class=lenHist style="height:3px;"></div><div title="len:13; freq:8" class=lenHist style="height:3px;"></div><div title="len:14; freq:4" class=lenHist style="height:2px;"></div><div title="len:15; freq:3" class=lenHist style="height:2px;"></div><div title="len:16; freq:2" class=lenHist style="height:1px;"></div><div title="len:17; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:18; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:19; freq:1" class=lenHist style="height:1px;"></div><br>
 </blockquote>
 
 </div>
 <div class='rightCatDiv newCat'>
-&nbsp;&nbsp;&nbsp;<i>Latin:</i> 390 types, 531 tokens (sample of 100)<br>
-<blockquote class=dirAuto>a &bull; adesio &bull; adhemar &bull; alvik &bull; an &bull; arpad &bull; arskogssandur &bull; asegrenda &bull; autonoma &bull; aylagy &bull; bengoue &bull; bibliotheque &bull; bobr &bull; boleslaw &bull; botan &bull; bu &bull; bucuresti &bull; caman &bull; ciz &bull; cristovao &bull; depistage &bull; dominguez &bull; eijafjoerdyr &bull; epistolae &bull; ew &bull; eyjafjordur &bull; fatwa &bull; fehervari &bull; floe &bull; francai &bull; gerard &bull; gonzalez &bull; grabuf &bull; haendup &bull; haiti &bull; haitien &bull; hamlagrovatnet &bull; inedito &bull; jiri &bull; johanna &bull; judische &bull; kogen &bull; kot &bull; lehkych &bull; lusiada &bull; madl &bull; meti &bull; microid &bull; muntii &bull; muntilor &bull; naytte &bull; nystrom &bull; nystromoya &bull; nyynainen &bull; orszago &bull; oyvind &bull; paramo &bull; patricia &bull; paun &bull; pawel &bull; pel &bull; perenyi &bull; petofi &bull; pirhe &bull; podgorzyn &bull; porownawcza &bull; protege &bull; przekladu &bull; raca &bull; radioelectrique &bull; regle &bull; retinopathie &bull; rhone &bull; romane &bull; seinajoen &bull; siglufjordur &bull; slowianska &bull; snalla &bull; soiree &bull; svalbardseyri &bull; tajekoztato &bull; taranu &bull; tecnologico &bull; teran &bull; tiyu &bull; topografico &bull; torun &bull; uniao &bull; uw &bull; vac &bull; vaigattoyane &bull; varaldsoy &bull; varese &bull; varietaten &bull; wahlbergoya &bull; ysi &bull; zbraxlin &bull; zefirah &bull; zollner &bull; zsofia<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–19, n=390, µ=7.08, σ=2.76</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:1" class=lenHist style="height:1px;"></div><div title="len:2; freq:7" class=lenHist style="height:3px;"></div><div title="len:3; freq:21" class=lenHist style="height:6px;"></div><div title="len:4; freq:34" class=lenHist style="height:9px;"></div><div title="len:5; freq:52" class=lenHist style="height:13px;"></div><div title="len:6; freq:63" class=lenHist style="height:16px;"></div><div title="len:7; freq:64" class=lenHist style="height:16px;"></div><div title="len:8; freq:45" class=lenHist style="height:12px;"></div><div title="len:9; freq:42" class=lenHist style="height:11px;"></div><div title="len:10; freq:15" class=lenHist style="height:5px;"></div><div title="len:11; freq:19" class=lenHist style="height:5px;"></div><div title="len:12; freq:9" class=lenHist style="height:3px;"></div><div title="len:13; freq:8" class=lenHist style="height:3px;"></div><div title="len:14; freq:4" class=lenHist style="height:2px;"></div><div title="len:15; freq:3" class=lenHist style="height:2px;"></div><div title="len:16; freq:2" class=lenHist style="height:1px;"></div><div title="len:17; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:18; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:19; freq:1" class=lenHist style="height:1px;"></div><br>
+&nbsp;&nbsp;&nbsp;<i>Latin:</i> <span class=diff>386 types, 525 tokens</span> (sample of 100)<br>
+<blockquote class=dirAuto>a &bull; adesio &bull; administratia &bull; aelfric &bull; alava &bull; almo &bull; andra &bull; andre &bull; arskogssandur &bull; asegrenda &bull; aye &bull; bibliotheque &bull; botan &bull; boulangere &bull; but &bull; ciz &bull; constanta &bull; crepin &bull; erotico &bull; eveque &bull; fehervari &bull; fie &bull; frederic &bull; gjogurta &bull; gonzalez &bull; gora &bull; grimsson &bull; hacken &bull; haiti &bull; halstromin &bull; hlavacek &bull; hlavni &bull; horga &bull; hral &bull; imruz &bull; inedito &bull; kallay &bull; kaski &bull; kogen &bull; kokai &bull; konnin &bull; linne &bull; luziania &bull; lycee &bull; macha &bull; madl &bull; metabetchouan &bull; meti &bull; metianu &bull; muntii &bull; muntilor &bull; nee &bull; neguta &bull; nierika &bull; nopankylan &bull; nora &bull; nygardshaug &bull; ogooue &bull; ouesse &bull; oystese &bull; paramo &bull; patricia &bull; podgorzyn &bull; posum &bull; pourtale &bull; przekladu &bull; ptaku &bull; romischen &bull; sacz &bull; saguna &bull; sante &bull; sciegny &bull; seka &bull; siglufjordur &bull; sigurdardottir &bull; snalla &bull; soiree &bull; spanga &bull; stanislaw &bull; stoleti &bull; suarez &bull; sudtirol &bull; taranu &bull; tete &bull; topografico &bull; trollaskagi &bull; tulga &bull; tunkul &bull; udah &bull; urlatelu &bull; vac &bull; varmland &bull; verd &bull; vikor &bull; vyhlidal &bull; wahlbergoya &bull; wladyslaw &bull; wroclaw &bull; zollner &bull; zoltan<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 1–19, n=386, µ=7.09, σ=2.77</span>&nbsp;&nbsp;&nbsp;<div title="len:1; freq:1" class=lenHist style="height:1px;"></div><div title="len:2; freq:7" class=lenHist style="height:3px;"></div><div title="len:3; freq:21" class=lenHist style="height:6px;"></div><div title="len:4; freq:33" class=lenHist style="height:9px;"></div><div title="len:5; freq:52" class=lenHist style="height:13px;"></div><div title="len:6; freq:62" class=lenHist style="height:16px;"></div><div title="len:7; freq:63" class=lenHist style="height:16px;"></div><div title="len:8; freq:44" class=lenHist style="height:11px;"></div><div title="len:9; freq:42" class=lenHist style="height:11px;"></div><div title="len:10; freq:15" class=lenHist style="height:5px;"></div><div title="len:11; freq:19" class=lenHist style="height:6px;"></div><div title="len:12; freq:9" class=lenHist style="height:3px;"></div><div title="len:13; freq:8" class=lenHist style="height:3px;"></div><div title="len:14; freq:4" class=lenHist style="height:2px;"></div><div title="len:15; freq:3" class=lenHist style="height:2px;"></div><div title="len:16; freq:2" class=lenHist style="height:1px;"></div><div title="len:17; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:18; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:19; freq:1" class=lenHist style="height:1px;"></div><br>
 </blockquote>
 
 </div>
 <div class='leftCatDiv'>
-&nbsp;&nbsp;&nbsp;<i>Latin+mod:</i> 1 types, 1 tokens<br>
-<blockquote class=dirAuto>ˈzbraxlin<br>
-</blockquote><blockquote class=dirAuto><span class="lenStats">type length: 9, n=1, µ=9, σ=0</span></blockquote>
+&nbsp;&nbsp;&nbsp;<i>Latin+apos:</i> 6 types, 7 tokens<br>
+<blockquote class=dirAuto>bahá'í &bull; haendŭp'on &bull; jusqu'à &bull; l'intégration &bull; l'étoile &bull; l'été<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–13, n=6, µ=8.17, σ=2.67</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:1" class=lenHist style="height:16px;"></div><div title="len:6; freq:1" class=lenHist style="height:16px;"></div><div title="len:7; freq:1" class=lenHist style="height:16px;"></div><div title="len:8; freq:1" class=lenHist style="height:16px;"></div><div title="len:9; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:10; freq:1" class=lenHist style="height:16px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:1" class=lenHist style="height:16px;"></div><br>
+</blockquote>
+
+</div>
+<div class='rightCatDiv'>
+&nbsp;&nbsp;&nbsp;<i>Latin+apos:</i> 6 types, 7 tokens<br>
+<blockquote class=dirAuto>baha'i &bull; haendup'on &bull; jusqu'a &bull; l'ete &bull; l'etoile &bull; l'integration<br>
+</blockquote><blockquote class=dirAuto><span class="lenStats">type lengths: 5–13, n=6, µ=8.17, σ=2.67</span>&nbsp;&nbsp;&nbsp;<span class=lenStats>...</span><div title="len:5; freq:1" class=lenHist style="height:16px;"></div><div title="len:6; freq:1" class=lenHist style="height:16px;"></div><div title="len:7; freq:1" class=lenHist style="height:16px;"></div><div title="len:8; freq:1" class=lenHist style="height:16px;"></div><div title="len:9; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:10; freq:1" class=lenHist style="height:16px;"></div><div title="len:11; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:12; freq:0" class=lenHistNone style="height:1px;"></div><div title="len:13; freq:1" class=lenHist style="height:16px;"></div><br>
+</blockquote>
 
 </div>
 <br style='clear:both'>
@@ -274,78 +296,78 @@ New collision type is a near match for a type already in the group after...<br>
 <a name='changed_collisions'><h3>Changed Groups <a href=#TOC class=TOC>[TOC]</a></h3>
 <div class=hang>&nbsp;&nbsp;&nbsp;<b><<:</b> indicates net loss of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>><:</b> indicates mixed gains and losses of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>>>:</b> indicates net gain of types/tokens</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>#:</b> the number following indicates the magnitude of the change (#types affected)</div><div class=hang>&nbsp;&nbsp;&nbsp;<b>terseness:</b> 0</div><div class=hang>&nbsp;&nbsp;&nbsp;<b><span class=diff>[1 diff]</span>:</b> diffs between old and new sets</div><div class=hang>&nbsp;&nbsp;&nbsp;<b><b class=bigNum>[1000 freq]</b>:</b> high-frequency terms</div>
 <a name='changed_collisions_increased'><h4>Net Gains <a href=#TOC class=TOC>[TOC]</a></h4>
-<a href='#hic_increased_1'><b>High Impact Changes</b></a><br><br>
-<table class='vtop'>
-<tr><td><nobr>ab >> 1</nobr></td><td><div class=hang>o: [2 AB][1 ab]</div><div class=hang>n: [2 AB][1 ab]<span class=diff>[1 āb]</span></div></td></tr>
-<tr><td><nobr>abu >> 1</nobr></td><td><div class=hang>o: [8 Abu]</div><div class=hang>n: [8 Abu]<span class=diff>[1 Abū]</span></div></td></tr>
-<tr><td><nobr>alexandrin >> 1</nobr></td><td><div class=hang>o: [1 alexandrin]</div><div class=hang>n: [1 alexandrin]<span class=diff>[2 alexandrín]</span></div></td></tr>
-<tr><td><nobr>alfred >> 1</nobr></td><td><div class=hang>o: [5 Alfred]</div><div class=hang>n: [5 Alfred]<span class=diff>[2 Alfréd]</span></div></td></tr>
-<tr><td><nobr>antonio >> 1</nobr></td><td><div class=hang>o: [4 Antonio]</div><div class=hang>n: [4 Antonio]<span class=diff>[2 António]</span></div></td></tr>
-<tr><td><nobr>bela >> 1</nobr></td><td><div class=hang>o: [2 Bela]</div><div class=hang>n: [2 Bela]<span class=diff>[1 Béla]</span></div></td></tr>
-<tr><td><nobr>cafe >> 2</nobr></td><td><div class=hang>o: [2 Cafe][1 cafe]</div><div class=hang>n: [2 Cafe]<span class=diff>[1 Café]</span>[1 cafe]<span class=diff>[1 café]</span></div></td></tr>
-<tr><td><nobr>case >> 1</nobr></td><td><div class=hang>o: [1 Case][1 Cases][33 case][18 cases]</div><div class=hang>n: [1 Case][1 Cases]<span class=diff>[1 Casé]</span>[33 case][18 cases]</div></td></tr>
-<tr><td><nobr>creole >> 1</nobr></td><td><div class=hang>o: [3 Creole]</div><div class=hang>n: [3 Creole]<span class=diff>[3 Créole]</span></div></td></tr>
-<tr><td><nobr>d >> 1</nobr></td><td><div class=hang>o: [48 D][16 d]</div><div class=hang>n: [48 D][16 d]<span class=diff>[1 ḍ]</span></div></td></tr>
-<tr><td><nobr>debut >> 1</nobr></td><td><div class=hang>o: [19 debut][3 debuted]</div><div class=hang>n: [19 debut][3 debuted]<span class=diff>[1 début]</span></div></td></tr>
-<tr><td><nobr>defense >> 1</nobr></td><td><div class=hang>o: [3 Defense][6 defense][1 defenses]</div><div class=hang>n: [3 Defense][6 defense][1 defenses]<span class=diff>[1 défense]</span></div></td></tr>
-<tr><td><nobr>dia >> 1</nobr></td><td><div class=hang>o: [3 Dia]</div><div class=hang>n: [3 Dia]<span class=diff>[1 Día]</span></div></td></tr>
-<tr><td><nobr>em >> 1</nobr></td><td><div class=hang>o: [2 EM]</div><div class=hang>n: [2 EM]<span class=diff>[1 ēm]</span></div></td></tr>
-<tr><td><nobr>emam >> 1</nobr></td><td><div class=hang>o: [1 Emam]</div><div class=hang>n: [1 Emam]<span class=diff>[2 Emām]</span></div></td></tr>
-<tr><td><nobr>esme >> 1</nobr></td><td><div class=hang>o: [1 Esme]</div><div class=hang>n: [1 Esme]<span class=diff>[1 Esmé]</span></div></td></tr>
-<tr><td><nobr>ete >> 1</nobr></td><td><div class=hang>o: [1 ete]</div><div class=hang>n: [1 ete]<span class=diff>[1 Été]</span></div></td></tr>
-<tr><td><nobr>fail >> 1</nobr></td><td><div class=hang>o: [2 Failed][1 fail][20 failed]</div><div class=hang>n: [2 Failed]<span class=diff>[1 Fáil]</span>[1 fail][20 failed]</div></td></tr>
-<tr><td><nobr>francoi >> 1</nobr></td><td><div class=hang>o: [1 Francois]</div><div class=hang>n: [1 Francois]<span class=diff>[1 François]</span></div></td></tr>
-<tr><td><nobr>g >> 1</nobr></td><td><div class=hang>o: [23 G][35 g]</div><div class=hang>n: [23 G][35 g]<span class=diff>[1 ɢ]</span></div></td></tr>
-<tr><td><nobr>gab >> 1</nobr></td><td><div class=hang>o: [1 Gabes][1 gabions]</div><div class=hang>n: [1 Gabes]<span class=diff>[1 Gábor]</span>[1 gabions]</div></td></tr>
-<tr><td><nobr>glogow >> 1</nobr></td><td><div class=hang>o: [1 GLOGOW]</div><div class=hang>n: [1 GLOGOW]<span class=diff>[13 Głogów]</span></div></td></tr>
-<tr><td><nobr>ha >> 1</nobr></td><td><div class=hang>o: [5 Ha][8 ha]</div><div class=hang>n: [5 Ha][8 ha]<span class=diff>[1 hā]</span></div></td></tr>
-<tr><td><nobr>harbi >> 1</nobr></td><td><div class=hang>o: [17 Harbi]</div><div class=hang>n: [17 Harbi]<span class=diff>[1 Ḥarbī]</span></div></td></tr>
-<tr><td><nobr>hebertville >> 1</nobr></td><td><div class=hang>o: [1 Hebertville]</div><div class=hang>n: [1 Hebertville]<span class=diff>[2 Hébertville]</span></div></td></tr>
-<tr><td><nobr>i >> 2</nobr></td><td><div class=hang>o: [153 I][30 i]</div><div class=hang>n: [153 I][30 i]<span class=diff>[2 í]</span><span class=diff>[1 ɨ]</span></div></td></tr>
-<tr><td><nobr>imam >> 1</nobr></td><td><div class=hang>o: [1 Imam][1 imams]</div><div class=hang>n: [1 Imam]<span class=diff>[1 Imām]</span>[1 imams]</div></td></tr>
-<tr><td><nobr>integrate >> 1</nobr></td><td><div class=hang>o: [1 Integration][1 integrate][2 integrates][1 integrating][2 integration][1 integrative]</div><div class=hang>n: [1 Integration]<span class=diff>[1 Intégration]</span>[1 integrate][2 integrates][1 integrating][2 integration][1 integrative]</div></td></tr>
-<tr><td><nobr>jose >> 1</nobr></td><td><div class=hang>o: [5 Jose]</div><div class=hang>n: [5 Jose]<span class=diff>[3 José]</span></div></td></tr>
-<tr><td><nobr>kheyrabad >> 1</nobr></td><td><div class=hang>o: [1 Kheyrabad]</div><div class=hang>n: [1 Kheyrabad]<span class=diff>[1 Kheyrābād]</span></div></td></tr>
-<tr><td><nobr>ku >> 1</nobr></td><td><div class=hang>o: [1 ku]</div><div class=hang>n: [1 ku]<span class=diff>[3 ḵu]</span></div></td></tr>
-<tr><td><nobr>kun >> 1</nobr></td><td><div class=hang>o: [1 kun]</div><div class=hang>n: [1 kun]<span class=diff>[1 ḵun]</span></div></td></tr>
-<tr><td><nobr>leo >> 1</nobr></td><td><div class=hang>o: [4 Leo]</div><div class=hang>n: [4 Leo]<span class=diff>[1 Léo]</span></div></td></tr>
-<tr><td><nobr>leon >> 1</nobr></td><td><div class=hang>o: [6 Leon]</div><div class=hang>n: [6 Leon]<span class=diff>[1 León]</span></div></td></tr>
-<tr><td><nobr>lopez >> 1</nobr></td><td><div class=hang>o: [3 Lopez]</div><div class=hang>n: [3 Lopez]<span class=diff>[4 López]</span></div></td></tr>
-<tr><td><nobr>lucia >> 1</nobr></td><td><div class=hang>o: [1 Lucia]</div><div class=hang>n: [1 Lucia]<span class=diff>[1 Lucía]</span></div></td></tr>
-<tr><td><nobr>lui >> 1</nobr></td><td><div class=hang>o: [3 Luis]</div><div class=hang>n: [3 Luis]<span class=diff>[1 Luís]</span></div></td></tr>
-<tr><td><nobr>mahmud >> 1</nobr></td><td><div class=hang>o: [1 Mahmud]</div><div class=hang>n: [1 Mahmud]<span class=diff>[1 Maḥmud]</span></div></td></tr>
-<tr><td><nobr>me >> 1</nobr></td><td><div class=hang>o: [14 Me][7 me]</div><div class=hang>n: [14 Me][7 me]<span class=diff>[1 mê]</span></div></td></tr>
-<tr><td><nobr>mexico >> 2</nobr></td><td><div class=hang>o: [24 Mexican][21 Mexico]</div><div class=hang>n: [24 Mexican][21 Mexico]<span class=diff>[3 México]</span><span class=diff>[1 méxico]</span></div></td></tr>
-<tr><td><nobr>more >> 1</nobr></td><td><div class=hang>o: [12 More][166 more]</div><div class=hang>n: [12 More]<span class=diff>[2 Møre]</span>[166 more]</div></td></tr>
-<tr><td><nobr>muhammad >> 1</nobr></td><td><div class=hang>o: [4 Muhammad]</div><div class=hang>n: [4 Muhammad]<span class=diff>[1 Muḥammad]</span></div></td></tr>
-<tr><td><nobr>naga >> 1</nobr></td><td><div class=hang>o: [3 Naga][1 Nagas][2 naga][2 nagas]</div><div class=hang>n: [3 Naga][1 Nagas]<span class=diff>[1 Nāga]</span>[2 naga][2 nagas]</div></td></tr>
-<tr><td><nobr>o >> 1</nobr></td><td><div class=hang>o: [41 O][22 o]</div><div class=hang>n: [41 O][22 o]<span class=diff>[1 Ó]</span></div></td></tr>
-<tr><td><nobr>og >> 1</nobr></td><td><div class=hang>o: [3 og]</div><div class=hang>n: [3 og]<span class=diff>[1 Óg]</span></div></td></tr>
-<tr><td><nobr>opera >> 1</nobr></td><td><div class=hang>o: [1 opera][1 operas]</div><div class=hang>n: [1 opera][1 operas]<span class=diff>[1 opéra]</span></div></td></tr>
-<tr><td><nobr>ore >> 1</nobr></td><td><div class=hang>o: [1 ore]</div><div class=hang>n: [1 ore]<span class=diff>[1 Øre]</span></div></td></tr>
-<tr><td><nobr>part >> 1</nobr></td><td><div class=hang>o: [14 Part][104 part]</div><div class=hang>n: [14 Part]<span class=diff>[1 Pärt]</span>[104 part]</div></td></tr>
-<tr><td><nobr>personae >> 1</nobr></td><td><div class=hang>o: [1 personae]</div><div class=hang>n: [1 personae]<span class=diff>[1 personæ]</span></div></td></tr>
-<tr><td><nobr>peter >> 1</nobr></td><td><div class=hang>o: [44 Peter][1 peter]</div><div class=hang>n: [44 Peter]<span class=diff>[1 Péter]</span>[1 peter]</div></td></tr>
-<tr><td><nobr>polgar >> 1</nobr></td><td><div class=hang>o: [1 Polgar]</div><div class=hang>n: [1 Polgar]<span class=diff>[2 Polgár]</span></div></td></tr>
-<tr><td><nobr>quebec >> 1</nobr></td><td><div class=hang>o: [14 Quebec]</div><div class=hang>n: [14 Quebec]<span class=diff>[3 Québec]</span></div></td></tr>
-<tr><td><nobr>re >> 1</nobr></td><td><div class=hang>o: [3 Re][26 re]</div><div class=hang>n: [3 Re][26 re]<span class=diff>[1 ʁɛ̃]</span></div></td></tr>
-<tr><td><nobr>remi >> 1</nobr></td><td><div class=hang>o: [1 Remi]</div><div class=hang>n: [1 Remi]<span class=diff>[1 Rémi]</span></div></td></tr>
-<tr><td><nobr>rene >> 1</nobr></td><td><div class=hang>o: [2 Rene]</div><div class=hang>n: [2 Rene]<span class=diff>[12 René]</span></div></td></tr>
-<tr><td><nobr>roman >> 1</nobr></td><td><div class=hang>o: [25 Roman][2 Romanized][5 Romans]</div><div class=hang>n: [25 Roman][2 Romanized][5 Romans]<span class=diff>[1 Român]</span></div></td></tr>
-<tr><td><nobr>sa >> 1</nobr></td><td><div class=hang>o: [2 SA]</div><div class=hang>n: [2 SA]<span class=diff>[1 Sá]</span></div></td></tr>
-<tr><td><nobr>safi >> 1</nobr></td><td><div class=hang>o: [1 Safi]</div><div class=hang>n: [1 Safi]<span class=diff>[1 Şafī]</span></div></td></tr>
-<tr><td><nobr>sean >> 1</nobr></td><td><div class=hang>o: [2 Sean]</div><div class=hang>n: [2 Sean]<span class=diff>[1 Seán]</span></div></td></tr>
-<tr><td><nobr>senora >> 1</nobr></td><td><div class=hang>o: [2 Senora]</div><div class=hang>n: [2 Senora]<span class=diff>[2 Señora]</span></div></td></tr>
-<tr><td><nobr>sha >> 1</nobr></td><td><div class=hang>o: [1 Sha]</div><div class=hang>n: [1 Sha]<span class=diff>[1 Shā]</span></div></td></tr>
-<tr><td><nobr>t >> 1</nobr></td><td><div class=hang>o: [29 T][32 t]</div><div class=hang>n: [29 T][32 t]<span class=diff>[1 ṭ]</span></div></td></tr>
-<tr><td><nobr>theatre >> 1</nobr></td><td><div class=hang>o: [5 theatre]</div><div class=hang>n: <span class=diff>[2 Théâtre]</span>[5 theatre]</div></td></tr>
-<tr><td><nobr>u >> 1</nobr></td><td><div class=hang>o: [76 U][3 u]</div><div class=hang>n: [76 U][3 u]<span class=diff>[4 û]</span></div></td></tr>
-<tr><td><nobr>valerie >> 1</nobr></td><td><div class=hang>o: [1 Valerie]</div><div class=hang>n: [1 Valerie]<span class=diff>[1 Valérie]</span></div></td></tr>
-<tr><td><nobr>vila >> 1</nobr></td><td><div class=hang>o: [3 Vila]</div><div class=hang>n: [3 Vila]<span class=diff>[1 ˈvilɐ]</span></div></td></tr>
-<tr><td><nobr>vladimir >> 1</nobr></td><td><div class=hang>o: [1 Vladimir]</div><div class=hang>n: [1 Vladimir]<span class=diff>[1 Vladimír]</span></div></td></tr>
-<tr><td><nobr>worn >> 1</nobr></td><td><div class=hang>o: [6 worn]</div><div class=hang>n: <span class=diff>[2 Wörner]</span>[6 worn]</div></td></tr>
-<tr><td><nobr>ישראלית >> 1</nobr></td><td><div class=hang>o: [1 ישראלית]</div><div class=hang>n: <span class=diff>[1 יִשְׂרְאֵלִית]</span>[1 ישראלית]</div></td></tr>
-<tr><td><nobr>לירה >> 1</nobr></td><td><div class=hang>o: [2 לירה]</div><div class=hang>n: <span class=diff>[1 לִירָה]</span>[2 לירה]</div></td></tr>
+&nbsp;&nbsp;&nbsp;<a href='#hic_increased_1'><span class=hicIcon>High Impact Changes</span> <span class=hicIcon>🅸</span></a> &nbsp; <span class=deemphasized>|</span> &nbsp; <a href='#mix_increased_1'><span class=mixIcon>Mixed-Script Groups</span> <span class=mixIcon>🅼</span></a><br>
+<br>
+<table class='vtop collision'>
+<tr><td>ab >> 1</td><td><div class=hang>o: [2 AB][1 ab]</div><div class=hang>n: [2 AB][1 ab]<span class=diff>[1 āb]</span></div></td></tr>
+<tr><td>abu >> 1</td><td><div class=hang>o: [8 Abu]</div><div class=hang>n: [8 Abu]<span class=diff>[1 Abū]</span></div></td></tr>
+<tr><td>alexandrin >> 1</td><td><div class=hang>o: [1 alexandrin]</div><div class=hang>n: [1 alexandrin]<span class=diff>[2 alexandrín]</span></div></td></tr>
+<tr><td>alfred >> 1</td><td><div class=hang>o: [5 Alfred]</div><div class=hang>n: [5 Alfred]<span class=diff>[2 Alfréd]</span></div></td></tr>
+<tr><td>antonio >> 1</td><td><div class=hang>o: [4 Antonio]</div><div class=hang>n: [4 Antonio]<span class=diff>[2 António]</span></div></td></tr>
+<tr><td>bela >> 1</td><td><div class=hang>o: [2 Bela]</div><div class=hang>n: [2 Bela]<span class=diff>[1 Béla]</span></div></td></tr>
+<tr><td>cafe >> 2</td><td><div class=hang>o: [2 Cafe][1 cafe]</div><div class=hang>n: [2 Cafe]<span class=diff>[1 Café]</span>[1 cafe]<span class=diff>[1 café]</span></div></td></tr>
+<tr><td>case >> 1</td><td><div class=hang>o: [1 Case][1 Cases][33 case][18 cases]</div><div class=hang>n: [1 Case][1 Cases]<span class=diff>[1 Casé]</span>[33 case][18 cases]</div></td></tr>
+<tr><td>creole >> 1</td><td><div class=hang>o: [3 Creole]</div><div class=hang>n: [3 Creole]<span class=diff>[3 Créole]</span></div></td></tr>
+<tr><td>d >> 1</td><td><div class=hang>o: [28 D][2 d]</div><div class=hang>n: [28 D][2 d]<span class=diff>[1 ḍ]</span></div></td></tr>
+<tr><td>debut >> 1</td><td><div class=hang>o: [19 debut][3 debuted]</div><div class=hang>n: [19 debut][3 debuted]<span class=diff>[1 début]</span></div></td></tr>
+<tr><td>defense >> 1</td><td><div class=hang>o: [3 Defense][6 defense][1 defenses]</div><div class=hang>n: [3 Defense][6 defense][1 defenses]<span class=diff>[1 défense]</span></div></td></tr>
+<tr><td>dia >> 1</td><td><div class=hang>o: [3 Dia]</div><div class=hang>n: [3 Dia]<span class=diff>[1 Día]</span></div></td></tr>
+<tr><td>em >> 1</td><td><div class=hang>o: [2 EM]</div><div class=hang>n: [2 EM]<span class=diff>[1 ēm]</span></div></td></tr>
+<tr><td>emam >> 1</td><td><div class=hang>o: [1 Emam]</div><div class=hang>n: [1 Emam]<span class=diff>[2 Emām]</span></div></td></tr>
+<tr><td>esme >> 1</td><td><div class=hang>o: [1 Esme]</div><div class=hang>n: [1 Esme]<span class=diff>[1 Esmé]</span></div></td></tr>
+<tr><td>fail >> 1</td><td><div class=hang>o: [2 Failed][1 fail][20 failed]</div><div class=hang>n: [2 Failed]<span class=diff>[1 Fáil]</span>[1 fail][20 failed]</div></td></tr>
+<tr><td>francoi >> 1</td><td><div class=hang>o: [1 Francois]</div><div class=hang>n: [1 Francois]<span class=diff>[1 François]</span></div></td></tr>
+<tr><td>g >> 1</td><td><div class=hang>o: [18 G][3 g]</div><div class=hang>n: [18 G][3 g]<span class=diff>[1 ɢ]</span></div></td></tr>
+<tr><td>gab >> 1</td><td><div class=hang>o: [1 Gabes][1 gabions]</div><div class=hang>n: [1 Gabes]<span class=diff>[1 Gábor]</span>[1 gabions]</div></td></tr>
+<tr><td>glogow >> 2</td><td><div class=hang>o: [1 GLOGOW]</div><div class=hang>n: [1 GLOGOW]<span class=diff>[12 Głogów]</span><span class=diff>[1 Głogów's]</span></div></td></tr>
+<tr><td>ha >> 1</td><td><div class=hang>o: [4 Ha][8 ha]</div><div class=hang>n: [4 Ha][8 ha]<span class=diff>[1 hā]</span></div></td></tr>
+<tr><td>harbi >> 1</td><td><div class=hang>o: [17 Harbi]</div><div class=hang>n: [17 Harbi]<span class=diff>[1 Ḥarbī]</span></div></td></tr>
+<tr><td>hebertville >> 1</td><td><div class=hang>o: [1 Hebertville]</div><div class=hang>n: [1 Hebertville]<span class=diff>[2 Hébertville]</span></div></td></tr>
+<tr><td>i >> 1</td><td><div class=hang>o: [109 I][21 i]</div><div class=hang>n: [109 I][21 i]<span class=diff>[1 ɨ]</span></div></td></tr>
+<tr><td>imam >> 1</td><td><div class=hang>o: [1 Imam][1 imams]</div><div class=hang>n: [1 Imam]<span class=diff>[1 Imām]</span>[1 imams]</div></td></tr>
+<tr><td>jose >> 1</td><td><div class=hang>o: [5 Jose]</div><div class=hang>n: [5 Jose]<span class=diff>[3 José]</span></div></td></tr>
+<tr><td>kheyrabad >> 1</td><td><div class=hang>o: [1 Kheyrabad]</div><div class=hang>n: [1 Kheyrabad]<span class=diff>[1 Kheyrābād]</span></div></td></tr>
+<tr><td>ku >> 1</td><td><div class=hang>o: [1 ku]</div><div class=hang>n: [1 ku]<span class=diff>[3 ḵu]</span></div></td></tr>
+<tr><td>kun >> 1</td><td><div class=hang>o: [1 kun]</div><div class=hang>n: [1 kun]<span class=diff>[1 ḵun]</span></div></td></tr>
+<tr><td>leo >> 1</td><td><div class=hang>o: [4 Leo]</div><div class=hang>n: [4 Leo]<span class=diff>[1 Léo]</span></div></td></tr>
+<tr><td>leon >> 1</td><td><div class=hang>o: [6 Leon]</div><div class=hang>n: [6 Leon]<span class=diff>[1 León]</span></div></td></tr>
+<tr><td>lopez >> 1</td><td><div class=hang>o: [3 Lopez]</div><div class=hang>n: [3 Lopez]<span class=diff>[4 López]</span></div></td></tr>
+<tr><td>lucia >> 1</td><td><div class=hang>o: [1 Lucia]</div><div class=hang>n: [1 Lucia]<span class=diff>[1 Lucía]</span></div></td></tr>
+<tr><td>lui >> 1</td><td><div class=hang>o: [3 Luis]</div><div class=hang>n: [3 Luis]<span class=diff>[1 Luís]</span></div></td></tr>
+<tr><td>mahmud >> 1</td><td><div class=hang>o: [1 Mahmud]</div><div class=hang>n: [1 Mahmud]<span class=diff>[1 Maḥmud]</span></div></td></tr>
+<tr><td>me >> 1</td><td><div class=hang>o: [14 Me][7 me]</div><div class=hang>n: [14 Me][7 me]<span class=diff>[1 mê]</span></div></td></tr>
+<tr><td>mexico >> 2</td><td><div class=hang>o: [24 Mexican][19 Mexico][2 Mexico's]</div><div class=hang>n: [24 Mexican][19 Mexico][2 Mexico's]<span class=diff>[3 México]</span><span class=diff>[1 méxico]</span></div></td></tr>
+<tr><td>more >> 1</td><td><div class=hang>o: [12 More][166 more]</div><div class=hang>n: [12 More]<span class=diff>[2 Møre]</span>[166 more]</div></td></tr>
+<tr><td>muhammad >> 1</td><td><div class=hang>o: [4 Muhammad]</div><div class=hang>n: [4 Muhammad]<span class=diff>[1 Muḥammad]</span></div></td></tr>
+<tr><td>naga >> 1</td><td><div class=hang>o: [3 Naga][1 Nagas][2 naga][2 nagas]</div><div class=hang>n: [3 Naga][1 Nagas]<span class=diff>[1 Nāga]</span>[2 naga][2 nagas]</div></td></tr>
+<tr><td>o >> 1</td><td><div class=hang>o: [19 O][22 o]</div><div class=hang>n: [19 O][22 o]<span class=diff>[1 Ó]</span></div></td></tr>
+<tr><td>og >> 1</td><td><div class=hang>o: [3 og]</div><div class=hang>n: [3 og]<span class=diff>[1 Óg]</span></div></td></tr>
+<tr><td>opera >> 1</td><td><div class=hang>o: [1 opera][1 operas]</div><div class=hang>n: [1 opera][1 operas]<span class=diff>[1 opéra]</span></div></td></tr>
+<tr><td>ore >> 1</td><td><div class=hang>o: [1 ore]</div><div class=hang>n: [1 ore]<span class=diff>[1 Øre]</span></div></td></tr>
+<tr><td>part >> 1</td><td><div class=hang>o: [14 Part][104 part]</div><div class=hang>n: [14 Part]<span class=diff>[1 Pärt]</span>[104 part]</div></td></tr>
+<tr><td>personae >> 1</td><td><div class=hang>o: [1 personae]</div><div class=hang>n: [1 personae]<span class=diff>[1 personæ]</span></div></td></tr>
+<tr><td>peter >> 1</td><td><div class=hang>o: [44 Peter][1 peter]</div><div class=hang>n: [44 Peter]<span class=diff>[1 Péter]</span>[1 peter]</div></td></tr>
+<tr><td>polgar >> 1</td><td><div class=hang>o: [1 Polgar]</div><div class=hang>n: [1 Polgar]<span class=diff>[2 Polgár]</span></div></td></tr>
+<tr><td>quebec >> 1</td><td><div class=hang>o: [13 Quebec][1 Quebec's]</div><div class=hang>n: [13 Quebec][1 Quebec's]<span class=diff>[3 Québec]</span></div></td></tr>
+<tr><td>re >> 1</td><td><div class=hang>o: [3 Re][24 re]</div><div class=hang>n: [3 Re][24 re]<span class=diff>[1 ʁɛ̃]</span></div></td></tr>
+<tr><td>remi >> 1</td><td><div class=hang>o: [1 Remi]</div><div class=hang>n: [1 Remi]<span class=diff>[1 Rémi]</span></div></td></tr>
+<tr><td>rene >> 2</td><td><div class=hang>o: [2 Rene]</div><div class=hang>n: [2 Rene]<span class=diff>[11 René]</span><span class=diff>[1 René’s]</span></div></td></tr>
+<tr><td>roman >> 1</td><td><div class=hang>o: [25 Roman][2 Romanized][5 Romans]</div><div class=hang>n: [25 Roman][2 Romanized][5 Romans]<span class=diff>[1 Român]</span></div></td></tr>
+<tr><td>sa >> 1</td><td><div class=hang>o: [2 SA]</div><div class=hang>n: [2 SA]<span class=diff>[1 Sá]</span></div></td></tr>
+<tr><td>safi >> 1</td><td><div class=hang>o: [1 Safi]</div><div class=hang>n: [1 Safi]<span class=diff>[1 Şafī]</span></div></td></tr>
+<tr><td>sean >> 1</td><td><div class=hang>o: [2 Sean]</div><div class=hang>n: [2 Sean]<span class=diff>[1 Seán]</span></div></td></tr>
+<tr><td>senora >> 1</td><td><div class=hang>o: [2 Senora]</div><div class=hang>n: [2 Senora]<span class=diff>[2 Señora]</span></div></td></tr>
+<tr><td>sha >> 1</td><td><div class=hang>o: [1 Sha]</div><div class=hang>n: [1 Sha]<span class=diff>[1 Shā]</span></div></td></tr>
+<tr><td>t >> 1</td><td><div class=hang>o: [17 T][1 T’s][1 t]</div><div class=hang>n: [17 T][1 T’s][1 t]<span class=diff>[1 ṭ]</span></div></td></tr>
+<tr><td>theatre >> 1</td><td><div class=hang>o: [5 theatre]</div><div class=hang>n: <span class=diff>[2 Théâtre]</span>[5 theatre]</div></td></tr>
+<tr><td>u >> 1</td><td><div class=hang>o: [28 U][3 u]</div><div class=hang>n: [28 U][3 u]<span class=diff>[4 û]</span></div></td></tr>
+<tr><td>valerie >> 1</td><td><div class=hang>o: [1 Valerie]</div><div class=hang>n: [1 Valerie]<span class=diff>[1 Valérie]</span></div></td></tr>
+<tr><td>vila >> 1</td><td><div class=hang>o: [3 Vila]</div><div class=hang>n: [3 Vila]<span class=diff>[1 vilɐ]</span></div></td></tr>
+<tr><td>vladimir >> 1</td><td><div class=hang>o: [1 Vladimir]</div><div class=hang>n: [1 Vladimir]<span class=diff>[1 Vladimír]</span></div></td></tr>
+<tr><td>worn >> 1</td><td><div class=hang>o: [6 worn]</div><div class=hang>n: <span class=diff>[2 Wörner]</span>[6 worn]</div></td></tr>
+<tr><td>ישראלית >> 1</td><td><div class=hang>o: [1 ישראלית]</div><div class=hang>n: <span class=diff>[1 יִשְׂרְאֵלִית<span class=invis title='LEFT-TO-RIGHT MARK'>»</span><span class=invis title='LEFT-TO-RIGHT MARK'>»</span>]</span>[1 ישראלית]</div></td></tr>
+<tr><td>לירה >> 1</td><td><div class=hang>o: [2 לירה]</div><div class=hang>n: <span class=diff>[1 לִירָה]</span>[2 לירה]</div></td></tr>
 </table>
 <a name='hic_increased_1'>
+<a name='mix_increased_1'>
 <br>
