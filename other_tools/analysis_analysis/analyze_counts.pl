@@ -165,21 +165,26 @@ else {
 	# load text file
 	open(INPUTTEXTFILE, '<:encoding(UTF-8)', $input_text_file);
 
-	while (my $line = <INPUTTEXTFILE>) {
+	my $prev_line = '';
+	my $new_line = '';
+
+	while (my $line = $new_line || <INPUTTEXTFILE>) {
 		chomp $line;
 		$line_cnt++;
+		my $line_len = length($line);
 
 		my $start_line_cnt = $line_cnt;
+		$new_line = <INPUTTEXTFILE>;
+		chomp $new_line if defined $new_line;
+		my $new_line_len = length($new_line);
 
 		# ~30x speed up to process 100 lines at a time.
-		# Get a mere 25–30% further speed up by allowing up
-		# to 300 lines at a time (under 30K char limit).
-		my $line_len = length($line);
-		foreach my $i (1..299) {
-			my $new_line = <INPUTTEXTFILE>;
-			if ($new_line) {
-				chomp $new_line;
+		# Additional 25%+ speed up by allowing as many lines as we can, up
+		# to the 30K char limit (beyond that, stuff starts getting lost)
+		while (defined $new_line) {
+			if ($line_len + 1 + $new_line_len < 30_000) {
 				$line .= ' ' . $new_line;
+				$line_len += length($new_line) + 1;
 				$line_cnt++;
 
 				if ($line_cnt % 1000 == 0) {
@@ -189,12 +194,9 @@ else {
 						}
 					}
 
-				# More than ~50K in one go causes errors, so stop at 30K
-				$line_len += length($new_line) + 1;
-				if ($line_len > 30_000) {
-					last;
-					}
-
+				$new_line = <INPUTTEXTFILE>;
+				chomp $new_line if defined $new_line;
+				$new_line_len = length($new_line);
 				}
 			else {
 				last;
@@ -208,7 +210,7 @@ else {
 		$json = decode_utf8($json);
 
 		if ($json =~ /"error" :\s*{\s*"root_cause" :/s) {
-			print STDERR "\n_analyze error (somewhere on lines $start_line_cnt-$line_cnt):\n$json\n";
+			print STDERR "\n_analyze error (somewhere on lines $start_line_cnt-$line_cnt, len = ", $line_len, "/", length($esc_line), "):\n$json\n";
 			exit;
 			}
 

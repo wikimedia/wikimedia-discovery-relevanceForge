@@ -1,10 +1,10 @@
 # Trey's Language Analyzer Analysis Tools
 
-November 2024
+March 2025
 
-These are the tools I use to do analysis of Elasticsearch language analyzers and custom analysis
+These are the tools I use to do analysis of search engine language analyzers and custom analysis
 chains. Most of
-[my analysis write ups](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes#Elasticsearch_Analysis_Chain_Analysis)
+[my analysis write ups](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes#Search_Analysis_Chain_Analysis)
 are available on MediaWiki.org. The older ones, naturally, used less complex versions of this code—I
 update it whenever something weird happens!
 
@@ -37,9 +37,9 @@ update it whenever something weird happens!
 1. [Analysis Example: English](#AnalysisExampleEnglish)
     1. [My Setup](#MySetup)
     1. [Generate Count Files for English With and Without Folding](#GenerateCountFilesforEnglishWithandWithoutFolding)
-        1. [Re-Configure MediaWiki/Elasticsearch for English *Without* Folding Enabled](#ReConfigureMediaWikiElasticsearchforEnglishWithoutFoldingEnabled)
+        1. [Re-Configure MediaWiki/Search for English *Without* Folding Enabled](#ReConfigureMediaWikiSearchforEnglishWithoutFoldingEnabled)
         1. [Generate the "Before"/Unfolded Counts File](#GeneratetheBeforeUnfoldedCountsFile)
-        1. [Re-Configure MediaWiki/Elasticsearch for English *With* Folding Enabled](#ReConfigureMediaWikiElasticsearchforEnglishWithFoldingEnabled)
+        1. [Re-Configure MediaWiki/Search for English *With* Folding Enabled](#ReConfigureMediaWikiSearchforEnglishWithFoldingEnabled)
         1. [Generate the "After"/Folded Counts File](#GeneratetheAfterFoldedCountsFile)
     1. [Comparison Analysis of the Unfolded and Folded Count Files](#ComparisonAnalysisoftheUnfoldedandFoldedCountFiles)
         1. [Baseline Analysis](#BaselineAnalysis)
@@ -55,11 +55,11 @@ update it whenever something weird happens!
 
 Let's see what we've got:
 
-* `analyze_counts.pl`: This is a program to run sample text against a language analyzer. It asks
-  Elasticsearch to analyze the text, maps tokens in the output back to strings in the input,
-  and keeps count of how often each mapping occurs. It can also output tokens in the middle of
-  the process, allow you to run an external stemmer on them, read them back in, and continue
-  counting from there.
+* `analyze_counts.pl`: This is a program to run sample text against a language analyzer. It asks the
+  search engine (OpenSearch or Elasticsearch) to analyze the text, maps tokens in the output back to
+  strings in the input, and keeps count of how often each mapping occurs. It can also output tokens
+  in the middle of the process, allow you to run an external stemmer on them, read them back in, and
+  continue counting from there.
 * `compare_counts.pl`: This is a much more complex program that does the real analysis of the
   language analyzer. It can perform either a "Self Analysis" on one counts file, or a
   "Comparison Analysis" between two counts files. See more below.
@@ -125,9 +125,8 @@ Here's the usage for reference:
     helps keep the counts for "see", "also", and "references" at more typical levels for
     general text.
   * It is more efficient for `analyze_counts.pl` to batch up lines of text and send them to
-    Elasticsearch together. Up to 300 lines can be grouped together, up to around 30,000
-    characters (over 50K seems to cause problems). If your input file has lots of individual
-    lines with significantly more than 10K characters per line, you could have trouble.
+    the search engine together. Up to 30,000 characters can be grouped together (over 50K seems
+    to cause problems).
     * As of Elasticsearch 7, there is a default limit for API calls to `_analyze` to return no
       more than 10,000 tokens in one call. I've only run into the limit once, when analyzing
       text from Hebrew Wikipedia; Hebrew words are often shorter (so more fit in our 30K
@@ -139,7 +138,7 @@ Here's the usage for reference:
       > level setting.
 
       If you are in a dev environment (e.g., using MediaWiki Docker) where you can do whatever
-      you want without risking putting too much strain on your Elastic server(s), you can
+      you want without risking putting too much strain on your search server(s), you can
       pre-emptively configure the limit to be arbitrarily high—say, 100K—with this command:
 
         ```
@@ -148,8 +147,9 @@ Here's the usage for reference:
          -d'{ "index" : { "analyze" : { "max_token_count" : 100000 }}}'
         ```
 
-      (I have this command in the script I use for reindexing locally, so it gets run every time I
-      change or update the analysis chain I'm using.)
+      (I have this command in the script I use for reindexing locally, so it gets run every
+      time I change or update the analysis chain I'm using. I also haven't specifically checked
+      if this limit is still an issue in OpenSearch 1.)
 
 * The output file, which I call a "counts file", is pretty self-explanatory, but very long, so
   note that there are two sections: *original tokens mapped to final tokens* and *final tokens
@@ -174,7 +174,7 @@ Here's the usage for reference:
   use [high and low
   surrogates](https://en.wikipedia.org/wiki/Universal_Character_Set_characters#Surrogates),
   because these have caused problems with character counts with various tokenizers I've used.
-  Elasticsearch internally counts such characters as two characters, and this breaks the
+  Search internally counts such characters as two characters, and this breaks the
   offsets into the original string. So, the program adds `^A` ([ASCII code
   1](https://en.wikipedia.org/wiki/C0_and_C1_control_codes#SOH)) after such characters in the
   original string so the offsets are correct. The `^A` is stripped from tokens found in the
@@ -184,19 +184,18 @@ Here's the usage for reference:
 <a name="UsinganExternalStemmer"></a>
 ### Using an External Stemmer  <small>[ [TOC](#TOC) ]</small>
 
-As I ran out of Elasticsearch analyzers to test, I started looking for stemmers (and
-potentially other morphological analysis software, but mostly stemmers) that could be wrapped up
-into Elasticsearch analyzers. I didn't want to necessarily have to do all the work to create an
-Elasticsearch analyzer (which could also involve changing the programming language of the stemmer)
-just to be able to test it. So I built out a way to outsource part of the analysis to an external,
-command line stemmer (or other analysis software).
+As I ran out of search analyzers to test, I started looking for stemmers (and potentially other
+morphological analysis software, but mostly stemmers) that could be wrapped up into search
+analyzers. I didn't want to necessarily have to do all the work to create a search analyzer (which
+could also involve changing the programming language of the stemmer) just to be able to test it. So
+I built out a way to outsource part of the analysis to an external, command line stemmer (or other
+analysis software).
 
 The stemmers I've played with have different input and output formats, but they all seem to be able
 to handle taking one token per line and returning one token per line.
 
-So, after configuring an Elasticsearch analyzer with some basic tokenization and maybe basic
-normalization—I used the standard tokenizer and ICU Normalizer—you can use an external stemmer as
-follows.
+So, after configuring a search analyzer with some basic tokenization and maybe basic normalization—I
+used the standard tokenizer and ICU Normalizer—you can use an external stemmer as follows.
 
 * **Generate Stemmer Input File:** Use `-1` (for "one-token-per-line") to generate a
   one-token-per-line file that can be fed to the stemmer. It will also generate a corresponding
@@ -305,20 +304,21 @@ written vertically, so that it renders correctly.
 #### Token Categories: <font color=#007700>Latin</font> & <font color=#ff0000>Cyrillic</font> & <font color=#0000ff>Greek</font>, Oh My!  <small>[ [TOC](#TOC) ]</small>
 
 In both the Comparison Analysis and Self Analysis, certain samples of tokens are grouped into
-"categories", which are based on character set, the formatting of numbers, and some (semi-?)easily
-identified other types, like measurements, acronyms, probable IPA, etc. An attempt is made to
-categorize mixed-script tokens according to the scripts they contain (as
+"categories", which are based on character set, the formatting of numbers, and some
+(semi-?)easily identified other types, like measurements, acronyms, probable IPA, etc. An
+attempt is made to categorize mixed-script tokens according to the scripts they contain (as
 *mixed-&lt;script&gt;-&lt;script&gt;-&lt;etc.&gt;*), with additional sub-categories for tokens
-containing numbers and/or various separators—periods, commas, colons, semicolons, underscores,
-various dashes, hyphens, and dots, horizontal and vertical bars, and plain old regular
-spaces—or a mix of more than one separator. The *unknown* category is a catch-all for
+containing numbers and/or various separators—including colons, commas, dashes, dots, equals
+signs, horizontal and vertical bars, hyphens, periods, semicolons, underscores, and plain old
+regular spaces—or a mix of more than one separator. The *unknown* category is a catch-all for
 everything else; I sometimes mine the *unknown* category for new categories.
 
 In a Comparison Analysis, *Lost and Found Tokens* are sampled both Pre- and Post-Analysis (see
 below) so you can see what's changing. In a Self Analysis, *all* tokens are sampled Pre- and
 Post-Analysis, so you can get a sense of what you've got, and what the analysis chain is doing.
 
-* Sub-categories are created for tokens with certain invisible or hard-to-detect characters—like
+* Sub-categories are created for tokens with certain invisible, hard-to-detect, or "unexpected"
+  characters—like
   [zero-width non-joiners](https://en.wikipedia.org/wiki/Zero-width_non-joiner) (zwnj),
   [zero-width joiners](https://en.wikipedia.org/wiki/Zero-width_joiner) (zwj),
   [word joiners](https://en.wikipedia.org/wiki/Word_joiner) (wj),
@@ -327,6 +327,7 @@ Post-Analysis, so you can get a sense of what you've got, and what the analysis 
   (nbsp),
   [narrow non-breaking spaces](https://en.wikipedia.org/wiki/Non-breaking_space#Narrow_non-breaking_space)
   (nnbsp),
+  ideographic spaces, leading and trailing "plain" spaces,
   [invisible separators](https://en.wikipedia.org/wiki/Universal_Character_Set_characters#Mathematical_invisibles)
   (invis\_sep),
   [variation selectors](https://en.wikipedia.org/wiki/Variant_form_%28Unicode%29) (var),
@@ -334,8 +335,11 @@ Post-Analysis, so you can get a sense of what you've got, and what the analysis 
   [soft-hyphens](https://en.wikipedia.org/wiki/Soft_hyphen) (shy), tabs (tab),
   or new lines (cr)—along with other "interesting" characters, including
   [combining characters](https://en.wikipedia.org/wiki/Combining_character) (combo),
-  [modifier letters](https://en.wikipedia.org/wiki/Spacing_Modifier_Letters) (mod), dollar signs
-  ($), ampersands (%), apostrophes (apos), and double quotes (dquot).
+  [modifier letters](https://en.wikipedia.org/wiki/Spacing_Modifier_Letters) (mod),
+  and various punctuation not normally found in indexed tokens, like ampersands, apostrophes,
+  at signs, dollar signs, double quotes, exclamation points, octothorpes, parentheses, percent
+  signs, and plus signs, along with non-combining characters that are often accents—acute,
+  grave, primes, and tildes—and various fullwidth, curly, or other variants of any of those.
   * Invisible characters (whitespace, soft hyphens, bidi marks, variation selectors, joiners
     and non-joiners) are replaced with light blue visible characters, with more detail
     available on hover. A general key is also provided for invisibles and script colors.
@@ -404,6 +408,10 @@ Among the details reported are:
     Three big categories (which overlap) are *unchanged* (token in, token out: *dog*
     stays *dog*), *lc_unchanged* (only difference is case, so *DOGGO* becomes *doggo*), and *number*
     (strings of digits—not including commas or periods—tend to remain unchanged).
+* **Empty Token Inputs:** This section includes a frequency-sorted list of pre-analysis tokens
+  that generate empty (zero-length) post-analysis tokens. An example might be a lone combining
+  character or variation selector that then gets normalized to nothing. If there are no empty
+  input tokens, this section is omitted.
 * **Collisions and Splits:** The original purpose of the distant progenitor of
   `compare_counts.pl` was to look for new collisions, that is, words that are grouped together
   that weren't before. For example, if we enable ASCII-folding, we would expect *resumé* and
@@ -419,8 +427,8 @@ Among the details reported are:
     work well when the tokenizer changes dramatically, such as switching from the CJK tokenizer
     (which breaks up CJK characters into overlapping bigrams) to a language-specific tokenizer for
     Chinese or Japanese (which tries to find actual word boundaries). It can still be useful to run
-    the Comparison Analysis in these cases, but the collisions and splits are often numerous and
-    useless.
+    the Comparison Analysis in these cases, but the collisions and splits are often uselessly
+    numerous.
   * Collisions and splits are reported primarily in terms of the number of post-analysis
     types/groups that had one or more merges or splits. Added or lost tokens and pre-analysis types,
     and the total types involved are also reported. Total tokens "involved" are not reported because
@@ -677,6 +685,10 @@ Among the details reported are:
     in this group.
   * *types (counts):* This is a list of the types and their frequencies in the group. The format is
     `[<freq> <type>]`.
+* **Empty Token Inputs:** This section includes a frequency-sorted list of pre-analysis tokens
+  that generate empty (zero-length) post-analysis tokens. An example might be a lone combining
+  character or variation selector that then gets normalized to nothing. If there are no empty
+  input tokens, this section is omitted.
 * **Case-Insensitive Type Group Counts:** This is a small frequency table of the number of
   case-folded pre-analysis types found in the groups in the Stemming Results. (This slightly blurs
   the lines between pre- and post-analysis types by case-folding—lowercasing—everything before
@@ -876,8 +888,8 @@ include:
 * Tokens with ≠1 stem. Unless the stemmer regularly spits out multiple stems, it's best to check
   into tokens that generate multiple stems, or no stem!
 * Really long tokens. Any corpus could include a long German compound noun, but it's good to
-  check on the unexpectedly long words. Is there a tokenization problem? That's particularly
-  likely for spaceless languages!
+  check on the unexpectedly long words. Is there a tokenization problem? That has been
+  particularly likely for spaceless languages in some analyzers!
 * Token category by length. The examples under **Final Type Lengths** are randomly selected, and
   so give a very rough idea of the proportions of the categories found among tokens of a
   particular length. For a language that uses the Latin alphabet, for example, I expect tokens
@@ -946,17 +958,17 @@ directory.
 
 Your setup doesn't have to be exactly the same as mine, but this works for me without a lot of
 customization beyond re-configuring mediawiki for the analyzer I'm working with. You could set up
-specific analyzers, etc., directly within Elasticsearch, but I do all my work in the context of
+specific analyzers, etc., directly within the search server, but I do all my work in the context of
 MediaWiki and the various wiki projects, so I just work in Docker. You will need Perl and
-Elasticsearch (or Perl and your command-line stemmer) to run `analyze_counts.pl`, and just Perl to
-run `compare_counts.pl`.
+OpenSearch or Elasticsearch (or Perl and your command-line stemmer) to run `analyze_counts.pl`, and
+just Perl to run `compare_counts.pl`.
 
 I have a reasonably up-to-date install of
 [MediaWiki Docker](https://www.mediawiki.org/wiki/MediaWiki-Docker) with the
 [CirrusSearch](https://www.mediawiki.org/wiki/MediaWiki-Docker/Extension/CirrusSearch) extension
 installed. At the time of this writing, the CirrusSearch extension via Docker comes with the plugins
-`analysis-icu`, `experimental-highlighter`, and `extra`, and several language-specific plugins
-installed.
+`analysis-icu`, `cirrus-highlighter`, and `extra`, `extra-analysis-textify`, and several
+language-specific plugins installed.
 
 My Docker instance doesn't have a lot of documents indexed so I can quickly and easily
 re-config/re-index into another language (with `updateSearchIndexConfig.php`, see below).
@@ -967,19 +979,19 @@ re-config/re-index into another language (with `updateSearchIndexConfig.php`, se
 The primary purpose of this example is to do a Comparison Analysis between configs with and without
 character folding. However, we'll take a look at a Self Analysis on the folded config, too.
 
-Since generating the counts files requires re-configuring Elasticsearch and/or MediaWiki, you can
-skip these first few steps and just jump down to **Comparison Analysis of the Unfolded and Folded
-Count Files** and use the provided English count files, `samples/output/en.counts.unfolded.txt` and
+Since generating the counts files requires re-configuring search and/or MediaWiki, you can skip
+these first few steps and just jump down to **Comparison Analysis of the Unfolded and Folded Count
+Files** and use the provided English count files, `samples/output/en.counts.unfolded.txt` and
 `samples/output/en.counts.folded.txt`.
 
-To generate the count files, `analyze_counts.pl` needs access to the English language analyzer;
-it assumes Elasticsearch is running on host `localhost` at port `9200`, with an index called
-`my_wiki_content` and a properly configured analyzer called `text`, which are the defaults when
-using Docker. You can change these assumptions as necessary when running `analyze_counts.pl` by
-using `-h`, `-p`, `-i`, and `-a`.
+To generate the count files, `analyze_counts.pl` needs access to the English language analyzer; it
+assumes search is running on host `localhost` at port `9200`, with an index called `my_wiki_content`
+and a properly configured analyzer called `text`, which are the defaults when using Docker. You can
+change these assumptions as necessary when running `analyze_counts.pl` by using `-h`, `-p`, `-i`,
+and `-a`.
 
-<a name="ReConfigureMediaWikiElasticsearchforEnglishWithoutFoldingEnabled"></a>
-#### Re-Configure MediaWiki/Elasticsearch for English *Without* Folding Enabled  <small>[ [TOC](#TOC) ]</small>
+<a name="ReConfigureMediaWikiSearchforEnglishWithoutFoldingEnabled"></a>
+#### Re-Configure MediaWiki/Search for English *Without* Folding Enabled  <small>[ [TOC](#TOC) ]</small>
 
 * in `LocalSettings.php` set `$wgLanguageCode = "en";`
 * in `AnalysisConfigBuilder.php` remove `'asciifolding'` from the list in the `withFilters()` method
@@ -1004,8 +1016,8 @@ page for *"text"* (with quotes) to see the current analyzer config.
 English analyzer *without* ASCII/ICU folding. It maps both original tokens (found in the text) to
 final tokens (those that would be indexed), and vice versa.
 
-<a name="ReConfigureMediaWikiElasticsearchforEnglishWithFoldingEnabled"></a>
-#### Re-Configure MediaWiki/Elasticsearch for English *With* Folding Enabled  <small>[ [TOC](#TOC) ]</small>
+<a name="ReConfigureMediaWikiSearchforEnglishWithFoldingEnabled"></a>
+#### Re-Configure MediaWiki/Search for English *With* Folding Enabled  <small>[ [TOC](#TOC) ]</small>
 
 Some of the steps and info are the same as above, but are repeated here for completeness.
 
@@ -1307,12 +1319,11 @@ pointing back to my notes on MediaWiki.org.
   Chinese, it included a plugin for
   [Traditional to Simplified](https://en.wikipedia.org/wiki/Debate_on_traditional_and_simplified_Chinese_characters)
   conversion (T2S), which was needed because the available tokenizers only work well on Simplified
-  characters. Unfortunately, the Elasticsearch T2S conversion is separate from the MediaWiki
-  display T2S conversion, so mismatches were possible. Fortunately, I was able to extract the
-  MediaWiki display T2S conversion and convert it to folding info in
-  `langdata/chinese.txt`, which allowed me to ignore any collisions caused by mappings that the two
-  independent converters agreed on. Whew! That reduced thousands of conversion-related collisions
-  down to a
+  characters. Unfortunately, the search T2S conversion is separate from the MediaWiki display T2S
+  conversion, so mismatches were possible. Fortunately, I was able to extract the MediaWiki display
+  T2S conversion and convert it to folding info in `langdata/chinese.txt`, which allowed me to
+  ignore any collisions caused by mappings that the two independent converters agreed on. Whew! That
+  reduced thousands of conversion-related collisions down to a
   [manageable 99](https://www.mediawiki.org/wiki/User:TJones_%28WMF%29/Notes/Chinese_Analyzer_Analysis#Analysis_Results).
 
 * **Hebrew likes affixes and dislikes vowels:** The HebMorph analyzer made me pay attention to
@@ -1394,10 +1405,6 @@ Here are a bunch of things I should probably do, but may never get around to:
 
 * `analyze_counts.pl`
    * *Tech Debt*
-      * Line batching:
-         * Add config for number of lines and total size of input.
-         * Check for max input size before tacking on the new line rather than after (but it's *so
-           much more complicated!*).
       * Proper implementation of context sampling for specified tokens.
    * *New Features*
       * Consider allowing calling out to external command-line stemmer (all in one pass)

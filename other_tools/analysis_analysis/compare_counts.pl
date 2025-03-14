@@ -78,7 +78,10 @@ my $hi_freq_cutoff = 1000;
 my $hi_freq_sample = 25;
 my $hi_impact_cutoff = 10;
 
-my $pipe_esc = chr(3); # used to escape pipe characters in counts file
+# these are hacks for "difficult" characters; unescaped control characters should never
+# occur, so we use them for other purposes
+my $pipe_esc = chr(3); # escape pipe characters in counts file
+my $lead_trail_space = chr(5); # sub for leading and trailing spaces in tokens
 
 # get to work
 lang_specific_setup();
@@ -112,11 +115,11 @@ my %seps = (
 	'—' => 'em dash',       '―' => 'horizontal bar', ',' => 'comma',
 	';' => 'semicolon',     ':' => 'colon',          '：' => 'fullwidth colon',
 	'.' => 'period',        '·' => 'middot',         '‧' => 'hyphenation point',
-	'´' => 'acute',         '`' => 'grave',          '!' => 'exclamation point',
 	'/' => 'slash',         '․' => 'one dot leader', '։' => 'Armenian full stop',
-	'|' => 'vertical line', '′' => 'prime',          '″' => 'double prime',
-	'،' => 'Arabic comma',  '٬' => 'Arabic thousands sep',
-	'・' => 'katakana middle dot', '･' => 'halfwidth katakana middle dot',
+	'|' => 'vertical line', '=' => 'equals',         '＝' => 'fullwidth equals',
+	'،' => 'Arabic comma',              '٬' => 'Arabic thousands sep',
+	'・' => 'katakana middle dot',      '･' => 'halfwidth katakana middle dot',
+	$lead_trail_space => 'space',
 	);
 my $sep_pat = join('', sort keys %seps);
 $sep_pat =~ s/-//g; $sep_pat .= '-'; # with hypen-minus on the list, order matters
@@ -133,7 +136,7 @@ my $IPA_singles = "βγɢɪɴʀʁʏʙʛʜᴃᴄᴅᴇᴊᴋᴌᴍᴎᴐᴕᴙᴡ
 my $num_pat = '(\d+([.,]\d\d\d)*([.,]\d+)?)';
 # no single letters in unit_pat_multi
 my $unit_pat_multi = '[µμ]?([ap]\.?m|[AP]\.?M|°|°C|°F|Ca|cc|cm|eV|fps|[GkKM][Bb]|GHz|ha|Hz|kcal|kbit|keV|kg|kgm|kJ|lb|M[²³]|[Kkcmnµ]?m[²³]|[Kkcmnµ]m|Ma|MeV|mg|MHz|MHZ|ml|mol|mph|[µμ][gkKLmsΩ]|ºC|ºF|Pa|ppm|rpm|s[²³]|Ts';
-my $unit_pat = $unit_pat_multi . '|[gkKLmºsWxΩM])';
+my $unit_pat = $unit_pat_multi . '|[gkKLmºsWxΩM㎀-㏁㏖㏗℃℉])';
 $unit_pat_multi .= ")";
 my $chem_pat = '(([HBCNOFPSKVYIWU]|He|Li|Be|Ne|Na|Mg|Al|Si|Cl|Ar|Ca|Sc|Ti|Cr|Mn|Fe|Co|Ni|Cu|Zn|Ga|Ge|As|Se|Br|Kr|Rb|Sr|Zr|Nb|Mo|Tc|Ru|Rh|Pd|Ag|Cd|In|Sn|Sb|Te|Xe|Cs|Ba|La|Hf|Ta|Re|Os|Ir|Pt|Au|Hg|Tl|Pb|Bi|Po|At|Rn|Fr|Ra|Ac|Rf|Db|Sg|Bh|Hs|Mt|Ds|Rg|Cn|Nh|Fl|Mc|Lv|Ts|Og|Ce|Pr|Nd|Pm|Sm|Eu|Gd|Tb|Dy|Ho|Er|Tm|Yb|Lu|Th|Pa|Np|Pu|Am|Cm|Bk|Cf|Es|Fm|Md|No|Lr)(1?\d|₁?[₀-₉])?[·‧]?)';
 
@@ -161,18 +164,19 @@ my %charscript_cache = ();
 my @script_colors = (
 	# Unicode goes first and can block Latin
 	[ 'Unicode',           '(\\\\u[0-9A-F]{4})+', 'uni', '#808080' ],
-	# Latin comes before so it doesn't highlight the highlights of the others
-	[ 'Latin script',      '\p{Latin}+',        'ltn', '#007700' ],
-	[ 'Cyrillic script',   '\p{Cyrillic}+',     'cyr', '#ff0000' ],
-	[ 'Greek script',      '\p{Greek}+',        'grk', '#0000ff' ],
 
-	[ 'Han script',        '\p{Han}+',          'han', '#996600' ],
-	[ 'Hiragana script',   '\p{Hiragana}+',    'hira', '#999900' ],
-	[ 'Katakana script',   '\p{Katakana}+',    'kata', '#e68d2e' ],
+	# Latin comes next so it doesn't highlight the highlights of the others
+	[ 'Latin script',      '\p{Latin}+',          'ltn', '#007700' ],
+	[ 'Cyrillic script',   '\p{Cyrillic}+',       'cyr', '#ff0000' ],
+	[ 'Greek script',      '\p{Greek}+',          'grk', '#0000ff' ],
 
-	[ 'Bengali script',    '\p{Bengali}+',      'ben', '#107896' ],
-	[ 'Devanagari script', '\p{Devanagari}+',   'dev', '#cc00cc' ],
-	[ 'Thai script',       '\p{Thai}+',        'thai', '#9400D3' ],
+	[ 'Han script',        '\p{Han}+',            'han', '#996600' ],
+	[ 'Hiragana script',   '\p{Hiragana}+',      'hira', '#999900' ],
+	[ 'Katakana script',   '\p{Katakana}+',      'kata', '#e68d2e' ],
+
+	[ 'Bengali script',    '\p{Bengali}+',        'ben', '#107896' ],
+	[ 'Devanagari script', '\p{Devanagari}+',     'dev', '#cc00cc' ],
+	[ 'Thai script',       '\p{Thai}+',          'thai', '#9400D3' ],
 	);
 
 # report meta/style ifo
@@ -243,6 +247,7 @@ my %invis_symbol = (
 	"\x{200E}" => '»',	"\x{202A}" => '»',	"\x{202D}" => '»',	"\x{2066}" => '»',
 	"\x{202C}" => '↥',	"\x{2069}" => '↥',	"\x{2068}" => '∷',
 	"\x{2061}" => '⋆',	"\x{2062}" => '⋆',	"\x{2063}" => '⋆',	"\x{2064}" => '⋆',
+	$lead_trail_space => '⎵',
 	);
 
 my %invis_desc = (
@@ -251,6 +256,7 @@ my %invis_desc = (
 	"\x{202F}" => 'NARROW NO-BREAK SPACE',
 	"\x{FEFF}" => 'ZERO WIDTH NO-BREAK SPACE',
 	"\x{3000}" => 'IDEOGRAPHIC SPACE',
+	$lead_trail_space => 'leading or trailing space',
 	"\x{00AD}" => 'SOFT HYPHEN',                # '–' invisible hyphen
 	"\x{0009}" => 'TAB',                        # '→' tab
 	"\x{200D}" => 'ZERO WIDTH JOINER',          # '+' joiners
@@ -777,12 +783,15 @@ sub lang_specific_setup {
 	}
 
 ###############
-# remove pipe escape char following pipes
+# toggle placeholder values used to encode "difficult" characters
 #
-sub count_unesc {
+sub esc_unesc {
 	my ($str) = @_;
-	$str =~ s/\|$pipe_esc/\|/g;
-	return "$str";
+	return '' if (!defined $str);
+
+	$str =~ s/\|$pipe_esc/\|/g; # unescape pipes
+	$str =~ s/^ | $/$lead_trail_space/g; # escape leading/trailing spaces
+	return $str;
 	}
 
 ###############
@@ -824,7 +833,7 @@ sub process_token_count_file {
 				# original tokens
 				my ($empty, $cnt);
 				($empty, $cnt, $orig) = split(/\t/, $_, 3);
-				$orig = count_unesc($orig);
+				$orig = esc_unesc($orig);
 				count_tokens($orig, $final, $cnt, $old_new);
 				$statistics{type_count}{orig}{$old_new}++;
 				$statistics{total_tokens}{$old_new} += $cnt;
@@ -832,6 +841,7 @@ sub process_token_count_file {
 			else {
 				# final tokens
 				$final = $_;
+				$final = esc_unesc($final);
 				$statistics{type_count}{final}{$old_new}++;
 				}
 			}
@@ -1073,7 +1083,8 @@ HTML
 
 		foreach my $tag ('old', 'new') {
 			if ($mapping{''}{$tag}) {
-				print $indent, $bold_open, "\u$tag empty token inputs: ", $bold_close, $mapping{''}{$tag}, $cr;
+				print $indent, $bold_open, "\u$tag empty token inputs: ", $bold_close,
+					show_invisibles($mapping{''}{$tag}), $cr;
 				}
 			}
 		}
@@ -1392,8 +1403,8 @@ sub print_script_category {
 	print $isUnicode ? $ul_open : $block_open;
 	print show_invisibles(join($joiner,
 		map { $isVertText ? "<div class=vertCont><div class=vertText>$_</div></div>" : $_ }
-		map { $colorize ? color_scripts($_) : $_ }
-		map { $isUnicode ? too_long(defrag($_)) : $_ }
+		map { $colorize || /\\u[0-9A-F]{4}/ ? color_scripts($_) : $_ }
+		map { $isUnicode || /\\u[0-9A-F]{4}/ ? too_long(defrag($_)) : $_ }
 		sort { lc($a) cmp lc($b) || $a cmp $b }
 		grep { ($picks && rand() < $picks/$samples--) ? $picks-- : 0 }
 		@{$token_list_ref})), $cr;
@@ -1489,6 +1500,9 @@ sub print_new_report {
 <a name='TOC'><h3>Table of Contents</h3>
 <a href='#stemmingResults'>Stemming Results</a><br>
 HTML
+	print <<HTML if $mapping{''};
+<a href='#empty_token_inputs'>Empty Token Inputs</a><br>
+HTML
 	print <<HTML if $config{Sample};
 <a href='#samplesForReview'>Samples for Speaker Review</a><br>
 HTML
@@ -1545,6 +1559,9 @@ HTML
 			$display_final .= " <a href='#mix" . ++$mix_ref_cnt . "'>$mix_icon</a>";
 			$colorize = 1;
 			}
+		if ($the_mapping =~ /\\u[0-9A-F]{4}/) {
+			$colorize = 1;
+			}
 
 		if ($type_cnt >= $min_freqtable_link) {
 			if (!$type_ref_cnt{$type_cnt}) {
@@ -1568,6 +1585,15 @@ HTML
 		' potential problem stem', ($prob_ref_cnt == 2 ? '' : 's'), ']', $sep_bar,
 		"<a name='mix", $mix_ref_cnt, "'> [Total of ", ($mix_ref_cnt - 1),
 		' mixed-script group', ($mix_ref_cnt == 2 ? '' : 's'), ']', $cr;
+
+	if ($mapping{''}) {
+		print_section_head('Empty Token Inputs', 'empty_token_inputs');
+
+		if ($mapping{''}{'new'}) {
+			print $indent, $bold_open, "Empty token inputs: ", $bold_close,
+				show_invisibles($mapping{''}{'new'}), $cr;
+			}
+		}
 
 	if ($config{Sample}) {
 		# Samples for Speaker Review
@@ -2002,18 +2028,33 @@ sub print_alternations {
 ###############
 # Determine likely token category based on characters in the token
 #
+# in_parts: return array references to lists of modifiers, separators, and categories
 sub token_category {
-	my ($token) = @_;
+	my ($token, $in_parts) = @_;
 
 	# memoize!
-	if ($token_cat_cache{$token}) {
+	if ($token_cat_cache{$token} && !$in_parts) {
 		return $token_cat_cache{$token};
 		}
 
+	my $category = '';
+	my %cat_seen = ();
+	my %mod_seen = ();
+	my %sep_seen = ();
+	my $modifier = ''; # separators at the front, modifiers at the back
+
+	# early check for camelCase, which is a modifier that can apply to a single-script token;
+	$mod_seen{'camelCase'} = 1 if camelCheck($token);
+
 	# short-circuit most common easy case
 	if ($token =~ /^[a-zA-ZÀ-ÖØ-öø-ž]+$/) {
-		$token_cat_cache{$token} = 'Latin';
-		return 'Latin';
+		$modifier = join('+', '', sort keys %mod_seen);
+		$category = 'Latin' . $modifier;
+		$token_cat_cache{$token} = $category;
+		if ($in_parts) {
+			return [keys %mod_seen], [keys %sep_seen], ['Latin'];
+			}
+		return $category;
 		}
 
 	# short-circuit all-one script cases (except Latin.. if we didn't get it above,
@@ -2024,16 +2065,16 @@ sub token_category {
 		$first_script ne 'Inherited' && $first_script ne 'Unknown'
 		) {
 		$first_script =~ s/_(.)/ \u$1/g;
-		$token_cat_cache{$token} = $first_script;
-		return $first_script;
+		$modifier = join('+', '', sort keys %mod_seen);
+		$category = $first_script . $modifier;
+		$token_cat_cache{$token} = $category;
+		if ($in_parts) {
+			return [keys %mod_seen], [keys %sep_seen], [$first_script];
+			}
+		return $category;
 		}
 
 	my $otoken = $token;
-	my $category = '';
-	my %cat_seen = ();
-	my %mod_seen = ();
-	my %sep_seen = ();
-	my $modifier = ''; # separators at the front, modifiers at the back
 
 	# remove invisibles and weird whitespace before categorizing
 	$token = find_and_label($token, \%mod_seen,
@@ -2088,7 +2129,7 @@ sub token_category {
 		'＃ dates',       qr/^$yearPat(\.|\/|⁄)$monPat\1$dayPat$/, # yet another
 		'＃ ordinals',    qr/^(№|n\.?[ªº])\d+$/i,
 		'＃ decimals',    qr/^[+-]?\d+(,\d{3})*\.\d+$/,
-		'＃ percentages', qr/^[+-]?\d+(,\d{3})*(\.\d+)?%$/,
+		'＃ percentages', qr/^[+-]?\d+(,\d{3})*(\.\d+)?[%％]$/,
 		'＃ numbers with digit groups', qr/^[+-]?\d{1,3}\,(\d\d\d,)*\d\d\d(\.\d+)?$/,
 		'＃ numbers with digit groups', qr/^[+-]?\d{1,3}\.(\d\d\d,)*\d\d\d(\,\d+)?$/,
 		'＃ numbers with digit groups', qr/^[+-]?\d{1,2}\,(\d\d,)*\d\d\d(\.\d+)?$/,
@@ -2121,22 +2162,40 @@ sub token_category {
 		$mod_seen{'name-like'} = 1;
 		}
 
-	#   ID-like only if there are both numbers and digits
+	# ID-like only if there are both numbers and digits
 	if ($token =~ /[A-Z]/ && $token =~ /[0-9]/ && $token =~ s/^[A-Z0-9-]+$//) {
 		$cat_seen{'ID-like'} = 1;
 		}
 
 	# remove common "extras" before categorizing
 	$token = find_and_label($token, \%mod_seen,
-		'$',     qr/\$+$/,
-		'&',     qr/&+$/,
-		'apos',  qr/['‘’]/,
-		'dquot', qr/\\?["“”]/,
-		'mod',   qr/\p{Block: Modifier_Letters}/,
-		'combo', qr/\p{Block: Combining_Diacritical_Marks}/,
-		'combo', qr/\p{Block: Combining_Half_Marks}/,
-		'combo', qr/\p{Block: Combining_Diacritical_Marks_Supplement}/,
+		'ampersand', qr/[&＆]/,
+		'atsign',    qr/[@＠]/,
+		'dollar',    qr/[\$＄]/,
+		'excl',      qr/[!！]/,
+		'octothorpe',qr/[#＃]/,
+		'paren',     qr/[()（）]/,
+		'percent',   qr/[%％]/,
+		'plus',      qr/[+＋]/,
+		'tilde',     qr/[~～∼∽〜]/,
+
+		'apos',      qr/['‘’]/,
+		'prime',     qr/[′″]/,
+		'acute',     qr/[´]/,
+		'grave',     qr/[`｀]/,
+		'dquot',     qr/\\?["“”]/,
+
+		'mod',       qr/\p{Block: Modifier_Letters}/,
+		'mod',       qr/[\x{A720}\x{A721}\x{A788}-\x{A78A}]/,
+		'combo',     qr/\p{Block: Combining_Diacritical_Marks}/,
+		'combo',     qr/\p{Block: Combining_Half_Marks}/,
+		'combo',     qr/\p{Block: Combining_Diacritical_Marks_Supplement}/,
 		);
+
+	# leading and trailing spaces get tagged with an extra modifier so they sort with space_sep
+	if ($token =~ /$lead_trail_space/) {
+		$mod_seen{'_space_'} = 1;
+		}
 
 	# identify and remove separators
 	while ($token =~ s/([$sep_pat])//) {
@@ -2156,7 +2215,7 @@ sub token_category {
 		# additional partial-match custom categories
 		'Unicode',       qr/\\u[0-9A-F]{4}/i,
 		'URL-encoded',   qr/([0-9A-F]{2}%)+/i,
-		'known symbols', qr/[ℏℵµ©℗®™℠]/,
+		'known symbols', qr/[ℏℵµ©℗®™℠㎀-㏁㏖㏗℃℉℆℅]/,
 		$IPA_GREEK,      qr/[θβχγ]/,
 		$IPA_ISH,        qr/\p{IPA_Extensions}|\p{Phonetic_Ext}|\p{Phonetic_Ext_Sup}|[$IPA_chars]/,
 
@@ -2169,8 +2228,12 @@ sub token_category {
 		'Dingbats',         qr/[\x{2700}-\x{27BF}]/,
 		'Math Misc',        qr/[\x{27C0}-\x{27EF}\x{2980}-\x{29FF}]/,
 		'Braille',          qr/[\x{2800}-\x{28FF}]/,
+		'Ideographic Desc Chars', qr/[\x{2FF0}-\x{2FFF}]/,
+		'CJK Symbols',      qr/[\x{3001}-\x{303F}\x{32C0}-\x{32CB}\x{3358}-\x{3370}\x{33E0}-\x{33FE}]/,
 		'Han',              qr/[\x{4E00}-\x{9FFF}]/,
-		'Fullwidth Latin',  qr/[\x{FF01}-\x{FF60}\x{FFE0}-\x{FFE6}]/,
+		'Private Use Area', qr/[\x{E000}-\x{F8FF}]/,
+		'Fullwidth Latin',  qr/[Ａ-Ｚａ-ｚ]/,
+		'Fullwidth Symbols',qr/[！-／：-＠［-｀｛-｠￠-￦]/,
 		'Halfwidth CJK',    qr/[\x{FF61}-\x{FFDC}\x{FFE8}-\x{FFEE}]/,
 		'Hanifi Rohingya',  qr/[\x{10D00}-\x{10D3F}]/,
 		'Masaram Gondi',    qr/[\x{11D00}-\x{11D59}]/,
@@ -2179,15 +2242,21 @@ sub token_category {
 		'Hiragana',         qr/[\x{1B11F}\x{1B150}-\x{1B152}]/,
 		'Katakana',         qr/[\x{1B120}-\x{1B122}\x{1B164}-\x{1B167}]/,
 		'Tangut',           qr/[\x{17000}-\x{18AFF}]/,
-		'Math Greek',       qr/[\x{1D6A8}-\x{1D7CB}]/,
-		'Math Numbers',     qr/[\x{1D7CE}-\x{1D7FF}]/,
-		'Game Pieces',      qr/[\x{1F000}-\x{1F0FF}\x{1FA00}-\x{1FA6F}]/,
+
+		'Khitan Small Script',    qr/[\x{18B00}-\x{18CFF}]/,
+		'Math Greek',             qr/[\x{1D6A8}-\x{1D7CB}]/,
+		'Math Numbers',           qr/[\x{1D7CE}-\x{1D7FF}]/,
+		'Indic Siyaq Numbers',    qr/[\x{1EC70}-\x{1ECBF}]/,
+		'Ottoman Siyaq Numbers',  qr/[\x{1ED00}-\x{1ED4F}]/,
+		'Game Pieces',            qr/[\x{1F000}-\x{1F0FF}\x{1FA00}-\x{1FA6F}]/,
 		'Flags (Regional Indicators)', qr/[\x{1F1E6}-\x{1F1FF}]/,
-		'Misc Symbols',     qr/[\x{1F300}-\x{1F5FF}\x{1F900}-\x{1F9FF}\x{1FA70}-\x{1FAFF}]/,
-		'Emoticons',        qr/[\x{1F600}-\x{1F64F}]/,
-		'Han',              qr/[\x{20000}-\x{2EBEF}\x{2F800}-\x{2FA1F}\x{30000}-\x{3134F}]/,
-		'Misc Symbols',     qr/\p{Block: Transport_And_Map_Symbols}/,
-		'Alchemical Symbols', qr/\p{Block: Alchemical_Symbols}/,
+		'Misc Symbols',           qr/[\x{1F300}-\x{1F5FF}\x{1F900}-\x{1F9FF}\x{1FA70}-\x{1FAFF}]/,
+		'Emoticons',              qr/[\x{1F600}-\x{1F64F}]/,
+		'Han',                    qr/[\x{20000}-\x{2EE5F}\x{2F800}-\x{2FA1F}\x{30000}-\x{323AF}]/,
+		'Private Use Area',       qr/[\x{F0000}-\x{FFFFF}]/,
+		'Private Use Area',       qr/[\x{100000}-\x{10FFFD}]/,
+		'Misc Symbols',           qr/\p{Block: Transport_And_Map_Symbols}/,
+		'Alchemical Symbols',     qr/\p{Block: Alchemical_Symbols}/,
 		'Enclosed Alphanumerics', qr/\p{Block: Enclosed_Alphanumerics}/,
 
 		# hack some language bits that don't play nice
@@ -2198,7 +2267,7 @@ sub token_category {
 		);
 
 	# any digits left are just misc "numbers"
-	$token = find_and_label($token, \%mod_seen, 'numbers', qr/\d/);
+	$token = find_and_label($token, \%mod_seen, 'numbers', qr/[\d¹²³⁴⁵⁶⁷⁸⁹⁰₁₂₃₄₅₆₇₈₉₀]/ );
 
 	# identify all the remaining characters
 	foreach my $char (split(/|/, $token)) {
@@ -2207,6 +2276,9 @@ sub token_category {
 		if ($cat eq 'Common' || $cat eq 'Inherited' || $cat eq 'Unknown') {
 			# Common bad--we probably failed to identify something
 			$token_cat_cache{$otoken} = '  unknown';
+			if ($in_parts) {
+				return [keys %mod_seen], [keys %sep_seen], ['  unknown'];
+				}
 			return $token_cat_cache{$otoken};
 			}
 		else {
@@ -2219,13 +2291,14 @@ sub token_category {
 	# I <?> Unicode — convert "Unicode" to "Unicode/Encoded Script"
 	if ($cat_seen{'Unicode'}) {
 		while ($otoken =~ /((\\u[A-F0-9]{4})+)/g) {
-			my $ucat = defrag($1, 1);
-			$ucat =~ s/^mixed-//;
-			foreach my $uc (split(/-/, $ucat)) {
-				$cat_seen{'Unicode/'.$uc} = 1;
+			my ($modref, $sepref, $catref) = defrag($1, 1);
+			foreach my $x (@{$modref}) { $mod_seen{$x} = 1; }
+			foreach my $x (@{$sepref}) { $sep_seen{$x} = 1; }
+			foreach my $x (@{$catref}) {
+				$cat_seen{'Unicode/'.$x} = 1;
+				delete $cat_seen{'Unicode'}; # only delete if other categories exist
 				}
 			}
-		delete $cat_seen{'Unicode'};
 		}
 
 	# H/K isn't ambiguous if we have H or K
@@ -2306,9 +2379,15 @@ sub token_category {
 
 	$category .= $modifier;
 
+	# empty + something is just that thing
+	$category =~ s/^empty(\+|, )//;
+
 	# memoize!
 	$token_cat_cache{$otoken} = $category;
 
+	if ($in_parts) {
+		return [keys %mod_seen], [keys %sep_seen], [keys %cat_seen];
+		}
 	return $category;
 	}
 
@@ -2482,18 +2561,20 @@ sub percentify {
 ###############
 # Annotate a \u encoded string with its real characters
 #
-# cat_only: just give me the category/ies!
+# in_parts: return array references to lists of modifiers, separators, and categories
+# tok_only: return only defragged token, dropping \u encoded original (and intermediates)
 #
 sub defrag {
-	my ($str, $cat_only) = @_;
+	my ($str, $in_parts, $tok_only) = @_;
 	my $defragged = $str;
 	$defragged =~ s/((\\u[A-F0-9]{4})+)/defragger($1)/eig;
-	if ($cat_only) {
-		my $cat = token_category($defragged);
-		$cat =~ s/^\s+|\s+$//g;
-		return $cat;
+	if ($in_parts) {
+		return token_category($defragged, 1);
 		}
-	return "$defragged ($str)";
+	if ($defragged =~ /\\u[A-F0-9]{4}/) { # recursive \u encoding!
+		return defrag($defragged, 0, $tok_only) . ($tok_only ? '' : " ← ($str)");
+		}
+	return $defragged . ($tok_only ? '' : " ($str)");
 	}
 
 sub defragger {
@@ -2515,5 +2596,14 @@ sub defragger {
 			$bytes[$i] = sprintf("\\u%X", $bytes[$i]);
 			}
 		}
-	return join('', grep {$_} @bytes);
+	return join('', grep {defined $_} @bytes);
+	}
+
+###############
+# Check for presence of camelCase, but first defrag \u encoding
+#
+sub camelCheck {
+	my ($str) = @_;
+	$str = defrag($str, 0, 1);
+	return $str =~ /\p{Ll}\p{Lu}/;
 	}
